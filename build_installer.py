@@ -11,6 +11,7 @@ The version comes from app/version.py: 0.1.0 + STAGE "beta" → Mezaniya-Setup-v
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import os
 import shutil
 import subprocess
@@ -18,9 +19,18 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / "packaging"))
-from version_info import numeric_version, read_version  # noqa: E402  (packaging/version_info.py)
 
+
+def load_version_info():
+    """packaging/version_info.py, loaded by path: packaging/ can't be a Python package,
+    since that name would shadow the real `packaging` library PyInstaller depends on."""
+    spec = importlib.util.spec_from_file_location("version_info", ROOT / "packaging" / "version_info.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+version_info = load_version_info()
 SPEC = ROOT / "packaging" / "mezaniya.spec"
 ISS = ROOT / "installer.iss"
 DIST = ROOT / "dist" / "Mezaniya"
@@ -60,7 +70,7 @@ def build_exe() -> None:
 def build_installer(version: str, full: str) -> Path:
     if not (DIST / "Mezaniya.exe").is_file():
         sys.exit(f"{DIST} is missing: run without --skip-pyinstaller first.")
-    numbers = ".".join(map(str, numeric_version(version)))
+    numbers = ".".join(map(str, version_info.numeric_version(version)))
     run([str(find_iscc()), f"/DAppVersion={numbers}", f"/DAppVersionFull={full}", str(ISS)])
     setup = OUTPUT / f"Mezaniya-Setup-v{full}.exe"
     if not setup.is_file():
@@ -74,7 +84,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--skip-installer", action="store_true", help="stop after PyInstaller")
     args = parser.parse_args(argv)
 
-    version, stage = read_version()
+    version, stage = version_info.read_version()
     full = f"{version}-{stage}" if stage else version
     print(f"Mezaniya {full}")
     if not args.skip_pyinstaller:
