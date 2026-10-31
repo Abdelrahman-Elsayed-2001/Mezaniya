@@ -5,6 +5,9 @@ __pycache__/
 build/
 dist/
 
+# Installer output (build_installer.py / installer.iss)
+Output/
+
 # Virtual environments
 .venv/
 venv/

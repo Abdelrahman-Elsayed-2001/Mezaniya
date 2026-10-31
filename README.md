@@ -3,7 +3,15 @@
 تطبيق ويب لإدارة الميزانية الشهرية، حُوِّل من ملف `mezaniya.xlsx`. يدعم أكثر من مستخدم على الشبكة الداخلية، وبيانات كل مستخدم منفصلة تمامًا عن غيره، ويعمل باللغتين العربية والإنجليزية.
 تفاصيل الحسابات والقرارات في [PLAN.md](PLAN.md).
 
-## التشغيل
+## التثبيت على ويندوز (دون Python)
+
+نزّل `Mezaniya-Setup-v<الإصدار>.exe` من صفحة [Releases](https://github.com/Abdelrahman-Elsayed-2001/Mezaniya/releases) وشغّله. يُثبَّت البرنامج في `Program Files`، ويضع اختصار **Mezaniya** على سطح المكتب وفي قائمة Start. الاختصار يفتح مدير الخادم (الفقرة «مدير الخادم» أدناه)، ومنه زر التشغيل.
+
+- البيانات والإعدادات والسجلات في `%LOCALAPPDATA%\Mezaniya` (قاعدة البيانات، و`mezaniya.env`، و`backups\`، و`logs\`)، وليست بجانب البرنامج.
+- عند إزالة البرنامج يسألك: **الاحتفاظ بالبيانات** (لتجدها كما هي إذا ثبّتَّه مرة أخرى) أو **حذف كل شيء**.
+- التحديث: ثبّت الإصدار الجديد فوق القديم مباشرة، والبيانات تبقى كما هي.
+
+## التشغيل من الشيفرة
 
 **المتطلبات:** Python 3 على ويندوز. لتنزيل المشروع من GitHub:
 ```bash
@@ -169,4 +177,13 @@ New-NetFirewallRule -DisplayName "Mezaniya" -Direction Inbound -Protocol TCP -Lo
 - **`app/api/`:** واجهة REST، و**`app/auth/`:** تسجيل الدخول.
 - **`app/services/`:** الشهر الجديد، ومزامنة الترحيل، والنسخ الاحتياطي، والمستخدم التجريبي، وأوامر الإدارة.
 - **`app/templates/` + `app/static/`:** الواجهة (Alpine.js مضمّن في المشروع، فلا حاجة إلى الإنترنت).
+### بناء المثبّت
+
+يحتاج [Inno Setup 6](https://jrsoftware.org/isdl.php)، ثم:
+```bash
+.venv\Scripts\python.exe -m pip install -r requirements-build.txt
+.venv\Scripts\python.exe build_installer.py
+```
+يشغّل PyInstaller (`packaging/mezaniya.spec`) فيخرج `dist\Mezaniya\` وفيه `Mezaniya.exe` (المدير، دون نافذة سوداء) و`MezaniyaServer.exe` (الخادم الذي يشغّله المدير ويوقفه)، ثم يترجم `installer.iss` فيخرج `Output\Mezaniya-Setup-v0.1.0-beta.exe` جاهزًا للرفع على GitHub Releases. رقم الإصدار يُقرأ من `app/version.py`. المجلدات `dist\` و`build\` و`Output\` غير مرفوعة.
+
 - يتحقق اختبار تلقائي من وجود كل نص بالعربية والإنجليزية بالمتغيرات نفسها، ومن أن كل مفتاح يستخدمه الكود موجود، ومن خلوّ ملفات البرمجة من النصوص العربية.

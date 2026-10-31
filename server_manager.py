@@ -2,6 +2,9 @@
 
     .venv\\Scripts\\pythonw.exe server_manager.py
 
+Installed from the setup, this file is Mezaniya.exe and starts MezaniyaServer.exe (see
+packaging/mezaniya.spec); data then lives in %LOCALAPPDATA%/Mezaniya.
+
 Start / stop / restart the server, see who is connected and log them out, create users
 (including the demo user), change passwords, delete a user with all their data, back up,
 and change the port. Texts come from app/i18n/strings.json; the layout mirrors for Arabic.
