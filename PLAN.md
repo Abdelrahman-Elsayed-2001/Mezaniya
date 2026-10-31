@@ -358,19 +358,24 @@ CREATE TABLE users (
   last_login_at TEXT
 );
 
-CREATE TABLE user_settings (
-  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  excellent_rate REAL NOT NULL DEFAULT 0.20,
-  good_rate REAL NOT NULL DEFAULT 0.10,
-  max_debt_rate REAL NOT NULL DEFAULT 0.33,
-  max_luxury_rate REAL NOT NULL DEFAULT 0.30,
-  emergency_cut_rate REAL NOT NULL DEFAULT 0.30,
-  saving_rate_em_incomplete REAL NOT NULL DEFAULT 0.20,
-  saving_rate_em_complete REAL NOT NULL DEFAULT 0.50,
-  emergency_ref_months REAL NOT NULL DEFAULT 3,
-  emergency_ref_factor REAL NOT NULL DEFAULT 1.25,
-  currency TEXT NOT NULL DEFAULT 'ر.س'
+-- مفتاح/قيمة: إعداد جديد = صف في default_settings، لا تعديل في الجداول.
+-- المستخدم الذي ليس له صف لمفتاح يأخذ default_value. التحقق من القيم في app/db/repo/settings.py.
+CREATE TABLE default_settings (
+  key TEXT PRIMARY KEY,
+  default_value TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('rate','number','text','json'))
 );
+
+CREATE TABLE user_settings (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  key TEXT NOT NULL REFERENCES default_settings(key),
+  value TEXT NOT NULL,
+  value2 TEXT,                          -- تفاصيل التخصيص (JSON)، مثل ألوان ثيم مخصص
+  PRIMARY KEY (user_id, key)
+);
+-- default_settings: excellent_rate 0.2، good_rate 0.1، max_debt_rate 0.33، max_luxury_rate 0.3،
+-- emergency_cut_rate 0.3، saving_rate_em_incomplete 0.2، saving_rate_em_complete 0.5،
+-- emergency_ref_months 3، emergency_ref_factor 1.25، currency (حسب لغة التسجيل)
 
 CREATE TABLE expense_types (
   id INTEGER PRIMARY KEY,
@@ -477,7 +482,7 @@ CREATE INDEX ix_expenses_budget ON expenses(user_id, budget_id);
 CREATE INDEX ix_expenses_prev ON expenses(prev_expense_id);
 CREATE TABLE schema_version (version INTEGER NOT NULL);
 ```
-**Seed لكل مستخدم جديد:** صف `user_settings`، والأنواع الثمانية بالـ roles بتاعتها، وأنواع أهداف (أساسي، كمالي، استثمار، أخرى)، وأول شهر هو الشهر الحالي.
+**Seed لكل مستخدم جديد:** صفوف `user_settings` للعملة والنسب المالية (تُنسخ من default_settings وقت التسجيل حتى لا يغيّرها تعديل الافتراضي لاحقًا)، والأنواع الثمانية بالـ roles بتاعتها، وأنواع أهداف (أساسي، كمالي، استثمار، أخرى)، وأول شهر هو الشهر الحالي.
 
 ---
 

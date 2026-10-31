@@ -16,22 +16,35 @@ CREATE TABLE users (
   last_seen_at TEXT                     -- refreshed at most once a minute: "who is connected now"
 );
 
-CREATE TABLE user_settings (
-  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  excellent_rate REAL NOT NULL DEFAULT 0.20,
-  good_rate REAL NOT NULL DEFAULT 0.10,
-  max_debt_rate REAL NOT NULL DEFAULT 0.33,
-  max_luxury_rate REAL NOT NULL DEFAULT 0.30,
-  emergency_cut_rate REAL NOT NULL DEFAULT 0.30,
-  saving_rate_em_incomplete REAL NOT NULL DEFAULT 0.20,
-  saving_rate_em_complete REAL NOT NULL DEFAULT 0.50,
-  emergency_ref_months REAL NOT NULL DEFAULT 3,
-  emergency_ref_factor REAL NOT NULL DEFAULT 1.25,
-  currency TEXT NOT NULL,               -- set from the user's language when the account is created
-  CHECK (excellent_rate >= 0 AND good_rate >= 0 AND max_debt_rate >= 0 AND max_luxury_rate >= 0
-         AND emergency_cut_rate >= 0 AND saving_rate_em_incomplete >= 0
-         AND saving_rate_em_complete >= 0 AND emergency_ref_months >= 0 AND emergency_ref_factor >= 0)
+-- Settings are key/value rows, so a new setting is one INSERT into default_settings, not a
+-- schema change. A user without a row for a key gets default_value. The Python registry in
+-- app/db/repo/settings.py validates values (type and range) since TEXT can't CHECK them here;
+-- a test keeps the registry and this table in step.
+CREATE TABLE default_settings (
+  key TEXT PRIMARY KEY,
+  default_value TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('rate','number','text','json'))
 );
+
+CREATE TABLE user_settings (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  key TEXT NOT NULL REFERENCES default_settings(key),
+  value TEXT NOT NULL,
+  value2 TEXT,                          -- customisation details (JSON), e.g. a custom theme's colours
+  PRIMARY KEY (user_id, key)
+);
+
+INSERT INTO default_settings (key, default_value, type) VALUES
+  ('excellent_rate', '0.2', 'rate'),
+  ('good_rate', '0.1', 'rate'),
+  ('max_debt_rate', '0.33', 'rate'),
+  ('max_luxury_rate', '0.3', 'rate'),
+  ('emergency_cut_rate', '0.3', 'rate'),
+  ('saving_rate_em_incomplete', '0.2', 'rate'),
+  ('saving_rate_em_complete', '0.5', 'rate'),
+  ('emergency_ref_months', '3', 'number'),
+  ('emergency_ref_factor', '1.25', 'number'),
+  ('currency', '', 'text');             -- set from the user's language when the account is created
 
 CREATE TABLE expense_types (
   id INTEGER PRIMARY KEY,
