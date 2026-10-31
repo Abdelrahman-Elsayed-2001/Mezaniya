@@ -2,14 +2,14 @@
 ;
 ; build_installer.py runs PyInstaller first (dist\Mezaniya) and then compiles this file with
 ; the version from app\version.py:
-;   ISCC /DAppVersion=0.1.0 /DAppVersionFull=0.1.0-beta installer.iss
+;   ISCC /DAppVersion=0.1.0.0 /DAppVersionFull=0.1.0-beta installer.iss
 ; Output: Output\Mezaniya-Setup-v<AppVersionFull>.exe
 ;
 ; The program goes to Program Files; the user's data (database, mezaniya.env, backups, logs)
 ; lives in %LOCALAPPDATA%\Mezaniya and is only removed on uninstall if the user says so.
 
 #ifndef AppVersion
-  #define AppVersion "0.0.0"
+  #define AppVersion "0.0.0.0"
 #endif
 #ifndef AppVersionFull
   #define AppVersionFull AppVersion
@@ -17,6 +17,8 @@
 #define AppName "Mezaniya"
 #define AppExe "Mezaniya.exe"
 #define ServerExe "MezaniyaServer.exe"
+#define AppPublisher "Abdelrahman Elsayed"
+#define AppCopyright "Copyright (c) 2026 Abdelrahman Elsayed"
 #define AppURL "https://github.com/Abdelrahman-Elsayed-2001/Mezaniya"
 
 [Setup]
@@ -25,8 +27,17 @@ AppId={{B48D777A-DFD5-44A5-9E44-08062A528EF1}
 AppName={#AppName}
 AppVersion={#AppVersionFull}
 AppVerName={#AppName} {#AppVersionFull}
+AppPublisher={#AppPublisher}
+AppCopyright={#AppCopyright}
+; Properties → Details of Mezaniya-Setup-*.exe
 VersionInfoVersion={#AppVersion}
-AppPublisher=Abdelrahman Elsayed
+VersionInfoProductVersion={#AppVersion}
+VersionInfoProductTextVersion={#AppVersionFull}
+VersionInfoTextVersion={#AppVersionFull}
+VersionInfoCompany={#AppPublisher}
+VersionInfoCopyright={#AppCopyright}
+VersionInfoDescription={#AppName} Setup
+VersionInfoProductName={#AppName}
 AppPublisherURL={#AppURL}
 AppSupportURL={#AppURL}/issues
 AppUpdatesURL={#AppURL}/releases
@@ -52,6 +63,11 @@ ShowLanguageDialog=auto
 [Languages]
 Name: "arabic"; MessagesFile: "compiler:Languages\Arabic.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
+
+[Messages]
+; welcome page: who publishes it, under the usual "close other applications" note
+arabic.WelcomeLabel2=سيثبّت هذا المعالج [name/ver] على جهازك.%n%nالناشر: {#AppPublisher}%n{#AppCopyright}%n%nمن المستحسن إغلاق كافة التطبيقات الأخرى قبل المتابعة.
+english.WelcomeLabel2=This will install [name/ver] on your computer.%n%nPublisher: {#AppPublisher}%n{#AppCopyright}%n%nIt is recommended that you close all other applications before continuing.
 
 [CustomMessages]
 arabic.DataTitle=بيانات الميزانية والإعدادات

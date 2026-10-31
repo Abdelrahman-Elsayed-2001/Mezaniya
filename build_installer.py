@@ -12,24 +12,19 @@ from __future__ import annotations
 
 import argparse
 import os
-import re
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "packaging"))
+from version_info import numeric_version, read_version  # noqa: E402  (packaging/version_info.py)
+
 SPEC = ROOT / "packaging" / "mezaniya.spec"
 ISS = ROOT / "installer.iss"
 DIST = ROOT / "dist" / "Mezaniya"
 OUTPUT = ROOT / "Output"
-
-
-def read_version() -> tuple[str, str]:
-    """(__version__, STAGE) from app/version.py, without importing the app (and Flask)."""
-    text = (ROOT / "app" / "version.py").read_text(encoding="utf-8")
-    values = dict(re.findall(r'^(__version__|STAGE)\s*=\s*"([^"]*)"', text, re.MULTILINE))
-    return values["__version__"], values.get("STAGE", "")
 
 
 def find_iscc() -> Path:
@@ -65,7 +60,8 @@ def build_exe() -> None:
 def build_installer(version: str, full: str) -> Path:
     if not (DIST / "Mezaniya.exe").is_file():
         sys.exit(f"{DIST} is missing: run without --skip-pyinstaller first.")
-    run([str(find_iscc()), f"/DAppVersion={version}", f"/DAppVersionFull={full}", str(ISS)])
+    numbers = ".".join(map(str, numeric_version(version)))
+    run([str(find_iscc()), f"/DAppVersion={numbers}", f"/DAppVersionFull={full}", str(ISS)])
     setup = OUTPUT / f"Mezaniya-Setup-v{full}.exe"
     if not setup.is_file():
         sys.exit(f"Inno Setup did not produce {setup}")

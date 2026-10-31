@@ -4,9 +4,13 @@
 #   MezaniyaServer.exe  run.py, the web server the dashboard starts / stops / restarts
 #
 # Built by build_installer.py; by hand: python -m PyInstaller --noconfirm packaging/mezaniya.spec
+import sys
 from pathlib import Path
 
 ROOT = Path(SPECPATH).parent
+sys.path.insert(0, SPECPATH)
+from version_info import version_info  # noqa: E402  (packaging/version_info.py)
+
 ICON = str(ROOT / "packaging" / "mezaniya.ico")
 
 # files the app opens from disk next to its modules (Path(__file__)…)
@@ -28,10 +32,12 @@ manager = analysis("server_manager.py")
 server = analysis("run.py", extra_excludes=["tkinter", "_tkinter"])
 
 manager_exe = EXE(PYZ(manager.pure), manager.scripts, [], exclude_binaries=True, name="Mezaniya",
-                  icon=ICON, console=False, upx=False)
+                  icon=ICON, console=False, upx=False,
+                  version=version_info("Mezaniya.exe", "Mezaniya budget manager"))
 # console build so its log also shows when run by hand; the dashboard starts it without a window
 server_exe = EXE(PYZ(server.pure), server.scripts, [], exclude_binaries=True, name="MezaniyaServer",
-                 icon=ICON, console=True, upx=False)
+                 icon=ICON, console=True, upx=False,
+                 version=version_info("MezaniyaServer.exe", "Mezaniya budget server"))
 
 COLLECT(manager_exe, manager.binaries, manager.datas,
         server_exe, server.binaries, server.datas,
