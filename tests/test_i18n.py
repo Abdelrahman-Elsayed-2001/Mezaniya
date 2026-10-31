@@ -71,6 +71,8 @@ def test_dynamic_key_families_exist():
     keys += [f"savings.status.{k}" for k in ("over_withdrawn", "over_allocated", "all_covered", "ok")]
     keys += ["goals.total_all_covered", "goals.total_some_missing", "warnings.summary_none", "warnings.summary_some"]
     keys += [f"charts.progress_{k}" for k in ("emergency", "goals")]
+    from app.version import STAGE
+    keys += [f"app.stage_banner.{STAGE}"] if STAGE else []
     keys += [f"rollover.err.{k}" for k in ("duplicate", "no_previous", "not_after_latest", "invalid")]
     keys += [f"api.conflict.{k}" for k in ("duplicate", "system_type", "system_role", "in_use", "has_followers",
                                            "last_budget", "integrity")]

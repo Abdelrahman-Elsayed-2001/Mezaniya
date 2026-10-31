@@ -66,6 +66,17 @@ body {
 
 a { color: var(--primary); }
 
+/* ---------- release-stage banner (app/version.py) */
+.stage-banner {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 4px 16px;
+}
+
 /* ---------- auth pages */
 .auth-top { display: flex; justify-content: flex-end; margin: -12px -8px 8px 0; }
 .lang-switch { text-decoration: none; }
