@@ -1,3 +1,8 @@
+[![Downloads](https://img.shields.io/github/downloads/Abdelrahman-Elsayed-2001/Mezaniya/total?style=flat-square&logo=github&label=Downloads&color=2ea44f)](https://github.com/Abdelrahman-Elsayed-2001/Mezaniya/releases)
+[![Release](https://img.shields.io/github/v/release/Abdelrahman-Elsayed-2001/Mezaniya?include_prereleases&style=flat-square&label=Version&color=blue)](https://github.com/Abdelrahman-Elsayed-2001/Mezaniya/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=flat-square&logo=python&logoColor=white)
+
 # ميزانيتي الشهرية
 
 تطبيق ويب لإدارة الميزانية الشهرية، حُوِّل من ملف `mezaniya.xlsx`. يدعم أكثر من مستخدم على الشبكة الداخلية، وبيانات كل مستخدم منفصلة تمامًا عن غيره، ويعمل باللغتين العربية والإنجليزية.
