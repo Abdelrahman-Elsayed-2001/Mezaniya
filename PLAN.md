@@ -377,23 +377,29 @@ CREATE TABLE user_settings (
 -- emergency_cut_rate 0.3، saving_rate_em_incomplete 0.2، saving_rate_em_complete 0.5،
 -- emergency_ref_months 3، emergency_ref_factor 1.25، currency (حسب لغة التسجيل)
 
+-- الأنواع الأصلية تُخزَّن بمفتاحها (name_key → strings.json "seed.type.<key>") وتظهر بلغة الواجهة؛
+-- name يبقى NULL حتى يغيّر المستخدم الاسم، وعندها يظهر كما كتبه في كل اللغات.
 CREATE TABLE expense_types (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
+  name_key TEXT,
+  name TEXT,
   role TEXT NOT NULL DEFAULT 'other'
        CHECK (role IN ('essential','luxury','debt','savings','emergency','other')),
   is_system INTEGER NOT NULL DEFAULT 0,
   sort_order INTEGER NOT NULL DEFAULT 0,
-  UNIQUE (user_id, name), UNIQUE (id, user_id)
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
+  UNIQUE (user_id, name), UNIQUE (user_id, name_key), UNIQUE (id, user_id)
 );
 
 CREATE TABLE goal_categories (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
+  name_key TEXT,                        -- strings.json "seed.category.<key>"
+  name TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
-  UNIQUE (user_id, name), UNIQUE (id, user_id)
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
+  UNIQUE (user_id, name), UNIQUE (user_id, name_key), UNIQUE (id, user_id)
 );
 
 CREATE TABLE recurring_templates (

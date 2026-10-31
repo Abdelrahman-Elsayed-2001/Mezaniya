@@ -1,4 +1,5 @@
-"""Initial data for a newly registered user, named in the user's language."""
+"""Initial data for a newly registered user. Types and categories are stored by key and shown
+in the viewer's language; only the currency follows the language chosen at registration."""
 from __future__ import annotations
 
 import sqlite3
@@ -18,9 +19,9 @@ def seed_user(conn: sqlite3.Connection, user_id: int, today: date, lang: str) ->
         settings.create_settings(conn, user_id, t("seed.currency", lang))
         for key, role in DEFAULT_TYPE_KEYS:
             base.insert(conn, user_id, "expense_types",
-                        {"name": t(f"seed.type.{key}", lang), "role": role.value, "is_system": role != Role.OTHER})
+                        {"name_key": key, "role": role.value, "is_system": role != Role.OTHER})
         for key in DEFAULT_GOAL_CATEGORY_KEYS:
-            base.insert(conn, user_id, "goal_categories", {"name": t(f"seed.category.{key}", lang)})
+            base.insert(conn, user_id, "goal_categories", {"name_key": key})
         return budgets.create_budget(conn, user_id, today.year, today.month)
 
 

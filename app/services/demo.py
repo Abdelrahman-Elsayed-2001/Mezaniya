@@ -34,10 +34,10 @@ def _months_ending(today: date, count: int) -> list[tuple[int, int]]:
 class _Builder:
     def __init__(self, conn: sqlite3.Connection, user_id: int, lang: str, today: date):
         self.conn, self.uid, self.lang, self.today = conn, user_id, lang, today
-        names = {r["name"]: r["id"] for r in base.list_rows(conn, user_id, "expense_types")}
-        self.type = {key: names[tr(f"seed.type.{key}", lang)] for key, _role in DEFAULT_TYPE_KEYS}
-        cats = {r["name"]: r["id"] for r in base.list_rows(conn, user_id, "goal_categories")}
-        self.category = {key: cats[tr(f"seed.category.{key}", lang)]
+        keys = {r["name_key"]: r["id"] for r in base.list_rows(conn, user_id, "expense_types")}
+        self.type = {key: keys[key] for key, _role in DEFAULT_TYPE_KEYS}
+        cats = {r["name_key"]: r["id"] for r in base.list_rows(conn, user_id, "goal_categories")}
+        self.category = {key: cats[key]
                          for key in ("essential", "luxury", "investment", "other")}
 
     def name(self, key: str) -> str:
