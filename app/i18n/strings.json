@@ -7,7 +7,10 @@
   },
 
   "app": {
-    "title": {"ar": "ميزانيتي الشهرية", "en": "My Monthly Budget"}
+    "title": {"ar": "ميزانيتي الشهرية", "en": "My Monthly Budget"},
+    "stage_banner": {
+      "beta": {"ar": "نسخة تجريبية (Beta) · الإصدار {version}", "en": "Beta version · v{version}"}
+    }
   },
 
   "lang": {

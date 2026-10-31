@@ -7,6 +7,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
 <body>
+  {% if app_stage %}
+  <div class="stage-banner" role="status">{{ t('app.stage_banner.' ~ app_stage, version=app_version) }}</div>
+  {% endif %}
   {% block body %}{% endblock %}
   <script type="application/json" id="i18n-data">{{ i18n_payload|tojson }}</script>
   <script src="{{ url_for('static', filename='js/api.js') }}"></script>

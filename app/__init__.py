@@ -3,6 +3,7 @@ from flask import Flask, render_template, request
 from . import auth, db, i18n
 from .auth import current_user, login_required
 from .config import Config
+from .version import STAGE, __version__
 
 # Alpine.js evaluates its x-* expressions with Function(), hence 'unsafe-eval';
 # :style bindings write style attributes, hence 'unsafe-inline' for styles only.
@@ -20,6 +21,10 @@ def create_app(config: type[Config] = Config) -> Flask:
     i18n.init_app(app)
     from .api import bp as api_bp
     app.register_blueprint(api_bp)
+
+    @app.context_processor
+    def inject_version():
+        return {"app_version": __version__, "app_stage": STAGE}
 
     @app.after_request
     def security_headers(response):
@@ -43,6 +48,6 @@ def create_app(config: type[Config] = Config) -> Flask:
 
     @app.get("/healthz")
     def healthz():
-        return {"status": "ok"}
+        return {"status": "ok", "version": __version__, "stage": STAGE}
 
     return app
