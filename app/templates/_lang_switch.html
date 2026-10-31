@@ -1,0 +1,2 @@
+<a class="btn btn-small btn-ghost lang-switch" href="{{ url_for('i18n.set_language', code=other_lang, next=request.full_path.rstrip('?')) }}"
+   lang="{{ other_lang }}">{{ t('lang.switch_to') }}</a>

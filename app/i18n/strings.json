@@ -1,0 +1,701 @@
+{
+  "_meta": {
+    "languages": ["ar", "en"],
+    "default": "ar",
+    "dir": {"ar": "rtl", "en": "ltr"},
+    "names": {"ar": "العربية", "en": "English"}
+  },
+
+  "app": {
+    "title": {"ar": "ميزانيتي الشهرية", "en": "My Monthly Budget"}
+  },
+
+  "lang": {
+    "switch_to": {"ar": "English", "en": "العربية"}
+  },
+
+  "common": {
+    "save": {"ar": "حفظ", "en": "Save"},
+    "cancel": {"ar": "إلغاء", "en": "Cancel"},
+    "close": {"ar": "إغلاق", "en": "Close"},
+    "delete": {"ar": "حذف", "en": "Delete"},
+    "add": {"ar": "إضافة", "en": "Add"},
+    "logout": {"ar": "تسجيل الخروج", "en": "Log out"},
+    "settings": {"ar": "الإعدادات", "en": "Settings"},
+    "total": {"ar": "الإجمالي", "en": "Total"},
+    "loading": {"ar": "جارٍ التحميل…", "en": "Loading…"},
+    "confirm_delete": {"ar": "حذف «{name}»؟", "en": "Delete “{name}”?"},
+    "error_generic": {"ar": "حدث خطأ، حاول مرة أخرى.", "en": "Something went wrong. Please try again."},
+    "error_network": {"ar": "تعذّر الاتصال بالخادم، تحقّق من الاتصال.", "en": "Can't reach the server. Check your connection."},
+    "note_add": {"ar": "إضافة ملاحظة", "en": "Add a note"},
+    "note_placeholder": {"ar": "ملاحظة…", "en": "Note…"},
+    "dash": {"ar": "—", "en": "—"},
+    "list_sep": {"ar": "، ", "en": ", "}
+  },
+
+  "count": {
+    "months": {
+      "ar": {"zero": "لا أشهر", "one": "شهر واحد", "two": "شهران", "few": "{n} أشهر", "many": "{n} شهرًا", "other": "{n} شهر"},
+      "en": {"one": "{n} month", "other": "{n} months"}
+    },
+    "minutes": {
+      "ar": {"zero": "{n} دقيقة", "one": "دقيقة واحدة", "two": "دقيقتين", "few": "{n} دقائق", "many": "{n} دقيقة", "other": "{n} دقيقة"},
+      "en": {"one": "{n} minute", "other": "{n} minutes"}
+    },
+    "days": {
+      "ar": {"zero": "{n} يوم", "one": "يوم واحد", "two": "يومان", "few": "{n} أيام", "many": "{n} يومًا", "other": "{n} يوم"},
+      "en": {"one": "{n} day", "other": "{n} days"}
+    },
+    "items": {
+      "ar": {"zero": "لا بنود", "one": "بند واحد", "two": "بندان", "few": "{n} بنود", "many": "{n} بندًا", "other": "{n} بند"},
+      "en": {"one": "{n} item", "other": "{n} items"}
+    },
+    "users": {
+      "ar": {"zero": "لا مستخدمين", "one": "مستخدم واحد", "two": "مستخدمان", "few": "{n} مستخدمين", "many": "{n} مستخدمًا", "other": "{n} مستخدم"},
+      "en": {"one": "{n} user", "other": "{n} users"}
+    }
+  },
+
+  "auth": {
+    "username": {"ar": "اسم المستخدم", "en": "Username"},
+    "password": {"ar": "كلمة المرور", "en": "Password"},
+    "password_confirm": {"ar": "تأكيد كلمة المرور", "en": "Confirm password"},
+    "username_hint": {"ar": "من 3 إلى 32 حرفًا، دون مسافات", "en": "3–32 characters, no spaces"},
+    "password_hint": {"ar": "6 أحرف على الأقل", "en": "At least 6 characters"},
+    "current_password": {"ar": "كلمة المرور الحالية", "en": "Current password"},
+    "new_password": {"ar": "كلمة المرور الجديدة", "en": "New password"},
+    "new_password_confirm": {"ar": "تأكيد كلمة المرور الجديدة", "en": "Confirm new password"},
+    "login": {
+      "title": {"ar": "تسجيل الدخول", "en": "Log in"},
+      "subtitle": {"ar": "سجّل الدخول للمتابعة", "en": "Log in to continue"},
+      "submit": {"ar": "دخول", "en": "Log in"},
+      "first_time": {"ar": "أول مرة؟", "en": "First time here?"}
+    },
+    "register": {
+      "link": {"ar": "تسجيل مستخدم جديد", "en": "Register a new user"},
+      "title": {"ar": "تسجيل مستخدم جديد", "en": "Register a new user"},
+      "subtitle": {"ar": "بياناتك منفصلة تمامًا عن بيانات أي مستخدم آخر", "en": "Your data is completely separate from every other user's"},
+      "submit": {"ar": "إنشاء الحساب", "en": "Create account"},
+      "have_account": {"ar": "لديّ حساب بالفعل", "en": "I already have an account"}
+    },
+    "change": {
+      "title": {"ar": "تغيير كلمة المرور", "en": "Change password"},
+      "forced": {"ar": "سجّلت الدخول بكلمة مرور مؤقتة عُيّنت يدويًا. اختر كلمة مرور جديدة للمتابعة.", "en": "You signed in with a temporary password that was set manually. Choose a new password to continue."},
+      "back": {"ar": "رجوع", "en": "Back"},
+      "other_devices": {"ar": "تغيير كلمة المرور يُخرجك من جميع الأجهزة الأخرى.", "en": "Changing your password signs you out on every other device."},
+      "done": {"ar": "تغيّرت كلمة المرور", "en": "Password changed"}
+    },
+    "err": {
+      "bad_request": {"ar": "تعذّر فهم الطلب", "en": "The request could not be understood"},
+      "csrf": {"ar": "رُفض الطلب", "en": "Request rejected"},
+      "unauthorized": {"ar": "يجب تسجيل الدخول", "en": "You need to log in"},
+      "must_change": {"ar": "يجب تغيير كلمة المرور أولًا", "en": "You must change your password first"},
+      "bad_credentials": {"ar": "اسم المستخدم أو كلمة المرور غير صحيحة", "en": "Incorrect username or password"},
+      "locked": {"ar": "محاولات خاطئة كثيرة. حاول مرة أخرى بعد {duration}.", "en": "Too many wrong attempts. Try again in {duration}."},
+      "registration_closed": {"ar": "التسجيل مغلق حاليًا", "en": "Registration is currently closed"},
+      "username_invalid": {"ar": "يجب أن يتكوّن اسم المستخدم من 3 إلى 32 حرفًا (حروف أو أرقام أو _ . -) دون مسافات", "en": "Username must be 3–32 characters (letters, digits, _ . -) with no spaces"},
+      "password_short": {"ar": "يجب ألا تقل كلمة المرور عن {min} أحرف", "en": "Password must be at least {min} characters"},
+      "password_long": {"ar": "كلمة المرور طويلة جدًا (الحد الأقصى {max} حرفًا)", "en": "Password is too long (maximum {max} characters)"},
+      "confirm_mismatch": {"ar": "تأكيد كلمة المرور غير مطابق", "en": "Password confirmation does not match"},
+      "username_taken": {"ar": "اسم المستخدم هذا مستخدم من قبل", "en": "This username is already taken"},
+      "current_wrong": {"ar": "كلمة المرور الحالية غير صحيحة", "en": "Current password is incorrect"},
+      "same_password": {"ar": "يجب أن تختلف كلمة المرور الجديدة عن الحالية", "en": "The new password must differ from the current one"}
+    }
+  },
+
+  "nav": {
+    "month": {"ar": "الشهر", "en": "Month"},
+    "new_month": {"ar": "شهر جديد", "en": "New month"},
+    "new_month_label": {"ar": "شهر جديد ({label})", "en": "New month ({label})"}
+  },
+
+  "dashboard": {
+    "no_months": {"ar": "لا توجد أشهر بعد", "en": "No months yet"},
+    "month_created": {"ar": "أُنشئ شهر {label}", "en": "Month {label} created"}
+  },
+
+  "status": {
+    "deficit": {"ar": "🔴 خطر — عجز", "en": "🔴 Danger — deficit"},
+    "squeezed": {"ar": "🟠 ضائقة — السحب من المدخرات غطّى العجز", "en": "🟠 Tight — the savings withdrawal covered the shortfall"},
+    "high_debt_luxury": {"ar": "🟠 انتبه — الأقساط والكماليات مرتفعة", "en": "🟠 Careful — installments and luxuries are high"},
+    "high_debt": {"ar": "🟠 انتبه — الأقساط مرتفعة", "en": "🟠 Careful — installments are high"},
+    "high_luxury": {"ar": "🟠 انتبه — الكماليات مرتفعة", "en": "🟠 Careful — luxuries are high"},
+    "complete_emergency": {"ar": "🟡 جيد — أكمِل صندوق الطوارئ", "en": "🟡 Good — finish the emergency fund"},
+    "excellent": {"ar": "🟢 ممتاز", "en": "🟢 Excellent"},
+    "good": {"ar": "🟡 جيد", "en": "🟡 Good"},
+    "acceptable": {"ar": "🟠 مقبول — الفائض قليل", "en": "🟠 Acceptable — the surplus is small"}
+  },
+
+  "summary": {
+    "title": {"ar": "الملخص", "en": "Summary"},
+    "income": {"ar": "إجمالي الدخل", "en": "Total income"},
+    "expenses": {"ar": "إجمالي المصروفات", "en": "Total expenses"},
+    "debt": {"ar": "منها: الأقساط", "en": "of which: installments"},
+    "luxury": {"ar": "منها: الكماليات", "en": "of which: luxuries"},
+    "essential": {"ar": "منها: الأساسيات", "en": "of which: essentials"},
+    "net": {"ar": "الصافي (الفائض)", "en": "Net (surplus)"}
+  },
+
+  "suggestions": {
+    "title": {"ar": "الاقتراحات الشهرية", "en": "Monthly suggestions"},
+    "emergency": {"ar": "1) لصندوق الطوارئ", "en": "1) Emergency fund"},
+    "saving": {"ar": "2) للادخار والأهداف", "en": "2) Savings and goals"},
+    "safe_spend": {"ar": "3) الإنفاق الآمن", "en": "3) Safe to spend"},
+    "daily": {"ar": "يوميًا ({days})", "en": "Daily ({days})"},
+    "weekly": {"ar": "أسبوعيًا", "en": "Weekly"},
+    "return": {"ar": "↩️ أعِد إلى المدخرات", "en": "↩️ Return to savings"}
+  },
+
+  "warnings": {
+    "title": {"ar": "التحذيرات", "en": "Warnings"},
+    "state_active": {"ar": "⚠️ نشط", "en": "⚠️ Active"},
+    "state_ok": {"ar": "✅ سليم", "en": "✅ OK"},
+    "summary_none": {"ar": "✅ لا توجد تحذيرات", "en": "✅ No warnings"},
+    "summary_some": {"ar": "⚠️ راجع البنود أدناه", "en": "⚠️ Review the items below"},
+    "deficit": {
+      "title": {"ar": "عجز في الميزانية", "en": "Budget deficit"},
+      "details": {"ar": "عجز قدره {amount} {currency} حتى بعد السحب", "en": "A deficit of {amount} {currency} even after the withdrawal"}
+    },
+    "squeezed": {
+      "title": {"ar": "ضائقة — الإنفاق من المدخرات", "en": "Tight — spending from savings"},
+      "details": {"ar": "غطّى السحب عجزًا قدره {amount} {currency}", "en": "The withdrawal covered a shortfall of {amount} {currency}"}
+    },
+    "over_withdrawn": {
+      "title": {"ar": "السحب أكبر من المدخرات المتاحة", "en": "Withdrawal exceeds available savings"},
+      "details": {"ar": "سحبت {withdrawn} والمتاح {available} {currency}", "en": "Withdrew {withdrawn}, available {available} {currency}"}
+    },
+    "high_debt": {
+      "title": {"ar": "الأقساط مرتفعة", "en": "High installments"},
+      "details": {"ar": "{pct} (الحد {limit})", "en": "{pct} (limit {limit})"}
+    },
+    "high_luxury": {
+      "title": {"ar": "الكماليات مرتفعة", "en": "High luxuries"},
+      "details": {"ar": "{pct} (الحد {limit})", "en": "{pct} (limit {limit})"}
+    },
+    "emergency_short": {
+      "title": {"ar": "صندوق الطوارئ غير مكتمل", "en": "Emergency fund incomplete"},
+      "details": {"ar": "ينقصه {amount} {currency}", "en": "{amount} {currency} short"}
+    },
+    "low_surplus": {
+      "title": {"ar": "الفائض قليل", "en": "Small surplus"},
+      "details": {"ar": "{pct} (الحد الأدنى {min})", "en": "{pct} (minimum {min})"}
+    },
+    "over_allocated": {
+      "title": {"ar": "الموزَّع على الأهداف أكبر من المتاح", "en": "Goal allocations exceed what is available"},
+      "details": {"ar": "زيادة بمقدار {amount} {currency}", "en": "{amount} {currency} over"}
+    },
+    "return_to_savings": {
+      "title": {"ar": "يجب إعادة مبلغ إلى المدخرات", "en": "Money should go back to savings"},
+      "details": {"ar": "أعِد {amount} {currency}", "en": "Return {amount} {currency}"}
+    },
+    "needs_amount": {
+      "title": {"ar": "بنود تحتاج إلى مبلغ", "en": "Items need an amount"},
+      "details": {"ar": "{items} دون مبلغ حتى الآن", "en": "{items} still without an amount"}
+    }
+  },
+
+  "incomes": {
+    "title": {"ar": "الدخل", "en": "Income"},
+    "source": {"ar": "المصدر", "en": "Source"},
+    "amount": {"ar": "المبلغ", "en": "Amount"},
+    "withdrawal_short": {"ar": "سحب؟", "en": "Withdrawal?"},
+    "withdrawal_hint": {"ar": "سحب من المدخرات: يُضاف إلى الدخل ويُخصم من رصيد الادخار", "en": "Withdrawal from savings: added to income and deducted from savings"},
+    "new_placeholder": {"ar": "مصدر جديد", "en": "New source"},
+    "needs_amount": {"ar": "يحتاج إلى مبلغ", "en": "Needs an amount"},
+    "err_empty": {"ar": "اكتب مصدر الدخل", "en": "Enter the income source"}
+  },
+
+  "emergency": {
+    "title": {"ar": "صندوق الطوارئ", "en": "Emergency fund"},
+    "current": {"ar": "المبلغ الحالي", "en": "Current amount"},
+    "minimum": {"ar": "الحد الأدنى", "en": "Minimum"},
+    "from_expenses": {"ar": "إضافة من المصروفات", "en": "Added from expenses"},
+    "after": {"ar": "بعد الإضافة", "en": "After additions"},
+    "reference": {"ar": "المرجع: (الأساسيات + الأقساط) × {months} × {factor}", "en": "Reference: (essentials + installments) × {months} × {factor}"},
+    "remaining": {"ar": "المتبقي", "en": "Remaining"},
+    "status": {"ar": "الحالة", "en": "Status"},
+    "complete": {"ar": "✅ مكتمل", "en": "✅ Complete"},
+    "incomplete": {"ar": "⚠️ غير مكتمل", "en": "⚠️ Incomplete"},
+    "months": {"ar": "الأشهر المتوقعة للاكتمال", "en": "Months to complete"}
+  },
+
+  "savings": {
+    "title": {"ar": "الادخار", "en": "Savings"},
+    "current": {"ar": "المدخرات الحالية", "en": "Current savings"},
+    "from_expenses": {"ar": "إضافة من المصروفات", "en": "Added from expenses"},
+    "withdrawal": {"ar": "سحب للدخل (يُخصم)", "en": "Withdrawn to income (deducted)"},
+    "total": {"ar": "الإجمالي بعد الإضافة والسحب", "en": "Total after additions and withdrawal"},
+    "allocated": {"ar": "الموزَّع على الأهداف", "en": "Allocated to goals"},
+    "unallocated": {"ar": "غير الموزَّع", "en": "Unallocated"},
+    "distribution": {"ar": "حالة التوزيع", "en": "Allocation status"},
+    "status": {
+      "over_withdrawn": {"ar": "❌ السحب أكبر من المدخرات المتاحة", "en": "❌ Withdrawal exceeds available savings"},
+      "over_allocated": {"ar": "❌ الموزَّع أكبر من المتاح", "en": "❌ Allocations exceed what is available"},
+      "all_covered": {"ar": "✅ المدخرات تكفي جميع الأهداف", "en": "✅ Savings cover every goal"},
+      "ok": {"ar": "✅ سليم", "en": "✅ OK"}
+    }
+  },
+
+  "expenses": {
+    "title": {"ar": "المصروفات والالتزامات", "en": "Expenses and commitments"},
+    "apply_templates": {"ar": "+ البنود المتكررة", "en": "+ Recurring items"},
+    "apply_templates_hint": {"ar": "يضيف البنود المتكررة (من الإعدادات) غير الموجودة في هذا الشهر", "en": "Adds recurring items (from Settings) missing from this month"},
+    "templates_added": {"ar": "أُضيف {items} من البنود المتكررة", "en": "Added {items} from the recurring list"},
+    "templates_none_missing": {"ar": "جميع البنود المتكررة موجودة بالفعل", "en": "All recurring items are already here"},
+    "name": {"ar": "البند", "en": "Item"},
+    "type": {"ar": "النوع", "en": "Type"},
+    "cash": {"ar": "نقدًا", "en": "Cash"},
+    "inst_balance": {"ar": "رصيد التقسيط", "en": "Installment balance"},
+    "inst_count": {"ar": "الدفعات المتبقية", "en": "Payments left"},
+    "payment_of": {"ar": "الدفعة {current} من {total}", "en": "Payment {current} of {total}"},
+    "monthly": {"ar": "الشهري", "en": "Monthly"},
+    "carried": {"ar": "مرحَّل", "en": "Carried"},
+    "carried_hint": {"ar": "مرحَّل من الشهر السابق", "en": "Carried from the previous month"},
+    "due": {"ar": "المطلوب", "en": "Due"},
+    "status": {"ar": "حالة الدفع", "en": "Payment status"},
+    "status_unpaid": {"ar": "⏳ لم يُدفع", "en": "⏳ Unpaid"},
+    "status_paid": {"ar": "✅ مدفوع", "en": "✅ Paid"},
+    "status_deferred": {"ar": "↪️ ترحيل", "en": "↪️ Carry over"},
+    "deferred_amount": {"ar": "مبلغ الترحيل", "en": "Carry-over amount"},
+    "deferred_hint": {"ar": "المبلغ المنقول إلى الشهر التالي (يُعدّ الباقي مدفوعًا)", "en": "Amount moved to next month (the rest counts as paid)"},
+    "paid_at": {"ar": "تاريخ الدفع", "en": "Payment date"},
+    "needs_amount": {"ar": "يحتاج إلى سعر", "en": "Needs a price"},
+    "new_placeholder": {"ar": "بند جديد", "en": "New item"},
+    "note_placeholder": {"ar": "ملاحظة على البند…", "en": "Note on this item…"},
+    "counts": {"ar": "{paid} مدفوع · {deferred} مرحَّل", "en": "{paid} paid · {deferred} carried"},
+    "err_empty": {"ar": "اكتب اسم البند", "en": "Enter the item name"}
+  },
+
+  "goals": {
+    "title": {"ar": "الأهداف", "en": "Goals"},
+    "hint": {"ar": "النسبة والمبلغ اليدوي مرتبطان: اكتب أحدهما. المبلغ اليدوي حدّ أقصى ثابت. اتركهما فارغين للتوزيع التلقائي.", "en": "Percentage and manual amount are linked: fill in one. The manual amount is a fixed cap. Leave both empty for automatic allocation."},
+    "name": {"ar": "الهدف", "en": "Goal"},
+    "category": {"ar": "النوع", "en": "Type"},
+    "target": {"ar": "المبلغ المطلوب", "en": "Target"},
+    "priority": {"ar": "الأولوية %", "en": "Priority %"},
+    "manual": {"ar": "مبلغ يدوي", "en": "Manual amount"},
+    "allocated": {"ar": "التوزيع الفعلي", "en": "Allocated"},
+    "remaining": {"ar": "المتبقي", "en": "Remaining"},
+    "progress": {"ar": "الإنجاز", "en": "Progress"},
+    "monthly": {"ar": "المقترح شهريًا", "en": "Suggested monthly"},
+    "months": {"ar": "الأشهر", "en": "Months"},
+    "new_placeholder": {"ar": "هدف جديد", "en": "New goal"},
+    "target_placeholder": {"ar": "المبلغ", "en": "Amount"},
+    "note_placeholder": {"ar": "ملاحظة على الهدف…", "en": "Note on this goal…"},
+    "months_covered": {"ar": "✅ المدخرات تكفي", "en": "✅ Covered by savings"},
+    "months_unknown": {"ar": "-", "en": "-"},
+    "total_all_covered": {"ar": "✅ المدخرات تكفي جميع الأهداف", "en": "✅ Savings cover every goal"},
+    "total_some_missing": {"ar": "⏳ بعض الأهداف لم تكتمل بعد", "en": "⏳ Some goals are not complete yet"},
+    "err_empty": {"ar": "اكتب اسم الهدف", "en": "Enter the goal name"}
+  },
+
+  "payments": {
+    "title": {"ar": "تتبّع الدفع", "en": "Payment tracking"},
+    "paid": {"ar": "✅ المدفوع فعلًا", "en": "✅ Paid so far"},
+    "deferred": {"ar": "↪️ مرحَّل إلى الشهر التالي", "en": "↪️ Carried to next month"},
+    "unpaid": {"ar": "⏳ مخطط ولم يُدفع بعد (ما زال معك)", "en": "⏳ Planned, not paid yet (still with you)"},
+    "cash_now": {"ar": "💰 الرصيد الفعلي معك الآن (الدخل − المدفوع)", "en": "💰 Cash on hand now (income − paid)"},
+    "carried_in": {"ar": "منها مرحَّل من الشهر السابق", "en": "of which carried from last month"}
+  },
+
+  "charts": {
+    "surplus": {"ar": "الفائض (الصافي)", "en": "Surplus (net)"},
+    "by_type_title": {"ar": "المصروفات حسب النوع", "en": "Expenses by type"},
+    "by_type_subtitle": {"ar": "المبلغ ونسبته من الدخل", "en": "Amount and share of income"},
+    "by_type_empty": {"ar": "لا توجد مصروفات بعد", "en": "No expenses yet"},
+    "progress_title": {"ar": "التقدّم", "en": "Progress"},
+    "progress_emergency": {"ar": "صندوق الطوارئ", "en": "Emergency fund"},
+    "progress_goals": {"ar": "أهداف الادخار", "en": "Savings goals"},
+    "progress_available": {"ar": "المتوفر {amount}", "en": "Available {amount}"},
+    "progress_remaining": {"ar": "المتبقي {amount}", "en": "Remaining {amount}"},
+    "daily_title": {"ar": "الإنفاق حسب اليوم", "en": "Spending by day"},
+    "daily_subtitle": {"ar": "المبالغ المدفوعة فعلًا حسب تاريخ الدفع في هذا الشهر", "en": "Amounts actually paid this month, by payment date"},
+    "daily_show_table": {"ar": "عرض كجدول", "en": "Show as table"},
+    "daily_show_chart": {"ar": "عرض كرسم", "en": "Show as chart"},
+    "daily_empty": {"ar": "لا توجد مدفوعات مسجّلة بعد. اختر «مدفوع» أو «ترحيل» لأي بند، وسيُسجَّل تاريخ اليوم تلقائيًا.", "en": "No payments recorded yet. Mark any item “Paid” or “Carry over” and today's date is filled in automatically."},
+    "daily_day": {"ar": "يوم {day}", "en": "Day {day}"},
+    "daily_no_date": {"ar": "مدفوع دون تاريخ:", "en": "Paid without a date:"},
+    "daily_outside": {"ar": "بتاريخ خارج الشهر:", "en": "Dated outside the month:"}
+  },
+
+  "details": {
+    "title": {"ar": "تفاصيل حساب الاقتراحات", "en": "How the suggestions are calculated"},
+    "available": {"ar": "الصافي المتاح (بعد المصروفات ودون السحب)", "en": "Net available (after expenses, excluding the withdrawal)"},
+    "base": {"ar": "الأساس: الصافي قبل الادخار والطوارئ", "en": "Base: net before savings and emergency"},
+    "em_gap": {"ar": "الطوارئ: المتبقي قبل جدول المصروفات", "en": "Emergency: remaining before the expense table"},
+    "em_target": {"ar": "الطوارئ: المستهدف (الأساس × النسبة)", "en": "Emergency: target (base × rate)"},
+    "saving_rate": {"ar": "الادخار: النسبة المطبّقة", "en": "Saving: rate applied"},
+    "saving_target": {"ar": "الادخار: المستهدف", "en": "Saving: target"},
+    "goals_pool": {"ar": "المدخرات المتاحة لتوزيع الأهداف", "en": "Savings available for goals"},
+    "goals_monthly_pool": {"ar": "المتاح للأهداف شهريًا", "en": "Available for goals each month"}
+  },
+
+  "wizard": {
+    "title": {"ar": "شهر جديد", "en": "New month"},
+    "title_with": {"ar": "شهر جديد: {label}", "en": "New month: {label}"},
+    "source": {"ar": "يُنسخ من آخر شهر: {label}", "en": "Copied from the latest month: {label}"},
+    "month": {"ar": "الشهر", "en": "Month"},
+    "year": {"ar": "السنة", "en": "Year"},
+    "balances": {"ar": "الأرصدة في بداية الشهر", "en": "Opening balances"},
+    "emergency": {"ar": "مبلغ الطوارئ", "en": "Emergency fund"},
+    "emergency_min": {"ar": "الحد الأدنى للطوارئ", "en": "Emergency minimum"},
+    "savings": {"ar": "المدخرات", "en": "Savings"},
+    "return": {"ar": "أعدتُ {amount} إلى المدخرات (الجزء الذي لم يُنفق من السحب)", "en": "I returned {amount} to savings (the unspent part of the withdrawal)"},
+    "unpaid_title": {"ar": "بنود لم تُدفع بعد في الشهر الحالي", "en": "Items still unpaid this month"},
+    "unpaid_hint": {"ar": "ما تختاره يُرحَّل بالكامل إلى الشهر الجديد، ويُعلَّم في الشهر الحالي «ترحيل».", "en": "Whatever you tick is carried in full to the new month and marked “Carry over” in the current one."},
+    "expenses_title": {"ar": "المصروفات المنقولة ({n})", "en": "Expenses carried over ({n})"},
+    "expenses_none": {"ar": "لا يوجد تقسيط أو بنود متكررة أو مبالغ مرحَّلة.", "en": "No installments, recurring items or carried amounts."},
+    "origin_template": {"ar": "متكرر", "en": "Recurring"},
+    "origin_installment": {"ar": "تقسيط", "en": "Installment"},
+    "origin_carry": {"ar": "مرحَّل", "en": "Carried"},
+    "installment_left": {"ar": "الدفعات المتبقية {count} · الرصيد {balance}", "en": "{count} payments left · balance {balance}"},
+    "needs_price": {"ar": "يحتاج إلى سعر", "en": "Needs a price"},
+    "needs_amount": {"ar": "يحتاج إلى مبلغ", "en": "Needs an amount"},
+    "plus_carried": {"ar": "+ مرحَّل {amount}", "en": "+ carried {amount}"},
+    "incomes_title": {"ar": "الدخل المتكرر", "en": "Recurring income"},
+    "incomes_none": {"ar": "لا يوجد دخل متكرر. يمكنك إضافة الراتب بندًا متكررًا من", "en": "There's no recurring income. You can add your salary as a recurring item in"},
+    "incomes_settings_link": {"ar": "الإعدادات", "en": "Settings"},
+    "goals_title": {"ar": "الأهداف ({n})", "en": "Goals ({n})"},
+    "goals_drop": {"ar": "احذف الأهداف المكتملة: {names}", "en": "Drop completed goals: {names}"},
+    "goals_keep_all": {"ar": "تنتقل جميع الأهداف كما هي.", "en": "All goals move over as they are."},
+    "create": {"ar": "إنشاء شهر {label}", "en": "Create {label}"},
+    "older_title": {"ar": "شهر سابق", "en": "An earlier month"},
+    "older_hint": {"ar": "هذا الشهر يسبق آخر شهر ({latest})، لذا يُنشأ فارغًا دون ترحيل تلقائي. يمكنك إضافة البنود المتكررة إليه بعد إنشائه.", "en": "This month comes before the latest one ({latest}), so it starts empty with no automatic carry-over. You can add the recurring items to it after creating it."}
+  },
+
+  "rollover": {
+    "carry_note": {"ar": "مرحَّل من {label}", "en": "Carried from {label}"},
+    "err": {
+      "duplicate": {"ar": "هذا الشهر موجود بالفعل", "en": "This month already exists"},
+      "no_previous": {"ar": "لا يوجد شهر سابق للنسخ منه", "en": "There is no earlier month to copy from"},
+      "not_after_latest": {"ar": "النسخ التلقائي متاح فقط لشهر بعد آخر شهر ({label})", "en": "Automatic copying only works for a month after the latest one ({label})"},
+      "invalid": {"ar": "بعض البنود المختارة للترحيل ليست من البنود غير المدفوعة", "en": "Some items picked for carry-over are not among the unpaid ones"}
+    }
+  },
+
+  "field": {
+    "emergency_current": {"ar": "مبلغ الطوارئ الحالي", "en": "Current emergency amount"},
+    "emergency_min": {"ar": "الحد الأدنى للطوارئ", "en": "Emergency minimum"},
+    "savings_current": {"ar": "المدخرات الحالية", "en": "Current savings"},
+    "year": {"ar": "السنة", "en": "Year"},
+    "month": {"ar": "الشهر", "en": "Month"},
+    "copy_from_previous": {"ar": "النسخ من الشهر السابق", "en": "Copy from previous month"},
+    "carry_unpaid_ids": {"ar": "البنود المرحَّلة", "en": "Items to carry over"},
+    "add_return_to_savings": {"ar": "الإعادة إلى المدخرات", "en": "Return to savings"},
+    "drop_completed_goals": {"ar": "حذف الأهداف المكتملة", "en": "Drop completed goals"},
+    "source": {"ar": "المصدر", "en": "Source"},
+    "amount": {"ar": "المبلغ", "en": "Amount"},
+    "is_savings_withdrawal": {"ar": "سحب من المدخرات", "en": "Withdrawal from savings"},
+    "needs_amount": {"ar": "يحتاج إلى مبلغ", "en": "Needs an amount"},
+    "template_id": {"ar": "البند المتكرر", "en": "Recurring item"},
+    "notes": {"ar": "الملاحظات", "en": "Notes"},
+    "sort_order": {"ar": "الترتيب", "en": "Order"},
+    "name": {"ar": "الاسم", "en": "Name"},
+    "type_id": {"ar": "النوع", "en": "Type"},
+    "cash_amount": {"ar": "المبلغ النقدي", "en": "Cash amount"},
+    "inst_balance": {"ar": "رصيد التقسيط", "en": "Installment balance"},
+    "inst_count": {"ar": "عدد الدفعات", "en": "Number of payments"},
+    "inst_original_count": {"ar": "إجمالي عدد الدفعات", "en": "Total number of payments"},
+    "carried_in": {"ar": "المرحَّل من الشهر السابق", "en": "Carried from previous month"},
+    "status": {"ar": "حالة الدفع", "en": "Payment status"},
+    "deferred_amount": {"ar": "مبلغ الترحيل", "en": "Carry-over amount"},
+    "paid_at": {"ar": "تاريخ الدفع", "en": "Payment date"},
+    "category_id": {"ar": "نوع الهدف", "en": "Goal type"},
+    "target_amount": {"ar": "المبلغ المطلوب", "en": "Target amount"},
+    "priority": {"ar": "الأولوية", "en": "Priority"},
+    "manual_allocation": {"ar": "التوزيع اليدوي", "en": "Manual allocation"},
+    "currency": {"ar": "العملة", "en": "Currency"},
+    "role": {"ar": "التصنيف", "en": "Category"},
+    "kind": {"ar": "النوع", "en": "Kind"},
+    "active": {"ar": "نشط", "en": "Active"},
+    "goals": {"ar": "الأهداف", "en": "Goals"},
+    "excellent_rate": {"ar": "نسبة الادخار الممتاز", "en": "Excellent saving rate"},
+    "good_rate": {"ar": "نسبة الادخار الجيد", "en": "Good saving rate"},
+    "max_debt_rate": {"ar": "الحد الآمن للأقساط", "en": "Safe installment limit"},
+    "max_luxury_rate": {"ar": "الحد المقترح للكماليات", "en": "Suggested luxury limit"},
+    "emergency_cut_rate": {"ar": "نسبة الاقتطاع للطوارئ", "en": "Emergency contribution rate"},
+    "saving_rate_em_incomplete": {"ar": "نسبة الادخار (الطوارئ غير مكتمل)", "en": "Saving rate (emergency incomplete)"},
+    "saving_rate_em_complete": {"ar": "نسبة الادخار (الطوارئ مكتمل)", "en": "Saving rate (emergency complete)"},
+    "emergency_ref_months": {"ar": "عدد أشهر مرجع الطوارئ", "en": "Emergency reference months"},
+    "emergency_ref_factor": {"ar": "معامل زيادة مرجع الطوارئ", "en": "Emergency reference factor"}
+  },
+
+  "api": {
+    "err": {
+      "not_found": {"ar": "العنصر غير موجود", "en": "Not found"},
+      "unknown_fields": {"ar": "حقول غير معروفة: {fields}", "en": "Unknown fields: {fields}"},
+      "required": {"ar": "حقل «{field}» مطلوب", "en": "“{field}” is required"},
+      "invalid_value": {"ar": "قيمة «{field}» غير صحيحة", "en": "Invalid value for “{field}”"},
+      "non_negative": {"ar": "يجب ألا تكون قيمة «{field}» سالبة", "en": "“{field}” cannot be negative"},
+      "too_large": {"ar": "قيمة «{field}» كبيرة جدًا", "en": "“{field}” is too large"},
+      "ratio_range": {"ar": "يجب أن تكون قيمة «{field}» بين 0 و{max}%", "en": "“{field}” must be between 0 and {max}%"},
+      "integer": {"ar": "يجب أن تكون قيمة «{field}» عددًا صحيحًا غير سالب", "en": "“{field}” must be a whole number, zero or more"},
+      "max_value": {"ar": "قيمة «{field}» أكبر من المسموح ({max})", "en": "“{field}” is above the allowed maximum ({max})"},
+      "number_range": {"ar": "يجب أن تكون قيمة «{field}» بين 0 و{max}", "en": "“{field}” must be between 0 and {max}"},
+      "too_long": {"ar": "قيمة «{field}» طويلة جدًا (الحد الأقصى {max} حرف)", "en": "“{field}” is too long (maximum {max} characters)"},
+      "choice": {"ar": "يجب أن تكون قيمة «{field}» إحدى: {choices}", "en": "“{field}” must be one of: {choices}"},
+      "date": {"ar": "يجب أن تكون قيمة «{field}» تاريخًا بالصيغة YYYY-MM-DD", "en": "“{field}” must be a date in the form YYYY-MM-DD"},
+      "period": {"ar": "الشهر أو السنة غير صحيحين", "en": "Invalid month or year"},
+      "period_pair": {"ar": "أرسل السنة والشهر معًا", "en": "Send the year and the month together"},
+      "rollover_options": {"ar": "هذه الخيارات تعمل فقط مع النسخ من الشهر السابق", "en": "These options only work when copying from the previous month"},
+      "template_kind": {"ar": "هذا البند المتكرر من نوع آخر", "en": "This recurring item is of a different kind"},
+      "deferred_needs_status": {"ar": "يُكتب مبلغ الترحيل فقط عندما تكون الحالة «ترحيل»", "en": "A carry-over amount needs the “Carry over” status"},
+      "priority_and_manual": {"ar": "اكتب النسبة أو المبلغ اليدوي، لا كليهما", "en": "Enter the percentage or the manual amount, not both"},
+      "good_gt_excellent": {"ar": "يجب ألا تتجاوز نسبة «جيد» نسبة «ممتاز»", "en": "The “good” rate must not exceed the “excellent” rate"},
+      "template_needs_type": {"ar": "البند المتكرر للمصروف يحتاج إلى نوع", "en": "An expense recurring item needs a type"},
+      "withdrawal_income_only": {"ar": "«سحب من المدخرات» للدخل فقط", "en": "“Withdrawal from savings” is for income only"},
+      "income_no_type": {"ar": "الدخل لا يأخذ نوع مصروف", "en": "Income doesn't take an expense type"}
+    },
+    "conflict": {
+      "duplicate": {"ar": "الاسم أو الشهر موجود بالفعل", "en": "That name or month already exists"},
+      "system_type": {"ar": "هذا النوع أساسي في الحسابات ولا يمكن حذفه", "en": "This type is used by the calculations and can't be deleted"},
+      "system_role": {"ar": "لا يمكن تغيير تصنيف نوع أساسي في الحسابات", "en": "The category of a core type can't be changed"},
+      "in_use": {"ar": "هذا النوع مستخدم في بنود أو بنود متكررة؛ غيّر نوعها أولًا", "en": "This type is used by items or recurring items; change their type first"},
+      "has_followers": {"ar": "لا يمكن حذف شهر نُسخ منه شهر آخر؛ احذف ذلك الشهر أولًا", "en": "A month that another month was copied from can't be deleted; delete that month first"},
+      "last_budget": {"ar": "يجب أن يبقى شهر واحد على الأقل", "en": "At least one month must remain"},
+      "integrity": {"ar": "هذه البيانات غير مقبولة", "en": "This data is not accepted"}
+    }
+  },
+
+  "issue": {
+    "type_unknown": {"ar": "يجب أن يكون النوع من قائمة الأنواع", "en": "The type must be from the type list"},
+    "deferred_range": {"ar": "يجب أن يكون مبلغ الترحيل أكبر من صفر وألا يتجاوز {max}", "en": "The carry-over amount must be above zero and at most {max}"},
+    "over_requested": {"ar": "الموزَّع على الأهداف أكبر من المدخرات المتاحة بمقدار {amount}", "en": "Goal allocations exceed available savings by {amount}"}
+  },
+
+  "settings": {
+    "back": {"ar": "→ العودة إلى الميزانية", "en": "← Back to the budget"},
+    "saved": {"ar": "حُفظت الإعدادات", "en": "Settings saved"},
+    "tab_criteria": {"ar": "المعايير", "en": "Criteria"},
+    "tab_types": {"ar": "أنواع المصروفات", "en": "Expense types"},
+    "tab_categories": {"ar": "أنواع الأهداف", "en": "Goal types"},
+    "tab_templates": {"ar": "البنود المتكررة", "en": "Recurring items"},
+    "tab_account": {"ar": "الحساب", "en": "Account"},
+    "criteria_title": {"ar": "معايير التقييم وخطة التوزيع", "en": "Evaluation criteria and allocation plan"},
+    "excellent_rate": {"ar": "ادخار ممتاز إذا كان ≥", "en": "Excellent saving if ≥"},
+    "excellent_rate_hint": {"ar": "الفائض نسبةً من الدخل", "en": "Surplus as a share of income"},
+    "good_rate": {"ar": "ادخار جيد إذا كان ≥", "en": "Good saving if ≥"},
+    "good_rate_hint": {"ar": "دون ذلك يُعدّ الفائض قليلًا", "en": "Below this the surplus counts as small"},
+    "max_debt_rate": {"ar": "الحد الآمن للأقساط ≤", "en": "Safe installment limit ≤"},
+    "max_luxury_rate": {"ar": "الحد المقترح للكماليات ≤", "en": "Suggested luxury limit ≤"},
+    "of_income": {"ar": "من الدخل", "en": "of income"},
+    "emergency_cut_rate": {"ar": "نسبة الاقتطاع للطوارئ", "en": "Emergency contribution rate"},
+    "emergency_cut_rate_hint": {"ar": "من الصافي حتى يكتمل صندوق الطوارئ", "en": "of net, until the emergency fund is complete"},
+    "saving_rate_em_incomplete": {"ar": "نسبة الادخار (الطوارئ غير مكتمل)", "en": "Saving rate (emergency incomplete)"},
+    "saving_rate_em_complete": {"ar": "نسبة الادخار (الطوارئ مكتمل)", "en": "Saving rate (emergency complete)"},
+    "of_net": {"ar": "من الصافي", "en": "of net"},
+    "emergency_ref_months": {"ar": "عدد أشهر مرجع الطوارئ", "en": "Emergency reference months"},
+    "emergency_ref_months_hint": {"ar": "المرجع = (الأساسيات + الأقساط) × الأشهر × المعامل", "en": "Reference = (essentials + installments) × months × factor"},
+    "emergency_ref_factor": {"ar": "معامل زيادة مرجع الطوارئ", "en": "Emergency reference factor"},
+    "emergency_ref_factor_hint": {"ar": "1.25 تعني احتياطيًا إضافيًا بنسبة 25%", "en": "1.25 means a 25% extra buffer"},
+    "currency": {"ar": "العملة", "en": "Currency"},
+    "types_title": {"ar": "أنواع المصروفات", "en": "Expense types"},
+    "types_hint": {"ar": "التصنيف هو ما يحدد الحسابات (أساسي، كمالي، أقساط، ادخار، طوارئ). يمكن تغيير أسماء الأنواع الخمسة الأساسية فقط.", "en": "The category drives the calculations (essential, luxury, installments, savings, emergency). The five core types can only be renamed."},
+    "types_name": {"ar": "الاسم", "en": "Name"},
+    "types_role": {"ar": "التصنيف في الحسابات", "en": "Category in calculations"},
+    "types_core": {"ar": "نوع أساسي", "en": "Core type"},
+    "types_new_placeholder": {"ar": "نوع جديد", "en": "New type"},
+    "types_err_empty": {"ar": "اكتب اسم النوع", "en": "Enter the type name"},
+    "categories_title": {"ar": "أنواع الأهداف", "en": "Goal types"},
+    "categories_hint": {"ar": "للتصنيف والتصفية فقط، ولا تؤثر في التوزيع. عند حذف نوع تصبح أهدافه دون نوع.", "en": "For grouping and filtering only; they don't affect allocation. Deleting a type leaves its goals without a type."},
+    "categories_new_placeholder": {"ar": "نوع هدف جديد", "en": "New goal type"},
+    "categories_err_empty": {"ar": "اكتب اسم نوع الهدف", "en": "Enter the goal type name"},
+    "templates_title": {"ar": "البنود المتكررة", "en": "Recurring items"},
+    "templates_hint": {"ar": "تُضاف تلقائيًا إلى كل شهر جديد. اترك المبلغ فارغًا إذا كان السعر يتغير كل شهر (مثل الكهرباء)، وسيُعلَّم «يحتاج إلى سعر».", "en": "Added automatically to every new month. Leave the amount empty if the price changes monthly (like electricity) and it will be marked “Needs a price”."},
+    "templates_kind": {"ar": "دخل / مصروف", "en": "Income / expense"},
+    "templates_kind_income": {"ar": "دخل", "en": "Income"},
+    "templates_kind_expense": {"ar": "مصروف", "en": "Expense"},
+    "templates_name": {"ar": "الاسم", "en": "Name"},
+    "templates_expense_type": {"ar": "نوع المصروف", "en": "Expense type"},
+    "templates_amount": {"ar": "المبلغ", "en": "Amount"},
+    "templates_variable": {"ar": "متغير", "en": "Variable"},
+    "templates_withdrawal": {"ar": "سحب؟", "en": "Withdrawal?"},
+    "templates_active": {"ar": "نشط", "en": "Active"},
+    "templates_notes": {"ar": "ملاحظات", "en": "Notes"},
+    "templates_new_placeholder": {"ar": "بند متكرر جديد", "en": "New recurring item"},
+    "templates_err_empty": {"ar": "اكتب اسم البند", "en": "Enter the item name"},
+    "account_title": {"ar": "الحساب", "en": "Account"},
+    "account_username": {"ar": "اسم المستخدم:", "en": "Username:"},
+    "account_change_password": {"ar": "تغيير كلمة المرور", "en": "Change password"}
+  },
+
+  "role": {
+    "essential": {"ar": "أساسي", "en": "Essential"},
+    "luxury": {"ar": "كمالي", "en": "Luxury"},
+    "debt": {"ar": "دين/أقساط", "en": "Debt/installments"},
+    "savings": {"ar": "ادخار", "en": "Savings"},
+    "emergency": {"ar": "طوارئ", "en": "Emergency"},
+    "other": {"ar": "مصروف عادي", "en": "Regular expense"}
+  },
+
+  "seed": {
+    "currency": {"ar": "ر.س", "en": "SAR"},
+    "type": {
+      "emergency": {"ar": "طوارئ", "en": "Emergency"},
+      "savings": {"ar": "ادخار", "en": "Savings"},
+      "luxury": {"ar": "كمالي", "en": "Luxury"},
+      "debt": {"ar": "دين/أقساط", "en": "Debt/installments"},
+      "essential": {"ar": "أساسي", "en": "Essential"},
+      "giving": {"ar": "العطاء والمساندة", "en": "Giving and support"},
+      "transfer": {"ar": "تحويل خارجي", "en": "External transfer"},
+      "investment": {"ar": "الاستثمار", "en": "Investment"}
+    },
+    "category": {
+      "essential": {"ar": "أساسي", "en": "Essential"},
+      "luxury": {"ar": "كمالي", "en": "Luxury"},
+      "investment": {"ar": "استثمار", "en": "Investment"},
+      "other": {"ar": "أخرى", "en": "Other"}
+    }
+  },
+
+  "demo": {
+    "salary": {"ar": "الراتب", "en": "Salary"},
+    "bonus": {"ar": "حوافز", "en": "Bonus"},
+    "rent": {"ar": "الإيجار", "en": "Rent"},
+    "internet": {"ar": "الإنترنت", "en": "Internet"},
+    "electricity": {"ar": "الكهرباء", "en": "Electricity"},
+    "groceries": {"ar": "مشتريات المنزل", "en": "Groceries"},
+    "subscriptions": {"ar": "اشتراكات رقمية", "en": "Digital subscriptions"},
+    "saving": {"ar": "ادخار شهري", "en": "Monthly saving"},
+    "emergency": {"ar": "صندوق الطوارئ", "en": "Emergency fund"},
+    "phone": {"ar": "قسط الجوال", "en": "Phone installment"},
+    "car": {"ar": "قسط السيارة", "en": "Car installment"},
+    "outing": {"ar": "نزهة عائلية", "en": "Family outing"},
+    "gift": {"ar": "هدية", "en": "Gift"},
+    "charity": {"ar": "صدقة", "en": "Charity"},
+    "course": {"ar": "دورة تدريبية", "en": "Training course"},
+    "goal_car": {"ar": "سيارة جديدة", "en": "New car"},
+    "goal_trip": {"ar": "رحلة صيفية", "en": "Summer trip"},
+    "goal_laptop": {"ar": "حاسوب محمول", "en": "Laptop"},
+    "note_card": {"ar": "دُفع بالبطاقة", "en": "Paid by card"}
+  },
+
+  "admin": {
+    "err": {
+      "user_missing": {"ar": "المستخدم غير موجود", "en": "User not found"},
+      "port_number": {"ar": "يجب أن يكون المنفذ رقمًا", "en": "The port must be a number"},
+      "port_range": {"ar": "يجب أن يكون المنفذ بين 1024 و65535", "en": "The port must be between 1024 and 65535"},
+      "demo_exists": {"ar": "المستخدم «{name}» موجود بالفعل", "en": "User “{name}” already exists"}
+    }
+  },
+
+  "manager": {
+    "title": {"ar": "مدير خادم ميزانيتي", "en": "Mezaniya server manager"},
+    "server": {"ar": "الخادم", "en": "Server"},
+    "start": {"ar": "تشغيل", "en": "Start"},
+    "stop": {"ar": "إيقاف", "en": "Stop"},
+    "restart": {"ar": "إعادة التشغيل", "en": "Restart"},
+    "open": {"ar": "فتح في المتصفح", "en": "Open in browser"},
+    "state_running": {"ar": "يعمل", "en": "Running"},
+    "state_starting": {"ar": "قيد التشغيل…", "en": "Starting…"},
+    "state_stopped": {"ar": "متوقف", "en": "Stopped"},
+    "port": {"ar": "المنفذ", "en": "Port"},
+    "save_port": {"ar": "حفظ المنفذ", "en": "Save port"},
+    "port_pending": {"ar": "يعمل على {running}، والمنفذ الجديد {configured} يحتاج إلى إعادة تشغيل", "en": "Running on {running}; the new port {configured} needs a restart"},
+    "users": {"ar": "المستخدمون", "en": "Users"},
+    "new_user": {"ar": "مستخدم جديد", "en": "New user"},
+    "change_password": {"ar": "تغيير كلمة المرور", "en": "Change password"},
+    "logout_user": {"ar": "إخراج المستخدم", "en": "Sign user out"},
+    "delete_user": {"ar": "حذف المستخدم وجميع بياناته", "en": "Delete user and all data"},
+    "logout_all": {"ar": "إخراج جميع المستخدمين", "en": "Sign everyone out"},
+    "demo": {"ar": "مستخدم تجريبي ({name})", "en": "Demo user ({name})"},
+    "online_count": {"ar": "المتصلون الآن {online} من {total}", "en": "Online now: {online} of {total}"},
+    "online_hint": {"ar": "المتصل هو من استخدم البرنامج خلال آخر {duration}", "en": "“Online” means used in the last {duration}"},
+    "col_username": {"ar": "اسم المستخدم", "en": "Username"},
+    "col_state": {"ar": "الحالة", "en": "Status"},
+    "col_last_seen": {"ar": "آخر نشاط", "en": "Last activity"},
+    "col_last_login": {"ar": "آخر دخول", "en": "Last login"},
+    "col_created": {"ar": "تاريخ التسجيل", "en": "Registered"},
+    "col_months": {"ar": "عدد الأشهر", "en": "Months"},
+    "online": {"ar": "● متصل الآن", "en": "● Online now"},
+    "temp_password": {"ar": "كلمة مرور مؤقتة", "en": "temporary password"},
+    "backup": {"ar": "النسخ الاحتياطي", "en": "Backups"},
+    "backup_now": {"ar": "نسخة احتياطية الآن", "en": "Back up now"},
+    "open_backups": {"ar": "فتح مجلد النسخ", "en": "Open backups folder"},
+    "last_backup": {"ar": "آخر نسخة", "en": "Latest backup"},
+    "log": {"ar": "سجل الخادم", "en": "Server log"},
+    "new_password_hint": {"ar": "كلمة المرور (6 أحرف على الأقل)", "en": "Password (at least 6 characters)"},
+    "temporary_check": {"ar": "مؤقتة: يكتبها بين علامتي # ويغيّرها عند أول دخول", "en": "Temporary: typed between # marks and changed at first login"},
+    "cannot": {"ar": "تعذّر التنفيذ", "en": "Can't do that"},
+    "error": {"ar": "خطأ", "en": "Error"},
+    "done": {"ar": "تم", "en": "Done"},
+    "start_failed_title": {"ar": "لم يبدأ الخادم", "en": "The server didn't start"},
+    "start_failed": {"ar": "تأكد من أن المنفذ {port} غير مستخدم من برنامج آخر، وراجع سجل الخادم أدناه.", "en": "Make sure port {port} isn't used by another program, and check the server log below."},
+    "stop_failed": {"ar": "لم يتوقف الخادم", "en": "The server didn't stop"},
+    "port_invalid": {"ar": "منفذ غير صالح", "en": "Invalid port"},
+    "port_saved_title": {"ar": "تغيّر المنفذ", "en": "Port changed"},
+    "port_saved": {"ar": "حُفظ المنفذ {port} في mezaniya.env.\n\nلكي تتصل الأجهزة الأخرى، افتح PowerShell بصلاحيات المسؤول والصق الأمر المنسوخ:\n{command}", "en": "Port {port} saved to mezaniya.env.\n\nFor other devices to connect, open PowerShell as Administrator and paste the copied command:\n{command}"},
+    "port_restart_now": {"ar": "هل تريد إعادة تشغيل الخادم الآن على المنفذ الجديد؟", "en": "Restart the server on the new port now?"},
+    "pick_user_title": {"ar": "اختر مستخدمًا", "en": "Select a user"},
+    "pick_user": {"ar": "اختر مستخدمًا من الجدول أولًا", "en": "Select a user from the table first"},
+    "user_created": {"ar": "أُنشئ المستخدم «{name}»", "en": "User “{name}” created"},
+    "password_changed": {"ar": "تغيّرت كلمة مرور «{name}»، وخرج من جميع الأجهزة.", "en": "“{name}”'s password was changed and they were signed out everywhere."},
+    "password_temp_note": {"ar": "كلمة المرور المؤقتة: {password}\nيكتبها مع العلامتين، وسيطلب منه البرنامج كلمة مرور جديدة.", "en": "Temporary password: {password}\nIt must be typed with the # marks; the app will then ask for a new password."},
+    "logout_user_title": {"ar": "إخراج", "en": "Sign out"},
+    "logout_user_confirm": {"ar": "إخراج «{name}» من جميع الأجهزة؟", "en": "Sign “{name}” out on every device?"},
+    "logout_user_done": {"ar": "يجب على «{name}» تسجيل الدخول من جديد", "en": "“{name}” has to log in again"},
+    "logout_all_title": {"ar": "إخراج الجميع", "en": "Sign everyone out"},
+    "logout_all_confirm": {"ar": "إخراج جميع المستخدمين من جميع الأجهزة الآن؟\nسيحتاج كل مستخدم إلى تسجيل الدخول من جديد.", "en": "Sign every user out on every device now?\nEveryone will need to log in again."},
+    "logout_all_done": {"ar": "خرج {users} من جميع الأجهزة", "en": "Signed out {users} everywhere"},
+    "delete_title": {"ar": "حذف نهائي", "en": "Permanent delete"},
+    "delete_confirm": {"ar": "حذف «{name}» وجميع بياناته ({months}، مع الدخل والمصروفات والأهداف والإعدادات)؟\nستُنشأ نسخة احتياطية قبل الحذف.", "en": "Delete “{name}” and all their data ({months}, with income, expenses, goals and settings)?\nA backup is made before deleting."},
+    "delete_type_name": {"ar": "اكتب «{name}» للتأكيد:", "en": "Type “{name}” to confirm:"},
+    "delete_confirm_title": {"ar": "تأكيد", "en": "Confirm"},
+    "delete_mismatch_title": {"ar": "لم يُحذف", "en": "Not deleted"},
+    "delete_mismatch": {"ar": "الاسم غير مطابق", "en": "The name doesn't match"},
+    "deleted_title": {"ar": "حُذف", "en": "Deleted"},
+    "deleted": {"ar": "حُذف «{name}» وجميع بياناته.\nنسخة ما قبل الحذف: {file}", "en": "“{name}” and all their data were deleted.\nBackup taken before deleting: {file}"},
+    "backup_done": {"ar": "أُنشئت نسخة احتياطية:\n{path}", "en": "Backup created:\n{path}"},
+    "close_title": {"ar": "إغلاق المدير", "en": "Close the manager"},
+    "close_body": {"ar": "الخادم يعمل.\nنعم = إيقافه ثم الإغلاق\nلا = تركه يعمل وإغلاق المدير فقط", "en": "The server is running.\nYes = stop it, then close\nNo = leave it running and close the manager only"},
+    "demo_created": {"ar": "أُنشئ المستخدم التجريبي «{name}» بكلمة المرور «{password}» مع بيانات {months}.", "en": "Demo user “{name}” created with password “{password}” and {months} of data."},
+    "demo_replace": {"ar": "المستخدم «{name}» موجود بالفعل. هل تريد حذفه وإعادة إنشائه ببيانات تجريبية جديدة؟", "en": "User “{name}” already exists. Delete it and recreate it with fresh demo data?"}
+  },
+
+  "cli": {
+    "description": {"ar": "أوامر إدارة ميزانيتي", "en": "Mezaniya admin commands"},
+    "help_lang": {"ar": "لغة الرسائل (ar أو en)", "en": "Message language (ar or en)"},
+    "help_list_users": {"ar": "عرض المستخدمين", "en": "List users"},
+    "help_reset_password": {"ar": "تعيين كلمة مرور مؤقتة #...# لمستخدم", "en": "Set a temporary #password# for a user"},
+    "help_password": {"ar": "كلمة المرور المؤقتة (عشوائية إن لم تُحدَّد)، وتُضاف العلامتان # عند غيابهما", "en": "Temporary password (random if omitted); # marks are added if missing"},
+    "help_logout_all": {"ar": "إخراج جميع المستخدمين من جميع الأجهزة", "en": "Sign every user out on every device"},
+    "help_delete_user": {"ar": "حذف مستخدم وجميع بياناته (بعد نسخة احتياطية)", "en": "Delete a user and all their data (backs up first)"},
+    "help_backup": {"ar": "إنشاء نسخة احتياطية الآن", "en": "Make a backup now"},
+    "help_list_backups": {"ar": "عرض النسخ الاحتياطية", "en": "List backups"},
+    "help_restore": {"ar": "استبدال قاعدة البيانات بنسخة احتياطية (والخادم متوقف)", "en": "Replace the database with a backup (server stopped)"},
+    "help_migrate": {"ar": "ترقية بنية قاعدة البيانات", "en": "Upgrade the database structure"},
+    "help_demo": {"ar": "إنشاء المستخدم التجريبي ببيانات ثلاثة أشهر", "en": "Create the demo user with three months of data"},
+    "help_replace": {"ar": "حذف المستخدم التجريبي الحالي وإعادة إنشائه", "en": "Delete the existing demo user and recreate it"},
+    "help_yes": {"ar": "تأكيد التنفيذ", "en": "Confirm"},
+    "user_line": {"ar": "{id}  {username}  التسجيل {created}  آخر دخول {last_login}{flag}", "en": "{id}  {username}  registered {created}  last login {last_login}{flag}"},
+    "must_change_flag": {"ar": "  (كلمة مرور مؤقتة — يجب تغييرها)", "en": "  (temporary password — must change)"},
+    "no_user": {"ar": "لا يوجد مستخدم باسم {name}", "en": "No user named {name}"},
+    "temp_password": {"ar": "كلمة المرور المؤقتة للمستخدم {name}: {password}", "en": "Temporary password for {name}: {password}"},
+    "temp_password_note": {"ar": "اكتبها كما هي مع علامتي #، وسيطلب البرنامج كلمة مرور جديدة فورًا.", "en": "Type it exactly as shown (with the # marks); the app will ask for a new password right away."},
+    "logged_out": {"ar": "خرج {users} من جميع الأجهزة", "en": "Signed out {users} everywhere"},
+    "delete_needs_yes": {"ar": "سيُحذف {name} وجميع بياناته. أعد الأمر مع --yes للتأكيد", "en": "This deletes {name} and ALL their data. Re-run with --yes"},
+    "deleted": {"ar": "حُذف {name} (نسخة ما قبل الحذف: {path})", "en": "Deleted {name} (backup before deleting: {path})"},
+    "backup_written": {"ar": "كُتبت نسخة احتياطية: {path}", "en": "Backup written: {path}"},
+    "no_backups": {"ar": "لا توجد نسخ احتياطية بعد", "en": "No backups yet"},
+    "backup_line": {"ar": "{path}  ({size} ك.ب)", "en": "{path}  ({size} KB)"},
+    "file_missing": {"ar": "الملف غير موجود: {path}", "en": "File not found: {path}"},
+    "restore_needs_yes": {"ar": "سيستبدل هذا قاعدة البيانات الحالية. أوقف الخادم ثم أعد الأمر مع --yes", "en": "This replaces the current database. Stop the server, then re-run with --yes"},
+    "restored": {"ar": "استُرجعت {db} من {file}", "en": "Restored {db} from {file}"},
+    "previous_saved": {"ar": "حُفظت قاعدة البيانات السابقة باسم {path}", "en": "The previous database was saved as {path}"},
+    "migrations_applied": {"ar": "طُبّقت ترقيات قاعدة البيانات: {versions}", "en": "Applied database upgrades: {versions}"},
+    "db_up_to_date": {"ar": "قاعدة البيانات محدّثة", "en": "The database is up to date"},
+    "demo_exists": {"ar": "المستخدم {name} موجود بالفعل. استخدم --replace لإعادة إنشائه", "en": "User {name} already exists. Use --replace to recreate it"}
+  },
+
+  "log": {
+    "started": {"ar": "ميزانيتي يعمل على http://localhost:{port}", "en": "Mezaniya running on http://localhost:{port}"},
+    "network": {"ar": "على الشبكة: http://{ip}:{port}", "en": "On the network: http://{ip}:{port}"},
+    "config": {"ar": "البيانات: {db} | النسخ: {backups} (الاحتفاظ بـ {keep}، كل {hours} ساعة) | التسجيل {registration}", "en": "Data: {db} | backups: {backups} (keep {keep}, every {hours}h) | registration {registration}"},
+    "registration_open": {"ar": "مفتوح", "en": "open"},
+    "registration_closed": {"ar": "مغلق", "en": "closed"},
+    "server_error": {"ar": "توقف الخادم بسبب خطأ (هل المنفذ {port} مستخدم بالفعل؟)", "en": "The server stopped with an error (is port {port} already in use?)"},
+    "backup_written": {"ar": "كُتبت نسخة احتياطية: {path}", "en": "Backup written: {path}"},
+    "backup_failed": {"ar": "فشل النسخ الاحتياطي", "en": "Backup failed"},
+    "restored": {"ar": "استُرجعت {db} من {file} (حُفظت السابقة باسم {safety})", "en": "Restored {db} from {file} (previous saved as {safety})"}
+  }
+}

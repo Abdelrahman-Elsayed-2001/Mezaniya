@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}{{ t('auth.login.title') }} · {{ t('app.title') }}{% endblock %}
+{% block body %}
+<main class="auth-wrap">
+  <form class="auth-card" data-endpoint="/auth/login" data-success="{{ next }}" novalidate>
+    <div class="auth-top">{% include "_lang_switch.html" %}</div>
+    <h1 class="brand">{{ t('app.title') }}</h1>
+    <p class="subtitle">{{ t('auth.login.subtitle') }}</p>
+    <div class="alert alert-error" role="alert" hidden></div>
+    <input type="hidden" name="next" value="{{ next }}">
+    <div class="field">
+      <label for="username">{{ t('auth.username') }}</label>
+      <input id="username" name="username" autocomplete="username" required autofocus>
+    </div>
+    <div class="field">
+      <label for="password">{{ t('auth.password') }}</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="btn btn-primary" type="submit">{{ t('auth.login.submit') }}</button>
+    {% if allow_registration %}
+    <div class="divider">{{ t('auth.login.first_time') }}</div>
+    <a class="btn btn-secondary" href="{{ url_for('auth.register_page') }}">{{ t('auth.register.link') }}</a>
+    {% endif %}
+  </form>
+</main>
+{% endblock %}

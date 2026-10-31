@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block title %}{{ t('common.settings') }} · {{ t('app.title') }}{% endblock %}
+{% block body %}
+<div x-data="settingsPage" x-cloak>
+  <header class="topbar">
+    <div class="topbar-start">
+      <h1 class="brand">{{ t('common.settings') }}</h1>
+      <a class="btn btn-small btn-ghost" href="/">{{ t('settings.back') }}</a>
+    </div>
+    <nav>
+      <span class="muted">{{ username }}</span>
+      {% include "_lang_switch.html" %}
+      <button class="btn btn-small btn-ghost" type="button" data-logout>{{ t('common.logout') }}</button>
+    </nav>
+  </header>
+
+  <main class="page">
+    <nav class="tabs" role="tablist">
+      <template x-for="tab_ in tabs" :key="tab_">
+        <button type="button" role="tab" :aria-selected="tab === tab_" :class="tab === tab_ ? 'active' : ''"
+                @click="setTab(tab_)" x-text="t('settings.tab_' + tab_)"></button>
+      </template>
+    </nav>
+
+    <!-- ================= criteria ================= -->
+    <section class="card settings-card" x-show="tab === 'criteria'" x-cloak>
+      <h2>{{ t('settings.criteria_title') }}</h2>
+      <template x-if="settings">
+        <form class="form-grid" @submit.prevent="saveSettings()">
+          <template x-for="f in rateFields" :key="f.key">
+            <label class="field">
+              <span x-text="t('settings.' + f.key)"></span>
+              <span class="input-suffix">
+                <input type="number" step="0.1" min="0" max="100" :name="f.key" x-model="form[f.key]" required>
+                <span>%</span>
+              </span>
+              <small class="hint" x-text="t(f.hint)"></small>
+            </label>
+          </template>
+          <label class="field">
+            <span>{{ t('settings.emergency_ref_months') }}</span>
+            <input type="number" step="0.5" min="0" max="60" name="emergency_ref_months" x-model="form.emergency_ref_months" required>
+            <small class="hint">{{ t('settings.emergency_ref_months_hint') }}</small>
+          </label>
+          <label class="field">
+            <span>{{ t('settings.emergency_ref_factor') }}</span>
+            <input type="number" step="0.05" min="0" max="10" name="emergency_ref_factor" x-model="form.emergency_ref_factor" required>
+            <small class="hint">{{ t('settings.emergency_ref_factor_hint') }}</small>
+          </label>
+          <label class="field">
+            <span>{{ t('settings.currency') }}</span>
+            <input name="currency" maxlength="10" x-model="form.currency" required>
+          </label>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-small" type="submit" :disabled="busy">{{ t('common.save') }}</button>
+          </div>
+        </form>
+      </template>
+    </section>
+
+    <!-- ================= expense types ================= -->
+    <section class="card settings-card" x-show="tab === 'types'" x-cloak>
+      <h2>{{ t('settings.types_title') }}</h2>
+      <p class="muted small">{{ t('settings.types_hint') }}</p>
+      <div class="table-wrap">
+        <table class="grid">
+          <thead><tr><th class="w-name">{{ t('settings.types_name') }}</th><th>{{ t('settings.types_role') }}</th><th></th></tr></thead>
+          <tbody>
+            <template x-for="ty in types" :key="ty.id">
+              <tr>
+                <td><input :value="ty.name" @change="updateRow('expense-types', ty, {name: $event.target.value})"></td>
+                <td>
+                  <select :disabled="ty.is_system" @change="updateRow('expense-types', ty, {role: $event.target.value})">
+                    <template x-for="r in roles" :key="r">
+                      <option :value="r" :selected="r === ty.role" x-text="t('role.' + r)"></option>
+                    </template>
+                  </select>
+                  <small class="muted" x-show="ty.is_system">{{ t('settings.types_core') }}</small>
+                </td>
+                <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" x-show="!ty.is_system"
+                            @click="removeRow('expense-types', ty, ty.name)">✕</button></td>
+              </tr>
+            </template>
+          </tbody>
+          <tfoot>
+            <tr class="add-row">
+              <td><input placeholder="{{ t('settings.types_new_placeholder') }}" x-model="newType.name" @keydown.enter="addType()"></td>
+              <td>
+                <select x-model="newType.role">
+                  <template x-for="r in roles" :key="r">
+                    <option :value="r" x-text="t('role.' + r)"></option>
+                  </template>
+                </select>
+              </td>
+              <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addType()">+</button></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= goal categories ================= -->
+    <section class="card settings-card" x-show="tab === 'categories'" x-cloak>
+      <h2>{{ t('settings.categories_title') }}</h2>
+      <p class="muted small">{{ t('settings.categories_hint') }}</p>
+      <div class="table-wrap">
+        <table class="grid narrow">
+          <thead><tr><th class="w-name">{{ t('settings.types_name') }}</th><th></th></tr></thead>
+          <tbody>
+            <template x-for="c in categories" :key="c.id">
+              <tr>
+                <td><input :value="c.name" @change="updateRow('goal-categories', c, {name: $event.target.value})"></td>
+                <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeRow('goal-categories', c, c.name)">✕</button></td>
+              </tr>
+            </template>
+          </tbody>
+          <tfoot>
+            <tr class="add-row">
+              <td><input placeholder="{{ t('settings.categories_new_placeholder') }}" x-model="newCategory" @keydown.enter="addCategory()"></td>
+              <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addCategory()">+</button></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= recurring items ================= -->
+    <section class="card settings-card" x-show="tab === 'templates'" x-cloak>
+      <h2>{{ t('settings.templates_title') }}</h2>
+      <p class="muted small">{{ t('settings.templates_hint') }}</p>
+      <div class="table-wrap">
+        <table class="grid">
+          <thead>
+            <tr><th>{{ t('settings.templates_kind') }}</th><th class="w-name">{{ t('settings.templates_name') }}</th>
+              <th>{{ t('settings.templates_expense_type') }}</th><th>{{ t('settings.templates_amount') }}</th>
+              <th title="{{ t('incomes.withdrawal_hint') }}">{{ t('settings.templates_withdrawal') }}</th>
+              <th>{{ t('settings.templates_active') }}</th><th>{{ t('settings.templates_notes') }}</th><th></th></tr>
+          </thead>
+          <tbody>
+            <template x-for="tp in templates" :key="tp.id">
+              <tr :class="tp.active ? '' : 'ignored'">
+                <td><span class="chip" :class="tp.kind === 'income' ? 'chip-income' : ''"
+                          x-text="t('settings.templates_kind_' + tp.kind)"></span></td>
+                <td><input :value="tp.name" @change="updateRow('templates', tp, {name: $event.target.value})"></td>
+                <td>
+                  <select x-show="tp.kind === 'expense'" @change="updateRow('templates', tp, {type_id: Number($event.target.value)})">
+                    <template x-for="ty in types" :key="ty.id">
+                      <option :value="ty.id" :selected="ty.id === tp.type_id" x-text="ty.name"></option>
+                    </template>
+                  </select>
+                </td>
+                <td><input class="num" type="number" step="0.01" min="0" placeholder="{{ t('settings.templates_variable') }}" :value="tp.amount ?? ''"
+                           @change="updateRow('templates', tp, {amount: numOrNull($event.target.value)})"></td>
+                <td class="center"><input type="checkbox" x-show="tp.kind === 'income'" :checked="tp.is_savings_withdrawal"
+                           @change="updateRow('templates', tp, {is_savings_withdrawal: $event.target.checked})"></td>
+                <td class="center"><input type="checkbox" :checked="tp.active"
+                           @change="updateRow('templates', tp, {active: $event.target.checked})"></td>
+                <td><input :value="tp.notes ?? ''" placeholder="—"
+                           @change="updateRow('templates', tp, {notes: $event.target.value.trim() || null})"></td>
+                <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeRow('templates', tp, tp.name)">✕</button></td>
+              </tr>
+            </template>
+          </tbody>
+          <tfoot>
+            <tr class="add-row">
+              <td>
+                <select x-model="newTemplate.kind">
+                  <option value="expense">{{ t('settings.templates_kind_expense') }}</option>
+                  <option value="income">{{ t('settings.templates_kind_income') }}</option>
+                </select>
+              </td>
+              <td><input placeholder="{{ t('settings.templates_new_placeholder') }}" x-model="newTemplate.name" @keydown.enter="addTemplate()"></td>
+              <td>
+                <select x-show="newTemplate.kind === 'expense'" x-model.number="newTemplate.type_id">
+                  <template x-for="ty in types" :key="ty.id">
+                    <option :value="ty.id" x-text="ty.name"></option>
+                  </template>
+                </select>
+              </td>
+              <td><input class="num" type="number" step="0.01" min="0" placeholder="{{ t('settings.templates_variable') }}" x-model="newTemplate.amount"
+                         @keydown.enter="addTemplate()"></td>
+              <td class="center"><input type="checkbox" x-show="newTemplate.kind === 'income'" x-model="newTemplate.is_savings_withdrawal"></td>
+              <td colspan="2"></td>
+              <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addTemplate()">+</button></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= account ================= -->
+    <section class="card settings-card narrow-card" x-show="tab === 'account'" x-cloak>
+      <h2>{{ t('settings.account_title') }}</h2>
+      <p class="muted">{{ t('settings.account_username') }} <strong>{{ username }}</strong></p>
+      <h3>{{ t('settings.account_change_password') }}</h3>
+      <form @submit.prevent="changePassword($el)" novalidate>
+        <input type="text" name="username" value="{{ username }}" autocomplete="username" hidden>
+        <label class="field">
+          <span>{{ t('auth.current_password') }}</span>
+          <input name="current_password" type="password" autocomplete="current-password" required>
+        </label>
+        <label class="field">
+          <span>{{ t('auth.new_password') }}</span>
+          <input name="new_password" type="password" autocomplete="new-password" required>
+          <small class="hint">{{ t('auth.password_hint') }}</small>
+        </label>
+        <label class="field">
+          <span>{{ t('auth.new_password_confirm') }}</span>
+          <input name="new_password_confirm" type="password" autocomplete="new-password" required>
+        </label>
+        <button class="btn btn-primary btn-small" type="submit" :disabled="busy">{{ t('settings.account_change_password') }}</button>
+      </form>
+      <p class="muted small">{{ t('auth.change.other_devices') }}</p>
+    </section>
+  </main>
+
+  <div class="toast" role="status" x-show="toast" x-transition x-text="toast"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
+<script defer src="{{ url_for('static', filename='vendor/alpine-3.14.9.min.js') }}"></script>
+{% endblock %}

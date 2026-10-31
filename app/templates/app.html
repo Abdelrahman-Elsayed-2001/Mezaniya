@@ -1,0 +1,607 @@
+{% extends "base.html" %}
+{% block body %}
+<div x-data="dashboard" x-cloak>
+  <header class="topbar">
+    <div class="topbar-start">
+      <h1 class="brand">{{ t('app.title') }}</h1>
+      <label class="month-picker">
+        <span class="sr-only">{{ t('nav.month') }}</span>
+        <select @change="load(Number($event.target.value))" :disabled="busy">
+          <template x-for="m in months" :key="m.id">
+            <option :value="m.id" :selected="m.id === budgetId" x-text="m.label"></option>
+          </template>
+        </select>
+      </label>
+      <button class="btn btn-small btn-primary" type="button" @click="openWizard()" :disabled="busy || !months.length"
+              x-text="months.length ? t('nav.new_month_label', {label: nextLabel()}) : t('nav.new_month')"></button>
+    </div>
+    <nav>
+      <span class="muted">{{ username }}</span>
+      {% include "_lang_switch.html" %}
+      <a class="btn btn-small btn-ghost" href="/settings">{{ t('common.settings') }}</a>
+      <button class="btn btn-small btn-ghost" type="button" data-logout>{{ t('common.logout') }}</button>
+    </nav>
+  </header>
+
+  <main class="page" x-show="d">
+    <template x-if="d">
+      <div class="stack">
+
+        <!-- ================= results ================= -->
+        <section class="grid-3">
+          <article class="card">
+            <h2>{{ t('summary.title') }}</h2>
+            <div class="status" :class="'status-' + d.summary.status.level" x-text="d.summary.status.text"></div>
+            <table class="kv">
+              <tr><th>{{ t('summary.income') }}</th><td x-text="money(d.summary.income)"></td><td class="muted">100%</td></tr>
+              <tr><th>{{ t('summary.expenses') }}</th><td x-text="money(d.summary.expenses)"></td><td class="muted" x-text="pct(d.summary.expenses_pct)"></td></tr>
+              <tr class="sub"><th>{{ t('summary.debt') }}</th><td x-text="money(d.summary.debt)"></td>
+                <td :class="d.summary.debt_pct > d.settings.max_debt_rate ? 'neg' : 'muted'" x-text="pct(d.summary.debt_pct)"></td></tr>
+              <tr class="sub"><th>{{ t('summary.luxury') }}</th><td x-text="money(d.summary.luxury)"></td>
+                <td :class="d.summary.luxury_pct > d.settings.max_luxury_rate ? 'neg' : 'muted'" x-text="pct(d.summary.luxury_pct)"></td></tr>
+              <tr class="sub"><th>{{ t('summary.essential') }}</th><td x-text="money(d.summary.essential)"></td><td class="muted" x-text="pct(d.summary.essential_pct)"></td></tr>
+              <tr class="total"><th>{{ t('summary.net') }}</th>
+                <td :class="d.summary.net < 0 ? 'neg' : 'pos'" x-text="money(d.summary.net)"></td>
+                <td class="muted" x-text="pct(d.summary.net_pct)"></td></tr>
+            </table>
+          </article>
+
+          <article class="card">
+            <h2>{{ t('suggestions.title') }}</h2>
+            <table class="kv">
+              <tr><th>{{ t('suggestions.emergency') }}</th><td x-text="money(d.suggestions.emergency)"></td><td class="muted" x-text="pct(d.suggestions.emergency_pct)"></td></tr>
+              <tr><th>{{ t('suggestions.saving') }}</th><td x-text="money(d.suggestions.saving)"></td><td class="muted" x-text="pct(d.suggestions.saving_pct)"></td></tr>
+              <tr class="total"><th>{{ t('suggestions.safe_spend') }}</th><td x-text="money(d.suggestions.safe_spend)"></td><td class="muted" x-text="pct(d.suggestions.safe_spend_pct)"></td></tr>
+              <tr class="sub"><th x-text="t('suggestions.daily', {days: d.suggestions.days_text})"></th><td x-text="money(d.suggestions.safe_daily)"></td><td></td></tr>
+              <tr class="sub"><th>{{ t('suggestions.weekly') }}</th><td x-text="money(d.suggestions.safe_weekly)"></td><td></td></tr>
+              <tr x-show="d.suggestions.return_to_savings > 0">
+                <th>{{ t('suggestions.return') }}</th><td class="warn-text" x-text="money(d.suggestions.return_to_savings)"></td>
+                <td class="muted" x-text="pct(d.suggestions.return_to_savings_pct)"></td></tr>
+            </table>
+          </article>
+
+          <article class="card">
+            <h2>{{ t('warnings.title') }} <span class="count" :class="d.warnings_count ? 'count-warn' : 'count-ok'" x-text="d.warnings_count"></span></h2>
+            <p class="muted" x-text="d.warnings_text"></p>
+            <ul class="warnings">
+              <template x-for="w in sortedWarnings()" :key="w.key">
+                <li :class="w.active ? 'active' : ''">
+                  <span x-text="w.active ? '⚠️' : '✅'"></span>
+                  <div>
+                    <strong x-text="w.title"></strong>
+                    <small x-show="w.details" x-text="w.details"></small>
+                  </div>
+                </li>
+              </template>
+            </ul>
+          </article>
+        </section>
+
+        <!-- ================= inputs: incomes / emergency / savings ================= -->
+        <section class="grid-3">
+          <article class="card">
+            <h2>{{ t('incomes.title') }}</h2>
+            <div class="table-wrap">
+              <table class="grid">
+                <thead><tr><th>{{ t('incomes.source') }}</th><th>{{ t('incomes.amount') }}</th>
+                  <th title="{{ t('incomes.withdrawal_hint') }}">{{ t('incomes.withdrawal_short') }}</th><th></th><th></th></tr></thead>
+                <template x-for="i in d.incomes" :key="i.id">
+                  <tbody>
+                    <tr :class="i.needs_amount ? 'needs' : ''">
+                      <td><input :value="i.source" @change="updateItem('incomes', i, 'source', $event.target.value)"
+                                 :title="i.needs_amount ? t('incomes.needs_amount') : ''"></td>
+                      <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="i.amount"
+                                 @change="updateItem('incomes', i, 'amount', num($event.target.value))"></td>
+                      <td class="center"><input type="checkbox" :checked="i.is_savings_withdrawal"
+                                 title="{{ t('incomes.withdrawal_hint') }}"
+                                 @change="updateItem('incomes', i, 'is_savings_withdrawal', $event.target.checked)"></td>
+                      <td><button class="icon-btn note" type="button" :class="i.notes ? 'has-note' : ''"
+                                  :title="i.notes || t('common.note_add')" @click="toggleNotes('incomes', i)">📝</button></td>
+                      <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeItem('incomes', i)">✕</button></td>
+                    </tr>
+                    <tr class="notes-row" x-show="notesOpen('incomes', i)">
+                      <td colspan="5"><textarea rows="2" placeholder="{{ t('common.note_placeholder') }}" :value="i.notes ?? ''"
+                                                @change="updateItem('incomes', i, 'notes', $event.target.value.trim() || null)"></textarea></td>
+                    </tr>
+                  </tbody>
+                </template>
+                <tfoot>
+                  <tr class="add-row">
+                    <td><input placeholder="{{ t('incomes.new_placeholder') }}" x-model="newIncome.source" @keydown.enter="addIncome()"></td>
+                    <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" placeholder="0"
+                               x-model="newIncome.amount" @keydown.enter="addIncome()"></td>
+                    <td class="center"><input type="checkbox" x-model="newIncome.is_savings_withdrawal" title="{{ t('incomes.withdrawal_hint') }}"></td>
+                    <td></td>
+                    <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addIncome()">+</button></td>
+                  </tr>
+                  <tr class="total"><th>{{ t('common.total') }}</th><td class="num" x-text="money(d.summary.income)"></td><td colspan="3"></td></tr>
+                </tfoot>
+              </table>
+            </div>
+          </article>
+
+          <article class="card">
+            <h2>{{ t('emergency.title') }}</h2>
+            <table class="kv">
+              <tr><th>{{ t('emergency.current') }}</th><td colspan="2"><input class="num" type="number" step="0.01" min="0" :value="d.budget.emergency_current"
+                     @change="setBalance('emergency_current', $event.target.value)"></td></tr>
+              <tr><th>{{ t('emergency.minimum') }}</th><td colspan="2"><input class="num" type="number" step="0.01" min="0" :value="d.budget.emergency_min"
+                     @change="setBalance('emergency_min', $event.target.value)"></td></tr>
+              <tr class="sub"><th>{{ t('emergency.from_expenses') }}</th><td x-text="money(d.emergency.from_expenses)"></td><td></td></tr>
+              <tr><th>{{ t('emergency.after') }}</th><td x-text="money(d.emergency.after)"></td><td></td></tr>
+              <tr class="sub"><th x-text="t('emergency.reference', {months: d.settings.emergency_ref_months, factor: d.settings.emergency_ref_factor})"></th>
+                <td x-text="money(d.emergency.reference)"></td><td></td></tr>
+              <tr><th>{{ t('emergency.remaining') }}</th><td :class="d.emergency.remaining > 0 ? 'neg' : 'pos'" x-text="money(d.emergency.remaining)"></td><td></td></tr>
+              <tr><th>{{ t('emergency.status') }}</th><td colspan="2" :class="d.emergency.complete ? 'pos' : 'warn-text'" x-text="d.emergency.status_text"></td></tr>
+              <tr class="sub"><th>{{ t('emergency.months') }}</th>
+                <td colspan="2" x-text="d.emergency.months === null ? '-' : d.emergency.months"></td></tr>
+            </table>
+          </article>
+
+          <article class="card">
+            <h2>{{ t('savings.title') }}</h2>
+            <table class="kv">
+              <tr><th>{{ t('savings.current') }}</th><td colspan="2"><input class="num" type="number" step="0.01" min="0" :value="d.budget.savings_current"
+                     @change="setBalance('savings_current', $event.target.value)"></td></tr>
+              <tr class="sub"><th>{{ t('savings.from_expenses') }}</th><td x-text="money(d.savings.from_expenses)"></td><td></td></tr>
+              <tr class="sub"><th>{{ t('savings.withdrawal') }}</th><td x-text="money(d.savings.withdrawal)"></td><td></td></tr>
+              <tr class="total"><th>{{ t('savings.total') }}</th><td :class="d.savings.total < 0 ? 'neg' : ''" x-text="money(d.savings.total)"></td><td></td></tr>
+              <tr><th>{{ t('savings.allocated') }}</th><td x-text="money(d.savings.allocated)"></td><td></td></tr>
+              <tr><th>{{ t('savings.unallocated') }}</th><td :class="d.savings.unallocated < 0 ? 'neg' : ''" x-text="money(d.savings.unallocated)"></td><td></td></tr>
+              <tr><th>{{ t('savings.distribution') }}</th><td colspan="2" :class="d.savings.status_ok ? 'pos' : 'neg'" x-text="d.savings.status_text"></td></tr>
+            </table>
+          </article>
+        </section>
+
+        <!-- ================= expenses ================= -->
+        <article class="card">
+          <div class="card-head">
+            <h2>{{ t('expenses.title') }}</h2>
+            <button class="btn btn-small btn-ghost" type="button" @click="applyTemplates()" :disabled="busy"
+                    title="{{ t('expenses.apply_templates_hint') }}">{{ t('expenses.apply_templates') }}</button>
+          </div>
+          <div class="table-wrap">
+            <table class="grid">
+              <thead>
+                <tr>
+                  <th class="w-name">{{ t('expenses.name') }}</th><th>{{ t('expenses.type') }}</th><th>{{ t('expenses.cash') }}</th>
+                  <th>{{ t('expenses.inst_balance') }}</th><th>{{ t('expenses.inst_count') }}</th>
+                  <th>{{ t('expenses.monthly') }}</th><th>{{ t('expenses.carried') }}</th><th>{{ t('expenses.due') }}</th>
+                  <th>{{ t('expenses.status') }}</th><th>{{ t('expenses.deferred_amount') }}</th><th>{{ t('expenses.paid_at') }}</th><th></th><th></th>
+                </tr>
+              </thead>
+              <template x-for="e in d.expenses" :key="e.id">
+                <tbody>
+                  <tr :class="{ needs: e.needs_amount, paid: e.status === 'paid', deferred: e.status === 'deferred' }">
+                    <td><input :value="e.name" @change="updateItem('expenses', e, 'name', $event.target.value)"
+                               :title="e.needs_amount ? t('expenses.needs_amount') : ''"></td>
+                    <td>
+                      <select @change="updateItem('expenses', e, 'type_id', Number($event.target.value))">
+                        <template x-for="ty in d.expense_types" :key="ty.id">
+                          <option :value="ty.id" :selected="ty.id === e.type_id" x-text="ty.name"></option>
+                        </template>
+                      </select>
+                    </td>
+                    <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="e.cash_amount"
+                               @change="updateItem('expenses', e, 'cash_amount', num($event.target.value))"></td>
+                    <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="e.inst_balance"
+                               @change="updateItem('expenses', e, 'inst_balance', num($event.target.value))"></td>
+                    <td>
+                      <input class="num short" type="number" step="1" min="0" inputmode="numeric" :value="e.inst_count"
+                             @change="updateItem('expenses', e, 'inst_count', num($event.target.value))">
+                      <small class="muted" x-show="e.inst_original_count && e.inst_count"
+                             x-text="t('expenses.payment_of', {current: e.inst_original_count - e.inst_count + 1, total: e.inst_original_count})"></small>
+                    </td>
+                    <td class="num" x-text="money(e.base)"></td>
+                    <td class="num"><span class="chip" x-show="e.carried_in > 0" title="{{ t('expenses.carried_hint') }}"
+                                          x-text="money(e.carried_in)"></span></td>
+                    <td class="num strong" x-text="money(e.due)"></td>
+                    <td>
+                      <select class="status-select" :class="'st-' + e.status" @change="setStatus(e, $event.target.value)">
+                        <option value="unpaid" :selected="e.status === 'unpaid'">{{ t('expenses.status_unpaid') }}</option>
+                        <option value="paid" :selected="e.status === 'paid'">{{ t('expenses.status_paid') }}</option>
+                        <option value="deferred" :selected="e.status === 'deferred'">{{ t('expenses.status_deferred') }}</option>
+                      </select>
+                    </td>
+                    <td>
+                      <input class="num" type="number" step="0.01" min="0" x-show="e.status === 'deferred'" :value="e.deferred_amount"
+                             title="{{ t('expenses.deferred_hint') }}" @change="setDeferred(e, $event.target.value)">
+                      <span class="muted" x-show="e.status !== 'deferred'">—</span>
+                    </td>
+                    <td><input type="date" :value="e.paid_at ?? ''"
+                               @change="updateItem('expenses', e, 'paid_at', $event.target.value || null)"></td>
+                    <td><button class="icon-btn note" type="button" :class="e.notes ? 'has-note' : ''"
+                                :title="e.notes || t('common.note_add')" @click="toggleNotes('expenses', e)">📝</button></td>
+                    <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeItem('expenses', e)">✕</button></td>
+                  </tr>
+                  <tr class="notes-row" x-show="notesOpen('expenses', e)">
+                    <td colspan="13"><textarea rows="2" placeholder="{{ t('expenses.note_placeholder') }}" :value="e.notes ?? ''"
+                                               @change="updateItem('expenses', e, 'notes', $event.target.value.trim() || null)"></textarea></td>
+                  </tr>
+                </tbody>
+              </template>
+              <tfoot>
+                <tr class="add-row">
+                  <td><input placeholder="{{ t('expenses.new_placeholder') }}" x-model="newExpense.name" @keydown.enter="addExpense()"></td>
+                  <td>
+                    <select x-model.number="newExpense.type_id">
+                      <template x-for="ty in d.expense_types" :key="ty.id">
+                        <option :value="ty.id" x-text="ty.name"></option>
+                      </template>
+                    </select>
+                  </td>
+                  <td><input class="num" type="number" step="0.01" min="0" placeholder="0" x-model="newExpense.cash_amount" @keydown.enter="addExpense()"></td>
+                  <td><input class="num" type="number" step="0.01" min="0" placeholder="0" x-model="newExpense.inst_balance" @keydown.enter="addExpense()"></td>
+                  <td><input class="num short" type="number" step="1" min="0" placeholder="0" x-model="newExpense.inst_count" @keydown.enter="addExpense()"></td>
+                  <td colspan="7"></td>
+                  <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addExpense()">+</button></td>
+                </tr>
+                <tr class="total">
+                  <th>{{ t('common.total') }}</th><td></td>
+                  <td class="num" x-text="money(d.payments.cash_total)"></td>
+                  <td class="num" x-text="money(d.payments.installment_total)"></td>
+                  <td></td>
+                  <td class="num" x-text="money(sum(d.expenses, 'base'))"></td>
+                  <td class="num" x-text="money(d.payments.carried_in_total)"></td>
+                  <td class="num strong" x-text="money(sum(d.expenses, 'due'))"></td>
+                  <td class="muted small" x-text="t('expenses.counts', {paid: d.payments.paid_count, deferred: d.payments.deferred_count})"></td>
+                  <td class="num" x-text="money(d.payments.deferred)"></td>
+                  <td colspan="3"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </article>
+
+        <!-- ================= goals ================= -->
+        <article class="card">
+          <h2>{{ t('goals.title') }}</h2>
+          <p class="muted small">{{ t('goals.hint') }}</p>
+          <div class="table-wrap">
+            <table class="grid">
+              <thead>
+                <tr>
+                  <th class="w-name">{{ t('goals.name') }}</th><th>{{ t('goals.category') }}</th><th>{{ t('goals.target') }}</th>
+                  <th>{{ t('goals.priority') }}</th><th>{{ t('goals.manual') }}</th><th>{{ t('goals.allocated') }}</th>
+                  <th>{{ t('goals.remaining') }}</th><th>{{ t('goals.progress') }}</th><th>{{ t('goals.monthly') }}</th>
+                  <th>{{ t('goals.months') }}</th><th></th><th></th>
+                </tr>
+              </thead>
+              <template x-for="g in d.goals" :key="g.id">
+                <tbody>
+                  <tr :class="g.valid ? '' : 'ignored'">
+                    <td><input :value="g.name" @change="updateItem('goals', g, 'name', $event.target.value)"></td>
+                    <td>
+                      <select @change="updateItem('goals', g, 'category_id', $event.target.value ? Number($event.target.value) : null)">
+                        <option value="" :selected="g.category_id === null">—</option>
+                        <template x-for="c in d.goal_categories" :key="c.id">
+                          <option :value="c.id" :selected="c.id === g.category_id" x-text="c.name"></option>
+                        </template>
+                      </select>
+                    </td>
+                    <td><input class="num" type="number" step="0.01" min="0" :value="g.target_amount ?? ''"
+                               @change="updateItem('goals', g, 'target_amount', numOrNull($event.target.value))"></td>
+                    <td>
+                      <input class="num short" type="number" step="0.1" min="0" max="100"
+                             :placeholder="g.valid && g.mode !== 'priority' ? pctPlain(g.effective_priority) : ''"
+                             :value="g.priority === null ? '' : pctPlain(g.priority)"
+                             @change="updateItem('goals', g, 'priority', percentToRatio($event.target.value))">
+                    </td>
+                    <td>
+                      <input class="num" type="number" step="0.01" min="0"
+                             :placeholder="g.valid && g.mode !== 'manual' ? money(g.requested) : ''"
+                             :value="g.manual_allocation ?? ''"
+                             @change="updateItem('goals', g, 'manual_allocation', numOrNull($event.target.value))">
+                    </td>
+                    <td class="num strong" x-text="money(g.allocated)"></td>
+                    <td class="num" x-text="money(g.remaining)"></td>
+                    <td>
+                      <div class="bar small" x-show="g.progress !== null"><span :style="'width:' + Math.min(100, (g.progress || 0) * 100) + '%'"></span></div>
+                      <small class="muted" x-show="g.progress !== null" x-text="pct(g.progress)"></small>
+                    </td>
+                    <td class="num" x-text="money(g.monthly)"></td>
+                    <td x-text="g.months_text"></td>
+                    <td><button class="icon-btn note" type="button" :class="g.notes ? 'has-note' : ''"
+                                :title="g.notes || t('common.note_add')" @click="toggleNotes('goals', g)">📝</button></td>
+                    <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeItem('goals', g)">✕</button></td>
+                  </tr>
+                  <tr class="notes-row" x-show="notesOpen('goals', g)">
+                    <td colspan="12"><textarea rows="2" placeholder="{{ t('goals.note_placeholder') }}" :value="g.notes ?? ''"
+                                               @change="updateItem('goals', g, 'notes', $event.target.value.trim() || null)"></textarea></td>
+                  </tr>
+                </tbody>
+              </template>
+              <tfoot>
+                <tr class="add-row">
+                  <td><input placeholder="{{ t('goals.new_placeholder') }}" x-model="newGoal.name" @keydown.enter="addGoal()"></td>
+                  <td></td>
+                  <td><input class="num" type="number" step="0.01" min="0" placeholder="{{ t('goals.target_placeholder') }}" x-model="newGoal.target_amount" @keydown.enter="addGoal()"></td>
+                  <td colspan="8"></td>
+                  <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addGoal()">+</button></td>
+                </tr>
+                <tr class="total">
+                  <th>{{ t('common.total') }}</th><td></td>
+                  <td class="num" x-text="money(d.goals_total.target)"></td>
+                  <td class="num" :class="d.goals_total.explicit_priority > 1 ? 'neg' : ''" x-text="pct(d.goals_total.explicit_priority)"></td>
+                  <td class="num" x-text="money(d.goals_total.manual)"></td>
+                  <td class="num strong" x-text="money(d.goals_total.allocated)"></td>
+                  <td class="num" x-text="money(d.goals_total.remaining)"></td>
+                  <td class="num" x-text="pct(d.goals_total.progress)"></td>
+                  <td class="num" x-text="money(d.goals_total.monthly)"></td>
+                  <td colspan="3" x-text="d.goals_total.status_text"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </article>
+
+        <!-- ================= payments & charts ================= -->
+        <section class="grid-3">
+          <article class="card">
+            <h2>{{ t('payments.title') }}</h2>
+            <table class="kv">
+              <tr><th>{{ t('payments.paid') }}</th><td x-text="money(d.payments.paid)"></td></tr>
+              <tr><th>{{ t('payments.deferred') }}</th><td x-text="money(d.payments.deferred)"></td></tr>
+              <tr><th>{{ t('payments.unpaid') }}</th><td x-text="money(d.payments.unpaid)"></td></tr>
+              <tr class="total"><th>{{ t('payments.cash_now') }}</th>
+                <td :class="d.payments.cash_now < 0 ? 'neg' : ''" x-text="money(d.payments.cash_now)"></td></tr>
+              <tr class="sub" x-show="d.payments.carried_in_total > 0"><th>{{ t('payments.carried_in') }}</th>
+                <td x-text="money(d.payments.carried_in_total)"></td></tr>
+            </table>
+          </article>
+
+          <article class="card">
+            <h2>{{ t('charts.by_type_title') }}</h2>
+            <p class="muted small">{{ t('charts.by_type_subtitle') }}</p>
+            <ul class="hbars" x-show="typeBars().length">
+              <template x-for="row in typeBars()" :key="row.key + row.label">
+                <li :title="row.label + ': ' + money(row.amount) + ' (' + pct(row.pct) + ')'" tabindex="0">
+                  <span class="hbar-label" x-text="row.label"></span>
+                  <span class="hbar-track"><span class="hbar-fill" :class="row.key === 'surplus' ? 'surplus' : ''"
+                        :style="'width:' + row.width + '%'"></span></span>
+                  <span class="hbar-value"><strong x-text="money(row.amount)"></strong>
+                    <small class="muted" x-text="pct(row.pct)"></small></span>
+                </li>
+              </template>
+            </ul>
+            <p class="muted" x-show="!typeBars().length">{{ t('charts.by_type_empty') }}</p>
+          </article>
+
+          <article class="card">
+            <h2>{{ t('charts.progress_title') }}</h2>
+            <template x-for="bar in d.charts.progress" :key="bar.key">
+              <div class="meter">
+                <div class="meter-head">
+                  <strong x-text="bar.label"></strong>
+                  <span class="muted" x-text="pct(progress(bar))"></span>
+                </div>
+                <div class="meter-track" role="meter" :aria-valuenow="Math.round(progress(bar) * 100)"
+                     aria-valuemin="0" aria-valuemax="100" :aria-label="bar.label">
+                  <span class="meter-fill" :style="'width:' + progress(bar) * 100 + '%'"></span>
+                </div>
+                <div class="meter-foot muted small">
+                  <span x-text="t('charts.progress_available', {amount: money(bar.available)})"></span>
+                  <span x-text="t('charts.progress_remaining', {amount: money(bar.remaining)})"></span>
+                </div>
+              </div>
+            </template>
+          </article>
+        </section>
+
+        <article class="card">
+          <div class="card-head">
+            <h2>{{ t('charts.daily_title') }}</h2>
+            <button class="btn btn-small btn-ghost" type="button" @click="showDailyTable = !showDailyTable"
+                    x-text="showDailyTable ? t('charts.daily_show_chart') : t('charts.daily_show_table')"></button>
+          </div>
+          <p class="muted small">{{ t('charts.daily_subtitle') }}</p>
+
+          <template x-if="!hasDailyData()">
+            <p class="muted">{{ t('charts.daily_empty') }}</p>
+          </template>
+
+          <template x-if="hasDailyData() && !showDailyTable">
+            <div class="cols" @mouseleave="hoverDay = null">
+              <div class="cols-plot">
+                <div class="cols-grid">
+                  <template x-for="tick in dailyTicks()" :key="tick">
+                    <div class="gridline" :style="'bottom:' + (tick / dailyScale() * 100) + '%'">
+                      <span x-text="compact(tick)"></span>
+                    </div>
+                  </template>
+                </div>
+                <div class="cols-bars">
+                  <template x-for="(amount, i) in d.charts.daily.by_day" :key="i">
+                    <div class="col" :class="hoverDay === i ? 'hover' : ''" :tabindex="amount > 0 ? 0 : -1"
+                         @mouseenter="hoverDay = i" @focus="hoverDay = i" @blur="hoverDay = null"
+                         :aria-label="t('charts.daily_day', {day: i + 1}) + ': ' + money(amount)">
+                      <span class="col-bar" :style="'height:' + (amount / dailyScale() * 100) + '%'"></span>
+                      <span class="col-peak" x-show="amount > 0 && i === peakDay()"
+                            :style="'bottom:' + (amount / dailyScale() * 100) + '%'" x-text="compact(amount)"></span>
+                    </div>
+                  </template>
+                </div>
+                <div class="col-tip" x-show="hoverDay !== null && d.charts.daily.by_day[hoverDay] > 0"
+                     :style="tipStyle()">
+                  <strong x-text="money(d.charts.daily.by_day[hoverDay] ?? 0) + ' ' + d.settings.currency"></strong>
+                  <span class="muted" x-text="t('charts.daily_day', {day: hoverDay + 1})"></span>
+                </div>
+              </div>
+              <div class="cols-axis">
+                <template x-for="(amount, i) in d.charts.daily.by_day" :key="i">
+                  <span x-text="dayTick(i)"></span>
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <template x-if="hasDailyData() && showDailyTable">
+            <table class="kv daily-table">
+              <template x-for="(amount, i) in d.charts.daily.by_day" :key="i">
+                <tr x-show="amount > 0"><th x-text="t('charts.daily_day', {day: i + 1})"></th><td x-text="money(amount)"></td></tr>
+              </template>
+            </table>
+          </template>
+
+          <div class="daily-extra" x-show="d.charts.daily.no_date > 0 || d.charts.daily.outside_month > 0">
+            <span x-show="d.charts.daily.no_date > 0">{{ t('charts.daily_no_date') }} <strong x-text="money(d.charts.daily.no_date)"></strong></span>
+            <span x-show="d.charts.daily.outside_month > 0">{{ t('charts.daily_outside') }} <strong x-text="money(d.charts.daily.outside_month)"></strong></span>
+          </div>
+        </article>
+
+        <!-- ================= details ================= -->
+        <details class="card">
+          <summary><h2>{{ t('details.title') }}</h2></summary>
+          <table class="kv">
+            <tr><th>{{ t('details.available') }}</th><td x-text="money(d.debug.available)"></td></tr>
+            <tr><th>{{ t('details.base') }}</th><td x-text="money(d.debug.base)"></td></tr>
+            <tr><th>{{ t('details.em_gap') }}</th><td x-text="money(d.debug.emergency_gap_before)"></td></tr>
+            <tr><th>{{ t('details.em_target') }}</th><td x-text="money(d.debug.emergency_target)"></td></tr>
+            <tr><th>{{ t('details.saving_rate') }}</th><td x-text="pct(d.debug.saving_rate)"></td></tr>
+            <tr><th>{{ t('details.saving_target') }}</th><td x-text="money(d.debug.saving_target)"></td></tr>
+            <tr><th>{{ t('details.goals_pool') }}</th><td x-text="money(d.debug.goals_pool)"></td></tr>
+            <tr><th>{{ t('details.goals_monthly_pool') }}</th><td x-text="money(d.debug.goals_monthly_pool)"></td></tr>
+          </table>
+        </details>
+      </div>
+    </template>
+  </main>
+
+  <p class="page muted" x-show="!d && !error">{{ t('common.loading') }}</p>
+  <p class="page neg" x-show="error" x-text="error"></p>
+
+  <!-- ================= new month wizard ================= -->
+  <div class="modal-backdrop" x-show="wizard.open" x-transition.opacity @keydown.escape.window="closeWizard()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="wizard-title" @click.outside="closeWizard()">
+      <div class="modal-head">
+        <h2 id="wizard-title" x-text="wizard.plan ? t('wizard.title_with', {label: wizard.plan.target.label}) : t('wizard.title')"></h2>
+        <button class="icon-btn" type="button" title="{{ t('common.close') }}" @click="closeWizard()">✕</button>
+      </div>
+
+      <template x-if="wizard.plan">
+        <div class="modal-body">
+          <section class="wiz-section">
+            <h3>{{ t('wizard.month') }}</h3>
+            <div class="inline-fields">
+              <label class="field"><span>{{ t('wizard.month') }}</span>
+                <select :value="wizard.month" @change="setWizardPeriod(wizard.year, Number($event.target.value))">
+                  <template x-for="m in 12" :key="m">
+                    <option :value="m" :selected="m === wizard.month" x-text="String(m).padStart(2, '0')"></option>
+                  </template>
+                </select>
+              </label>
+              <label class="field"><span>{{ t('wizard.year') }}</span>
+                <input type="number" min="2000" max="2200" :value="wizard.year"
+                       @change="setWizardPeriod(Number($event.target.value), wizard.month)">
+              </label>
+            </div>
+          </section>
+
+          <!-- an earlier month: created empty, nothing is carried -->
+          <template x-if="wizard.plan.mode === 'blank'">
+            <section class="wiz-section">
+              <div class="alert alert-warn">
+                <strong>{{ t('wizard.older_title') }}</strong> —
+                <span x-text="t('wizard.older_hint', {latest: wizard.plan.latest ? wizard.plan.latest.label : ''})"></span>
+              </div>
+            </section>
+          </template>
+
+          <template x-if="wizard.plan.mode === 'copy'">
+            <div>
+              <p class="muted small" x-text="t('wizard.source', {label: wizard.plan.source.label})"></p>
+
+              <section class="wiz-section">
+                <h3>{{ t('wizard.balances') }}</h3>
+                <div class="inline-fields">
+                  <label class="field"><span>{{ t('wizard.emergency') }}</span>
+                    <input class="num" type="number" step="0.01" min="0" x-model.number="wizard.balances.emergency_current"></label>
+                  <label class="field"><span>{{ t('wizard.emergency_min') }}</span>
+                    <input class="num" type="number" step="0.01" min="0" x-model.number="wizard.balances.emergency_min"></label>
+                  <label class="field"><span>{{ t('wizard.savings') }}</span>
+                    <input class="num" type="number" step="0.01" min="0" x-model.number="wizard.balances.savings_current"></label>
+                </div>
+                <label class="check" x-show="wizard.plan.return_to_savings > 0">
+                  <input type="checkbox" :checked="wizard.addReturn" @change="toggleReturn($event.target.checked)">
+                  <span x-text="t('wizard.return', {amount: money(wizard.plan.return_to_savings)})"></span>
+                </label>
+              </section>
+
+              <section class="wiz-section" x-show="wizard.plan.unpaid.length">
+                <h3>{{ t('wizard.unpaid_title') }}</h3>
+                <p class="muted small">{{ t('wizard.unpaid_hint') }}</p>
+                <ul class="check-list">
+                  <template x-for="u in wizard.plan.unpaid" :key="u.id">
+                    <li><label class="check">
+                      <input type="checkbox" :checked="wizard.carry.includes(u.id)" @change="toggleCarry(u.id)">
+                      <span x-text="u.name"></span><span class="muted" x-text="money(u.due)"></span>
+                    </label></li>
+                  </template>
+                </ul>
+              </section>
+
+              <section class="wiz-section">
+                <h3 x-text="t('wizard.expenses_title', {n: wizard.plan.expenses.length})"></h3>
+                <p class="muted" x-show="!wizard.plan.expenses.length">{{ t('wizard.expenses_none') }}</p>
+                <table class="kv" x-show="wizard.plan.expenses.length">
+                  <template x-for="(e, i) in wizard.plan.expenses" :key="i">
+                    <tr>
+                      <th>
+                        <span x-text="e.name"></span>
+                        <span class="chip" :class="'origin-' + e.origin" x-text="t('wizard.origin_' + e.origin)"></span>
+                        <small class="muted" x-show="e.origin === 'installment'"
+                               x-text="t('wizard.installment_left', {count: e.inst_count, balance: money(e.inst_balance)})"></small>
+                      </th>
+                      <td>
+                        <span x-show="e.needs_amount" class="warn-text">{{ t('wizard.needs_price') }}</span>
+                        <span x-show="!e.needs_amount" x-text="money(planBase(e))"></span>
+                        <small class="muted" x-show="e.carried_in > 0" x-text="t('wizard.plus_carried', {amount: money(e.carried_in)})"></small>
+                      </td>
+                    </tr>
+                  </template>
+                </table>
+              </section>
+
+              <section class="wiz-section" x-show="wizard.plan.incomes.length">
+                <h3>{{ t('wizard.incomes_title') }}</h3>
+                <table class="kv">
+                  <template x-for="(inc, i) in wizard.plan.incomes" :key="i">
+                    <tr><th x-text="inc.source"></th>
+                      <td><span x-show="inc.needs_amount" class="warn-text">{{ t('wizard.needs_amount') }}</span>
+                        <span x-show="!inc.needs_amount" x-text="money(inc.amount)"></span></td></tr>
+                  </template>
+                </table>
+              </section>
+              <p class="muted small" x-show="!wizard.plan.incomes.length">
+                {{ t('wizard.incomes_none') }} <a href="/settings#templates">{{ t('wizard.incomes_settings_link') }}</a>.
+              </p>
+
+              <section class="wiz-section" x-show="wizard.plan.goals.length">
+                <h3 x-text="t('wizard.goals_title', {n: wizard.plan.goals.length})"></h3>
+                <label class="check" x-show="completedGoals().length">
+                  <input type="checkbox" x-model="wizard.dropCompleted">
+                  <span x-text="t('wizard.goals_drop', {names: completedGoals().join(t('common.list_sep'))})"></span>
+                </label>
+                <p class="muted small" x-show="!completedGoals().length">{{ t('wizard.goals_keep_all') }}</p>
+              </section>
+            </div>
+          </template>
+        </div>
+      </template>
+
+      <div class="modal-foot">
+        <button class="btn btn-small btn-ghost" type="button" @click="closeWizard()">{{ t('common.cancel') }}</button>
+        <button class="btn btn-small btn-primary" type="button" :disabled="busy || !wizard.plan" @click="confirmWizard()"
+                x-text="wizard.plan ? t('wizard.create', {label: wizard.plan.target.label}) : t('common.loading')"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" role="status" x-show="toast" x-transition x-text="toast"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script defer src="{{ url_for('static', filename='vendor/alpine-3.14.9.min.js') }}"></script>
+{% endblock %}
