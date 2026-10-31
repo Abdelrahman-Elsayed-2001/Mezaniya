@@ -148,6 +148,7 @@ def write_env_value(path: Path, key: str, value: str) -> None:
             break
     else:
         lines.append(f"{key}={value}")
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

@@ -2,12 +2,29 @@
 
 Values come from environment variables (MEZANIYA_*), or from a `mezaniya.env` file in
 the project folder (KEY=VALUE lines, # comments). Real environment variables win.
+
+Installed build (PyInstaller, sys.frozen): the program folder under Program Files is
+read-only, so the env file and the data (database, secret key, backups, logs) live in
+%LOCALAPPDATA%/Mezaniya instead.
 """
 import os
+import sys
 from pathlib import Path
 
+FROZEN = getattr(sys, "frozen", False)
 BASE_DIR = Path(__file__).resolve().parent.parent
-ENV_FILE = Path(os.environ.get("MEZANIYA_ENV_FILE", BASE_DIR / "mezaniya.env"))
+
+
+def user_data_dir() -> Path:
+    """%LOCALAPPDATA%/Mezaniya when installed, the project's data/ folder otherwise."""
+    if FROZEN:
+        local = os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local"
+        return Path(local) / "Mezaniya"
+    return BASE_DIR / "data"
+
+
+ENV_FILE = Path(os.environ.get("MEZANIYA_ENV_FILE",
+                               user_data_dir() / "mezaniya.env" if FROZEN else BASE_DIR / "mezaniya.env"))
 
 
 def load_env_file(path: Path) -> dict[str, str]:
@@ -42,7 +59,7 @@ class Config:
     HOST = _env("HOST", "0.0.0.0")
     PORT = int(_env("PORT", 8080))
     THREADS = int(_env("THREADS", 8))
-    DATA_DIR = Path(_env("DATA_DIR", BASE_DIR / "data"))
+    DATA_DIR = Path(_env("DATA_DIR", user_data_dir()))
     DB_PATH = Path(_env("DB_PATH", DATA_DIR / "mezaniya.db"))
     ALLOW_REGISTRATION = _bool(_env("ALLOW_REGISTRATION", "true"))
     # empty → generated once and stored in DATA_DIR/secret_key

@@ -182,6 +182,23 @@ def test_process_detection():
     assert process_name(4_000_000) is None             # no such PID
 
 
+def test_installed_build_runs_server_exe(tmp_path, monkeypatch):
+    from app.services import server_control
+    control = ServerControl(BASE_DIR, tmp_path / "server.pid")
+    assert control.command() == ([str(control.python), "run.py"], BASE_DIR)
+    monkeypatch.setattr(server_control, "FROZEN", True)
+    monkeypatch.setattr(sys, "executable", str(tmp_path / "Mezaniya.exe"))
+    assert control.command() == ([str(tmp_path / "MezaniyaServer.exe")], tmp_path)
+
+
+def test_installed_build_keeps_data_in_localappdata(tmp_path, monkeypatch):
+    from app import config
+    assert config.user_data_dir() == BASE_DIR / "data"
+    monkeypatch.setattr(config, "FROZEN", True)
+    monkeypatch.setenv("LOCALAPPDATA", str(tmp_path))
+    assert config.user_data_dir() == tmp_path / "Mezaniya"
+
+
 def test_netstat_parsing():
     sample = """
 Active Connections

@@ -1,8 +1,12 @@
 """Start / stop the server process from outside it (used by the server manager GUI).
 
 run.py writes data/server.pid ({"pid", "port"}) while it runs, so a server started from
-start.bat is controllable too. Before stopping a PID we check it is still a Python process,
-so a stale file can't make us kill an unrelated program that reused the PID.
+start.bat is controllable too. Before stopping a PID we check it is still a Python process
+(or the installed MezaniyaServer.exe), so a stale file can't make us kill an unrelated
+program that reused the PID.
+
+Installed build: there is no Python on the machine, so the manager starts
+MezaniyaServer.exe (run.py frozen by PyInstaller) from its own folder instead.
 """
 from __future__ import annotations
 
@@ -16,6 +20,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 IS_WINDOWS = os.name == "nt"
+FROZEN = getattr(sys, "frozen", False)
+SERVER_EXE = "MezaniyaServer.exe"
 
 
 @dataclass(frozen=True)
@@ -87,7 +93,7 @@ def pid_listening_on(port: int) -> int | None:
 
 def is_our_server(pid: int) -> bool:
     name = process_name(pid)
-    return bool(name and name.lower().startswith("python"))
+    return bool(name and name.lower().startswith(("python", SERVER_EXE.lower())))
 
 
 def health(port: int, timeout: float = 1.0) -> bool:
@@ -104,6 +110,13 @@ class ServerControl:
         self.pid_file = pid_file
         self.python = python or console_python()
         self._proc: subprocess.Popen | None = None
+
+    def command(self) -> tuple[list[str], Path]:
+        """Server command line and working folder."""
+        if FROZEN:
+            exe = Path(sys.executable).with_name(SERVER_EXE)
+            return [str(exe)], exe.parent
+        return [str(self.python), "run.py"], self.project_dir
 
     def state(self, port: int | None = None) -> ServerState:
         """`port`: also look for a server answering there without a pid file
@@ -122,9 +135,12 @@ class ServerControl:
 
     def start(self, port: int) -> subprocess.Popen:
         env = {**os.environ, "MEZANIYA_PORT": str(port)}
+        if FROZEN:
+            env["PYINSTALLER_RESET_ENVIRONMENT"] = "1"    # MezaniyaServer.exe is its own frozen app
         flags = (subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP) if IS_WINDOWS else 0
+        args, cwd = self.command()
         self._proc = subprocess.Popen(
-            [str(self.python), "run.py"], cwd=self.project_dir, env=env,
+            args, cwd=cwd, env=env,
             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             creationflags=flags, close_fds=True)
         return self._proc
