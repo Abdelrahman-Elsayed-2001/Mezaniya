@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ t('app.title') }}{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  {# only computed #rrggbb values (app/themes.py), so |safe can't let anything else in #}
+  <style id="theme-style">{{ (theme_css or '')|safe }}</style>
 </head>
 <body>
   {% if app_stage %}

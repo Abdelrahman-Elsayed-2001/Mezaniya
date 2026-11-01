@@ -3,8 +3,10 @@ from __future__ import annotations
 
 from flask import jsonify
 
+from app import themes
 from app.db import get_db, transaction
 from app.db.repo import base, settings, templates, types
+from app.i18n import current_lang, t
 
 from . import bp, uid
 from .errors import invalid
@@ -21,6 +23,8 @@ SETTINGS = {
     "emergency_ref_months": Field(number, max_value=60),
     "emergency_ref_factor": Field(number, max_value=10),
     "currency": Field(text, required=True, max_len=10),
+    "theme": Field(text, max_len=40),
+    "theme_colors": Field(lambda v, f: themes.parse_colors(v), nullable=True),
 }
 ROLES = ("essential", "luxury", "debt", "savings", "emergency", "other")
 EXPENSE_TYPE = {
@@ -46,9 +50,15 @@ TEMPLATE = {
 
 # ---------- settings
 
+def _with_theme(conn, row: dict) -> dict:
+    """Settings plus the :root rule for the chosen theme, so the page can apply it without a reload."""
+    return {**row, "theme_css": settings.theme_css(row, conn)}
+
+
 @bp.get("/settings")
 def get_settings():
-    return jsonify(settings.get_settings(get_db(), uid()))
+    conn = get_db()
+    return jsonify(_with_theme(conn, settings.get_settings(conn, uid())))
 
 
 @bp.patch("/settings")
@@ -58,7 +68,33 @@ def update_settings():
     merged = {**settings.get_settings(conn, uid()), **values}
     if merged["good_rate"] > merged["excellent_rate"]:
         raise invalid("api.err.good_gt_excellent", "good_rate" if "good_rate" in values else "excellent_rate")
-    return jsonify(settings.update_settings(conn, uid(), values))
+    if "theme" in values:
+        known = {th["id"] for th in settings.list_themes(conn)} | set(themes.SPECIAL)
+        if values["theme"] not in known:
+            raise invalid("api.err.invalid_value", "theme")
+    if merged["theme"] == "custom" and not merged.get("theme_colors"):
+        raise invalid("api.err.required", "theme_colors")
+    return jsonify(_with_theme(conn, settings.update_settings(conn, uid(), values)))
+
+
+# ---------- themes
+
+@bp.get("/themes")
+def list_themes():
+    lang = current_lang()
+    return jsonify([{**th, "name": t(f"settings.theme.{th['id']}", lang), "css": themes.css(th["colors"], th["mode"])}
+                    for th in settings.list_themes(get_db())])
+
+
+@bp.post("/themes/preview")
+def preview_theme():
+    """The :root rule and warnings for colours the user is still picking (nothing is saved)."""
+    values = parse({"theme_colors": SETTINGS["theme_colors"]}, body(), partial=False)
+    colors = values.get("theme_colors")
+    if not colors:
+        raise invalid("api.err.required", "theme_colors")
+    return jsonify({"css": themes.css(colors), "mode": themes.mode_of(colors),
+                    "warnings": [t(f"settings.warn_{w}", current_lang()) for w in themes.warnings(colors)]})
 
 
 # ---------- expense types

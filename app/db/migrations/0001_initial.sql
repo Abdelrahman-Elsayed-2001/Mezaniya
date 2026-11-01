@@ -44,7 +44,29 @@ INSERT INTO default_settings (key, default_value, type) VALUES
   ('saving_rate_em_complete', '0.5', 'rate'),
   ('emergency_ref_months', '3', 'number'),
   ('emergency_ref_factor', '1.25', 'number'),
-  ('currency', '', 'text');             -- set from the user's language when the account is created
+  ('currency', '', 'text'),             -- set from the user's language when the account is created
+  ('theme', 'auto', 'text');
+
+-- Built-in colour themes: five base colours each; app/themes.py derives the rest. Names are
+-- strings.json "theme.<id>". A user's choice is user_settings key 'theme' ('auto' = follow
+-- Windows light/dark, a theme id, or 'custom' with the colours as JSON in value2).
+CREATE TABLE themes (
+  id TEXT PRIMARY KEY,
+  sort_order INTEGER NOT NULL,
+  mode TEXT NOT NULL CHECK (mode IN ('light','dark')),
+  colors TEXT NOT NULL                  -- JSON {"text","background","primary","secondary","accent"}
+);
+
+INSERT INTO themes (id, sort_order, mode, colors) VALUES
+  ('ember', 1, 'dark', '{"text":"#fcf3ee","background":"#090401","primary":"#d2481e","secondary":"#3b8212","accent":"#18aa29"}'),
+  ('sky', 2, 'light', '{"text":"#110803","background":"#b8e5f2","primary":"#e1572d","secondary":"#a6ed7d","accent":"#55e766"}'),
+  ('lavender', 3, 'light', '{"text":"#120c16","background":"#e3d4f2","primary":"#8164a6","secondary":"#cba5ba","accent":"#b56e82"}'),
+  ('midnight', 4, 'dark', '{"text":"#dfe3ee","background":"#080b12","primary":"#94aadf","secondary":"#1b3a81","accent":"#245de2"}'),
+  ('mezaniya_light', 5, 'light', '{"text":"#1f2933","background":"#f4f6f8","primary":"#0f766e","secondary":"#cde2fb","accent":"#2a78d6"}'),
+  ('mezaniya_dark', 6, 'dark', '{"text":"#e6edf3","background":"#0f1419","primary":"#2dd4bf","secondary":"#1b2c42","accent":"#3987e5"}'),
+  ('sand', 7, 'light', '{"text":"#2b2118","background":"#f6f0e6","primary":"#9a5b13","secondary":"#d9c7a8","accent":"#2f6f62"}'),
+  ('mint', 8, 'light', '{"text":"#0f241c","background":"#eef8f3","primary":"#0f766e","secondary":"#bfe3d4","accent":"#7c3aed"}'),
+  ('ocean', 9, 'dark', '{"text":"#e3eef2","background":"#0b1a20","primary":"#38bdf8","secondary":"#1e3a4a","accent":"#f59e0b"}');
 
 -- Types and categories made at registration carry name_key ('savings' → strings.json
 -- "seed.type.savings") and are shown in the viewer's language; name stays NULL until the user

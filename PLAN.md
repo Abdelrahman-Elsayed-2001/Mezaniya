@@ -375,7 +375,17 @@ CREATE TABLE user_settings (
 );
 -- default_settings: excellent_rate 0.2، good_rate 0.1، max_debt_rate 0.33، max_luxury_rate 0.3،
 -- emergency_cut_rate 0.3، saving_rate_em_incomplete 0.2، saving_rate_em_complete 0.5،
--- emergency_ref_months 3، emergency_ref_factor 1.25، currency (حسب لغة التسجيل)
+-- emergency_ref_months 3، emergency_ref_factor 1.25، currency (حسب لغة التسجيل)، theme 'auto'
+
+-- الثيمات الجاهزة: خمسة ألوان أساسية لكل ثيم، و app/themes.py يحسب الباقي (الأسطح والحدود
+-- والنص الخافت وألوان الرسوم) ويضمن تباينًا مقروءًا. ألوان المعنى (عجز/موجب/تحذير) ثابتة.
+-- user_settings: key='theme' و value = id الثيم أو 'auto' أو 'custom' (والألوان JSON في value2).
+CREATE TABLE themes (
+  id TEXT PRIMARY KEY,
+  sort_order INTEGER NOT NULL,
+  mode TEXT NOT NULL CHECK (mode IN ('light','dark')),
+  colors TEXT NOT NULL          -- {"text","background","primary","secondary","accent"}
+);
 
 -- الأنواع الأصلية تُخزَّن بمفتاحها (name_key → strings.json "seed.type.<key>") وتظهر بلغة الواجهة؛
 -- name يبقى NULL حتى يغيّر المستخدم الاسم، وعندها يظهر كما كتبه في كل اللغات.

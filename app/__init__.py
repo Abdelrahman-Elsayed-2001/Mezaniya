@@ -26,6 +26,20 @@ def create_app(config: type[Config] = Config) -> Flask:
     def inject_version():
         return {"app_version": __version__, "app_stage": STAGE}
 
+    @app.context_processor
+    def inject_theme():
+        """The signed-in user's colours, printed into <head> so the page never flashes the defaults."""
+        user = current_user()
+        if not user:
+            return {"theme_css": None}
+        from .db.repo import settings
+        conn = db.get_db()
+        try:
+            return {"theme_css": settings.theme_css(settings.get_settings(conn, user["id"]), conn)}
+        except Exception:                       # a broken theme must never break the page
+            app.logger.exception("theme")
+            return {"theme_css": None}
+
     @app.after_request
     def security_headers(response):
         response.headers.setdefault("Content-Security-Policy", CONTENT_SECURITY_POLICY)

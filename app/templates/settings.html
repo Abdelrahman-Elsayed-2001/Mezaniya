@@ -188,6 +188,57 @@
       </div>
     </section>
 
+    <!-- ================= appearance ================= -->
+    <section class="card settings-card" x-show="tab === 'appearance'" x-cloak>
+      <h2>{{ t('settings.appearance_title') }}</h2>
+      <p class="muted small">{{ t('settings.appearance_hint') }}</p>
+      <div class="theme-grid" role="radiogroup" :aria-label="t('settings.appearance_title')">
+        <button type="button" class="theme-card" role="radio" :aria-checked="currentTheme() === 'auto'"
+                :class="currentTheme() === 'auto' ? 'selected' : ''" @click="chooseTheme('auto')">
+          <span class="theme-swatches auto"><span></span><span></span></span>
+          <strong>{{ t('settings.theme.auto') }}</strong>
+          <small class="muted" x-show="currentTheme() === 'auto'">{{ t('settings.theme_in_use') }}</small>
+        </button>
+        <template x-for="th in themes" :key="th.id">
+          <button type="button" class="theme-card" role="radio" :aria-checked="currentTheme() === th.id"
+                  :class="currentTheme() === th.id ? 'selected' : ''" @click="chooseTheme(th.id)">
+            <span class="theme-swatches">
+              <template x-for="k in colorKeys" :key="k"><span :style="'background:' + th.colors[k]"></span></template>
+            </span>
+            <strong x-text="th.name"></strong>
+            <small class="muted" x-text="currentTheme() === th.id ? t('settings.theme_in_use') : t('settings.theme_' + th.mode)"></small>
+          </button>
+        </template>
+        <button type="button" class="theme-card" role="radio" :aria-checked="currentTheme() === 'custom'"
+                :class="currentTheme() === 'custom' ? 'selected' : ''" @click="openCustom()">
+          <span class="theme-swatches">
+            <template x-for="k in colorKeys" :key="k"><span :style="'background:' + custom[k]"></span></template>
+          </span>
+          <strong>{{ t('settings.theme.custom') }}</strong>
+          <small class="muted" x-show="currentTheme() === 'custom'">{{ t('settings.theme_in_use') }}</small>
+        </button>
+      </div>
+
+      <div class="custom-theme" x-show="customOpen" x-cloak>
+        <h3>{{ t('settings.custom_title') }}</h3>
+        <p class="muted small">{{ t('settings.custom_hint') }}</p>
+        <div class="color-fields">
+          <template x-for="k in colorKeys" :key="k">
+            <label class="color-field">
+              <input type="color" :value="custom[k]" @input="custom[k] = $event.target.value; previewCustom()">
+              <span x-text="t('settings.color.' + k)"></span>
+              <code dir="ltr" x-text="custom[k]"></code>
+            </label>
+          </template>
+        </div>
+        <template x-for="w in customWarnings" :key="w"><p class="warn-text small" x-text="w"></p></template>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-small" type="button" :disabled="busy" @click="saveCustom()">{{ t('settings.custom_use') }}</button>
+          <button class="btn btn-small btn-ghost" type="button" @click="cancelCustom()">{{ t('settings.custom_cancel') }}</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ================= account ================= -->
     <section class="card settings-card narrow-card" x-show="tab === 'account'" x-cloak>
       <h2>{{ t('settings.account_title') }}</h2>
