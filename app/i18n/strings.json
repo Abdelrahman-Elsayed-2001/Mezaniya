@@ -646,6 +646,8 @@
   },
 
   "manager": {
+    "data_dir_title": {"ar": "لا يمكن حفظ البيانات", "en": "Can't save data"},
+    "data_dir_unwritable": {"ar": "لا يمكن الكتابة في مجلد البيانات:\n{path}\n\n{error}\n\nفي النسخة المحمولة: انقل مجلد البرنامج كله إلى مكان يمكن الكتابة فيه (سطح المكتب، المستندات، فلاشة غير محمية)، وليس داخل Program Files.", "en": "The data folder can't be written to:\n{path}\n\n{error}\n\nPortable copy: move the whole program folder somewhere writable (Desktop, Documents, an unprotected USB drive), not inside Program Files."},
     "title": {"ar": "مدير خادم ميزانيتي", "en": "Mezaniya server manager"},
     "server": {"ar": "الخادم", "en": "Server"},
     "start": {"ar": "تشغيل", "en": "Start"},
@@ -754,6 +756,7 @@
   },
 
   "log": {
+    "data_dir_unwritable": {"ar": "لا يمكن الكتابة في مجلد البيانات {path}: {error}", "en": "The data folder {path} can't be written to: {error}"},
     "started": {"ar": "ميزانيتي يعمل على http://localhost:{port}", "en": "Mezaniya running on http://localhost:{port}"},
     "network": {"ar": "على الشبكة: http://{ip}:{port}", "en": "On the network: http://{ip}:{port}"},
     "config": {"ar": "البيانات: {db} | النسخ: {backups} (الاحتفاظ بـ {keep}، كل {hours} ساعة) | التسجيل {registration}", "en": "Data: {db} | backups: {backups} (keep {keep}, every {hours}h) | registration {registration}"},

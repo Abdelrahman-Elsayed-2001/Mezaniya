@@ -1,0 +1,26 @@
+Mezaniya - portable copy / ميزانيتي - النسخة المحمولة
+=====================================================
+
+This file tells Mezaniya to keep everything (database, settings, backups, logs) in the
+"data" folder next to it, instead of %LOCALAPPDATA%\Mezaniya. Don't delete it.
+
+- Run Mezaniya.exe. Put this folder somewhere writable: Desktop, Documents or a USB drive,
+  not inside Program Files.
+- To move or back up everything, copy the whole folder. Anyone with the folder has your data.
+- To update: unzip the new version, then copy your "data" folder into it.
+- The portable and the installed copy both use port 8080 by default, so run one at a time,
+  or change the port in one of them.
+- To switch to the installed copy, copy what's inside "data" into %LOCALAPPDATA%\Mezaniya.
+
+------------------------------------------------------------------------------------------
+
+هذا الملف يجعل ميزانيتي تحفظ كل شيء (قاعدة البيانات والإعدادات والنسخ الاحتياطية والسجلات)
+في مجلد "data" بجانبه بدلًا من %LOCALAPPDATA%\Mezaniya. لا تحذفه.
+
+- شغّل Mezaniya.exe. ضع هذا المجلد في مكان يمكن الكتابة فيه: سطح المكتب أو المستندات أو
+  فلاشة، وليس داخل Program Files.
+- لنقل كل شيء أو نسخه احتياطيًا انسخ المجلد كله. أي شخص معه المجلد معه بياناتك.
+- للتحديث: فك ضغط الإصدار الجديد، ثم انسخ مجلد "data" إليه.
+- النسخة المحمولة والمثبّتة تستخدمان المنفذ 8080 افتراضيًا، فشغّل واحدة فقط في كل مرة،
+  أو غيّر المنفذ في إحداهما.
+- للانتقال إلى النسخة المثبّتة انسخ محتويات "data" إلى %LOCALAPPDATA%\Mezaniya.

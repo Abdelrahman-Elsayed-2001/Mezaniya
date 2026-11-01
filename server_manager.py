@@ -3,7 +3,8 @@
     .venv\\Scripts\\pythonw.exe server_manager.py
 
 Installed from the setup, this file is Mezaniya.exe and starts MezaniyaServer.exe (see
-packaging/mezaniya.spec); data then lives in %LOCALAPPDATA%/Mezaniya.
+packaging/mezaniya.spec); data then lives in %LOCALAPPDATA%/Mezaniya, or in data/ next to
+the programs for the portable build.
 
 Start / stop / restart the server, see who is connected and log them out, create users
 (including the demo user), change passwords, delete a user with all their data, back up,
@@ -20,7 +21,7 @@ from pathlib import Path
 from tkinter import messagebox, simpledialog, ttk
 
 from app import i18n
-from app.config import BASE_DIR, ENV_FILE, Config
+from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem
 from app.db.connection import connect, migrate
 from app.services import admin, backup, demo
 from app.services.server_control import ServerControl, ServerState
@@ -564,6 +565,14 @@ class ManagerApp(tk.Tk):
 
 
 def main():
+    problem = data_dir_problem(Config.DATA_DIR)
+    if problem:
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror(i18n.t("manager.data_dir_title"),
+                             i18n.t("manager.data_dir_unwritable", path=Config.DATA_DIR, error=problem))
+        root.destroy()
+        return
     ManagerApp().mainloop()
 
 

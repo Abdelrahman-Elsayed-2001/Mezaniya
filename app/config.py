@@ -6,6 +6,9 @@ the project folder (KEY=VALUE lines, # comments). Real environment variables win
 Installed build (PyInstaller, sys.frozen): the program folder under Program Files is
 read-only, so the env file and the data (database, secret key, backups, logs) live in
 %LOCALAPPDATA%/Mezaniya instead.
+
+Portable build: the same programs with a `portable.txt` file next to them. Then everything
+lives in a `data` folder beside the programs, so the whole folder can be carried around.
 """
 import os
 import sys
@@ -15,12 +18,41 @@ FROZEN = getattr(sys, "frozen", False)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+PORTABLE_MARKER = "portable.txt"
+
+
+def program_dir() -> Path:
+    """The folder holding Mezaniya.exe and MezaniyaServer.exe (frozen builds)."""
+    return Path(sys.executable).resolve().parent
+
+
+def is_portable() -> bool:
+    return FROZEN and (program_dir() / PORTABLE_MARKER).is_file()
+
+
 def user_data_dir() -> Path:
-    """%LOCALAPPDATA%/Mezaniya when installed, the project's data/ folder otherwise."""
+    """data/ next to the programs when portable, %LOCALAPPDATA%/Mezaniya when installed,
+    the project's data/ folder when run from the source."""
     if FROZEN:
+        if is_portable():
+            return program_dir() / "data"
         local = os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local"
         return Path(local) / "Mezaniya"
     return BASE_DIR / "data"
+
+
+def data_dir_problem(path: Path) -> str | None:
+    """Why the data folder can't be used (e.g. a portable copy on a read-only drive or under
+    Program Files), or None. Checked at startup so the user gets a clear message instead of
+    a server that dies on its first write."""
+    probe = Path(path) / ".write-test"
+    try:
+        Path(path).mkdir(parents=True, exist_ok=True)
+        probe.write_text("ok", encoding="utf-8")
+        probe.unlink()
+    except OSError as e:
+        return str(e)
+    return None
 
 
 ENV_FILE = Path(os.environ.get("MEZANIYA_ENV_FILE",
@@ -53,6 +85,9 @@ def _bool(value: str) -> bool:
 
 def _env(name: str, default) -> str:
     return os.environ.get(f"MEZANIYA_{name}", str(default))
+
+
+PORTABLE = is_portable()
 
 
 class Config:
