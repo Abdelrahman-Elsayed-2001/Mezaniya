@@ -1,0 +1,13 @@
+{# dashboard widget "payments": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('payments.title') }}</h2>
+  <table class="kv">
+    <tr><th>{{ t('payments.paid') }}</th><td x-text="money(d.payments.paid)"></td></tr>
+    <tr><th>{{ t('payments.deferred') }}</th><td x-text="money(d.payments.deferred)"></td></tr>
+    <tr><th>{{ t('payments.unpaid') }}</th><td x-text="money(d.payments.unpaid)"></td></tr>
+    <tr class="total"><th>{{ t('payments.cash_now') }}</th>
+      <td :class="d.payments.cash_now < 0 ? 'neg' : ''" x-text="money(d.payments.cash_now)"></td></tr>
+    <tr class="sub" x-show="d.payments.carried_in_total > 0"><th>{{ t('payments.carried_in') }}</th>
+      <td x-text="money(d.payments.carried_in_total)"></td></tr>
+  </table>
+</article>

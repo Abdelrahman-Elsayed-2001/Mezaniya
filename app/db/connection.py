@@ -63,4 +63,20 @@ def migrate(conn: sqlite3.Connection, migrations_dir: Path = MIGRATIONS_DIR) -> 
                 conn.execute("ROLLBACK")
             raise
         applied.append(version)
+    check_compatible(conn)
     return applied
+
+
+class IncompatibleDatabase(RuntimeError):
+    pass
+
+
+def check_compatible(conn: sqlite3.Connection) -> None:
+    """Databases made by beta 0.1.0 (one column per setting) can't be opened by 0.2.0: while
+    in beta the schema is edited in place, not migrated. Fail with a clear message instead of
+    errors on the first request."""
+    cols = {row[1] for row in conn.execute("PRAGMA table_info(user_settings)")}
+    if cols and "key" not in cols:
+        raise IncompatibleDatabase(
+            "This database was made by Mezaniya beta 0.1.0, which beta 0.2.0 can't open. "
+            "Move or delete the data folder (mezaniya.db) and start again.")

@@ -1,0 +1,17 @@
+{# dashboard widget "by_type": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('charts.by_type_title') }}</h2>
+  <p class="muted small">{{ t('charts.by_type_subtitle') }}</p>
+  <ul class="hbars" x-show="typeBars().length">
+    <template x-for="row in typeBars()" :key="row.key + row.label">
+      <li :title="row.label + ': ' + money(row.amount) + ' (' + pct(row.pct) + ')'" tabindex="0">
+        <span class="hbar-label" x-text="row.label"></span>
+        <span class="hbar-track"><span class="hbar-fill" :class="row.key === 'surplus' ? 'surplus' : ''"
+              :style="'width:' + row.width + '%'"></span></span>
+        <span class="hbar-value"><strong x-text="money(row.amount)"></strong>
+          <small class="muted" x-text="pct(row.pct)"></small></span>
+      </li>
+    </template>
+  </ul>
+  <p class="muted" x-show="!typeBars().length">{{ t('charts.by_type_empty') }}</p>
+</article>

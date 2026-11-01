@@ -1,4 +1,4 @@
-// Settings: criteria, expense types, goal categories, recurring items, account.
+// Settings: criteria, expense types, goal categories, recurring items, appearance, account.
 document.addEventListener("alpine:init", () => {
   // rate fields shown as percentages; labels are settings.<key>, hints are the given keys
   const RATE_FIELDS = [
@@ -11,7 +11,8 @@ document.addEventListener("alpine:init", () => {
     { key: "saving_rate_em_complete", hint: "settings.of_net" },
   ];
   const ROLES = ["essential", "luxury", "debt", "savings", "emergency", "other"];
-  const TABS = ["criteria", "types", "categories", "templates", "account"];
+  const TABS = ["criteria", "types", "categories", "templates", "appearance", "account"];
+  const COLOR_KEYS = ["text", "background", "primary", "secondary", "accent"];
 
   Alpine.data("settingsPage", () => ({
     ...pageMixin(),
@@ -27,11 +28,19 @@ document.addEventListener("alpine:init", () => {
     newType: { name: "", role: "other" },
     newCategory: "",
     newTemplate: { kind: "expense", name: "", type_id: "", amount: "", is_savings_withdrawal: false },
+    colorKeys: COLOR_KEYS,
+    themes: [],
+    custom: { text: "#1f2933", background: "#f4f6f8", primary: "#0f766e", secondary: "#cde2fb", accent: "#2a78d6" },
+    customOpen: false,
+    customWarnings: [],
+    savedCss: "",
 
     async init() {
       const fromHash = location.hash.slice(1);
       if (TABS.includes(fromHash)) this.tab = fromHash;
-      await Promise.all([this.loadSettings(), this.loadTypes(), this.loadCategories(), this.loadTemplates()]);
+      await Promise.all([this.loadSettings(), this.loadTypes(), this.loadCategories(), this.loadTemplates(),
+                         this.loadThemes()]);
+      this.savedCss = this.themeStyle().textContent;
     },
 
     setTab(id) {
@@ -51,6 +60,12 @@ document.addEventListener("alpine:init", () => {
         emergency_ref_factor: s.emergency_ref_factor,
         currency: s.currency,
       };
+      if (s.theme_colors) this.custom = { ...s.theme_colors };
+    },
+
+    async loadThemes() {
+      const r = await this.request("GET", "/api/themes");
+      if (r) this.themes = r;
     },
 
     async loadTypes() {
@@ -100,6 +115,67 @@ document.addEventListener("alpine:init", () => {
       if (!r) return;
       this.settings = r;
       this.notify(tr("settings.saved"));
+    },
+
+    // ---------- appearance
+
+    themeStyle() {
+      return document.getElementById("theme-style");
+    },
+
+    currentTheme() {
+      return this.settings ? this.settings.theme : "auto";
+    },
+
+    applyCss(css) {
+      this.themeStyle().textContent = css || "";
+    },
+
+    async chooseTheme(id) {
+      this.customOpen = false;
+      const r = await this.request("PATCH", "/api/settings", { theme: id });
+      if (!r) return;
+      this.settings = r;
+      this.applyCss(r.theme_css);
+      this.savedCss = r.theme_css || "";
+      this.notify(tr("settings.theme_saved"));
+    },
+
+    openCustom() {
+      // start from the colours on screen now: the saved custom ones, else the chosen theme's
+      const th = this.themes.find((x) => x.id === this.currentTheme());
+      if (!this.settings.theme_colors && th) this.custom = { ...th.colors };
+      this.customOpen = true;
+      this.previewCustom();
+    },
+
+    previewCustom() {
+      // colour pickers fire on every drag step: ask the server once the hand stops
+      clearTimeout(this.previewTimer);
+      this.previewTimer = setTimeout(() => this.runPreview(), 150);
+    },
+
+    async runPreview() {
+      const r = await this.request("POST", "/api/themes/preview", { theme_colors: this.custom });
+      if (!r || !this.customOpen) return;
+      this.applyCss(r.css);
+      this.customWarnings = r.warnings;
+    },
+
+    async saveCustom() {
+      const r = await this.request("PATCH", "/api/settings", { theme: "custom", theme_colors: this.custom });
+      if (!r) return;
+      this.settings = r;
+      this.savedCss = r.theme_css || "";
+      this.applyCss(this.savedCss);
+      this.customOpen = false;
+      this.notify(tr("settings.theme_saved"));
+    },
+
+    cancelCustom() {
+      this.customOpen = false;
+      this.customWarnings = [];
+      this.applyCss(this.savedCss);
     },
 
     // ---------- lists

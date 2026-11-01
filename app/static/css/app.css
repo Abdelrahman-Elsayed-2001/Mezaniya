@@ -7,6 +7,7 @@
   --primary: #0f766e;
   --primary-hover: #115e59;
   --primary-text: #ffffff;
+  --primary-ink: #0f766e;           /* primary used as a text colour */
   --danger: #b42318;
   --danger-bg: #fef3f2;
   --warn-bg: #fffaeb;
@@ -36,6 +37,7 @@
     --primary: #2dd4bf;
     --primary-hover: #5eead4;
     --primary-text: #062925;
+    --primary-ink: #2dd4bf;
     --danger: #fda29b;
     --danger-bg: #3a1714;
     --warn-bg: #3a2a0b;
@@ -64,7 +66,7 @@ body {
   line-height: 1.6;
 }
 
-a { color: var(--primary); }
+a { color: var(--primary-ink); }
 
 /* ---------- release-stage banner (app/version.py) */
 .stage-banner {
@@ -160,7 +162,7 @@ a { color: var(--primary); }
 .btn-secondary {
   margin-top: 12px;
   background: transparent;
-  color: var(--primary);
+  color: var(--primary-ink);
   border-color: var(--border);
   text-decoration: none;
 }
@@ -217,7 +219,7 @@ a { color: var(--primary); }
 
 .btn-small { width: auto; margin: 0; padding: 6px 12px; font-size: 0.9rem; }
 .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); text-decoration: none; }
-.btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary-ink); }
 
 .month-picker select, .grid select, .grid input, .kv input {
   font: inherit;
@@ -335,7 +337,7 @@ details[open].card summary { margin-bottom: 12px; }
   line-height: 1;
 }
 .icon-btn:hover { color: var(--danger); border-color: var(--danger); }
-.icon-btn.add { color: var(--primary); border-color: var(--primary); font-weight: 700; }
+.icon-btn.add { color: var(--primary-ink); border-color: var(--primary); font-weight: 700; }
 .icon-btn.add:hover { background: var(--primary); color: var(--primary-text); }
 
 .chip {
@@ -514,7 +516,7 @@ details[open].card summary { margin-bottom: 12px; }
   cursor: pointer;
 }
 .tabs button:hover { color: var(--text); }
-.tabs button.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+.tabs button.active { color: var(--primary-ink); border-bottom-color: var(--primary); font-weight: 600; }
 
 .settings-card h3 { margin: 20px 0 12px; font-size: 1rem; }
 .narrow-card { max-width: 480px; }
@@ -610,3 +612,79 @@ details[open].card summary { margin-bottom: 12px; }
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.2);
   z-index: 50;
 }
+
+/* ---------- appearance (themes) */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.theme-card:hover { border-color: var(--primary); }
+.theme-card.selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary); }
+.theme-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.theme-swatches { display: flex; width: 100%; height: 28px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.theme-swatches span { flex: 1; }
+.theme-swatches.auto span:first-child { background: #f4f6f8; }
+.theme-swatches.auto span:last-child { background: #0f1419; }
+.custom-theme { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+.custom-theme h3 { margin: 0 0 4px; font-size: 1rem; }
+.color-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin: 12px 0; }
+.color-field { display: flex; align-items: center; gap: 8px; }
+.color-field input[type="color"] { width: 44px; height: 32px; padding: 2px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; }
+.color-field code { color: var(--muted); font-size: 0.85em; }
+
+/* ---------- dashboards: rows of widgets (app/dashboard.py) */
+/* in view mode the wrappers vanish from layout, so cards sit in .stack / .grid-3 as plain children */
+.board-row.single, .widget-slot, .widget-body { display: contents; }
+.widget-slot.editing {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px;
+  border: 2px dashed var(--border);
+  border-radius: calc(var(--radius) + 4px);
+}
+.widget-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+.widget-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.widget-buttons .icon-btn:disabled { opacity: 0.35; cursor: default; }
+.widget-buttons .copy-to { font: inherit; font-size: 0.85rem; padding: 3px 6px; max-width: 150px; }
+.board-tabs { margin-bottom: 16px; }
+.layout-editor { margin-bottom: 16px; }
+.layout-editor h3 { margin: 16px 0 8px; font-size: 1rem; }
+.layout-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.widget-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.widget-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.widget-list li > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.widget-picker summary { cursor: pointer; }
+.widget-picker summary h3 { display: inline; }

@@ -14,7 +14,20 @@
 
 - البيانات والإعدادات والسجلات في `%LOCALAPPDATA%\Mezaniya` (قاعدة البيانات، و`mezaniya.env`، و`backups\`، و`logs\`)، وليست بجانب البرنامج.
 - عند إزالة البرنامج يسألك: **الاحتفاظ بالبيانات** (لتجدها كما هي إذا ثبّتَّه مرة أخرى) أو **حذف كل شيء**.
-- التحديث: ثبّت الإصدار الجديد فوق القديم مباشرة، والبيانات تبقى كما هي.
+- التحديث: ثبّت الإصدار الجديد فوق القديم مباشرة، والبيانات تبقى كما هي (عدا الانتقال من beta 0.1.0، انظر التنبيه).
+
+> [!WARNING]
+> **beta 0.2.0 غير متوافق مع beta 0.1.0.** شكل قاعدة البيانات تغيّر (الإعدادات صارت مفتاح/قيمة)، ولا يوجد تحويل لبيانات 0.1.0. إن جرّبت 0.1.0، احذف مجلد البيانات (`%LOCALAPPDATA%\Mezaniya`، أو `data\` عند التشغيل من الشيفرة) قبل تشغيل 0.2.0، وإلا يتوقف الخادم برسالة تطلب ذلك. خلال مرحلة beta قد تتكرر تغييرات كهذه دون تحويل.
+
+## النسخة المحمولة (Portable، دون تثبيت)
+
+نزّل `Mezaniya-Portable-v<الإصدار>.zip` من صفحة [Releases](https://github.com/Abdelrahman-Elsayed-2001/Mezaniya/releases)، وفك ضغطه في مكان يمكن الكتابة فيه (سطح المكتب أو المستندات أو فلاشة، وليس داخل `Program Files`)، ثم شغّل `Mezaniya.exe`.
+
+- كل البيانات في مجلد `data\` بجانب البرنامج، فنسخ المجلد كله ينقل البرنامج وبياناته معًا. أي شخص معه المجلد معه بياناتك.
+- الملف `portable.txt` هو ما يجعل النسخة محمولة؛ لا تحذفه.
+- التحديث: فك ضغط الإصدار الجديد ثم انسخ مجلد `data\` إليه.
+- النسختان المحمولة والمثبّتة تستخدمان المنفذ 8080 افتراضيًا، فشغّل واحدة فقط في كل مرة أو غيّر المنفذ في إحداهما.
+- إن لم يكن المجلد قابلًا للكتابة تظهر رسالة توضّح ذلك عند التشغيل.
 
 ## التشغيل من الشيفرة
 
@@ -182,13 +195,13 @@ New-NetFirewallRule -DisplayName "Mezaniya" -Direction Inbound -Protocol TCP -Lo
 - **`app/api/`:** واجهة REST، و**`app/auth/`:** تسجيل الدخول.
 - **`app/services/`:** الشهر الجديد، ومزامنة الترحيل، والنسخ الاحتياطي، والمستخدم التجريبي، وأوامر الإدارة.
 - **`app/templates/` + `app/static/`:** الواجهة (Alpine.js مضمّن في المشروع، فلا حاجة إلى الإنترنت).
-### بناء المثبّت
+### بناء المثبّت والنسخة المحمولة
 
-يحتاج [Inno Setup 6](https://jrsoftware.org/isdl.php)، ثم:
+يحتاج [Inno Setup 6](https://jrsoftware.org/isdl.php) (للمثبّت فقط)، ثم:
 ```bash
 .venv\Scripts\python.exe -m pip install -r requirements-build.txt
 .venv\Scripts\python.exe build_installer.py
 ```
-يشغّل PyInstaller (`packaging/mezaniya.spec`) فيخرج `dist\Mezaniya\` وفيه `Mezaniya.exe` (المدير، دون نافذة سوداء) و`MezaniyaServer.exe` (الخادم الذي يشغّله المدير ويوقفه)، ثم يترجم `installer.iss` فيخرج `Output\Mezaniya-Setup-v0.1.0-beta.exe` جاهزًا للرفع على GitHub Releases. رقم الإصدار يُقرأ من `app/version.py`. المجلدات `dist\` و`build\` و`Output\` غير مرفوعة.
+يشغّل PyInstaller (`packaging/mezaniya.spec`) فيخرج `dist\Mezaniya\` وفيه `Mezaniya.exe` (المدير، دون نافذة سوداء) و`MezaniyaServer.exe` (الخادم الذي يشغّله المدير ويوقفه)، ثم يخرج في `Output\` ملفين جاهزين للرفع على GitHub Releases: `Mezaniya-Setup-v0.2.0-beta.exe` (من `installer.iss`) و`Mezaniya-Portable-v0.2.0-beta.zip` (المجلد نفسه ومعه `packaging\portable.txt`). `--skip-installer` يتخطى المثبّت (فلا حاجة إلى Inno Setup)، و`--skip-portable` يتخطى النسخة المحمولة. رقم الإصدار يُقرأ من `app/version.py`. المجلدات `dist\` و`build\` و`Output\` غير مرفوعة.
 
 - يتحقق اختبار تلقائي من وجود كل نص بالعربية والإنجليزية بالمتغيرات نفسها، ومن أن كل مفتاح يستخدمه الكود موجود، ومن خلوّ ملفات البرمجة من النصوص العربية.

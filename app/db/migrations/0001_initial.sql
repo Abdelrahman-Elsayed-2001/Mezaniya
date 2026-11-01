@@ -16,41 +16,87 @@ CREATE TABLE users (
   last_seen_at TEXT                     -- refreshed at most once a minute: "who is connected now"
 );
 
-CREATE TABLE user_settings (
-  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  excellent_rate REAL NOT NULL DEFAULT 0.20,
-  good_rate REAL NOT NULL DEFAULT 0.10,
-  max_debt_rate REAL NOT NULL DEFAULT 0.33,
-  max_luxury_rate REAL NOT NULL DEFAULT 0.30,
-  emergency_cut_rate REAL NOT NULL DEFAULT 0.30,
-  saving_rate_em_incomplete REAL NOT NULL DEFAULT 0.20,
-  saving_rate_em_complete REAL NOT NULL DEFAULT 0.50,
-  emergency_ref_months REAL NOT NULL DEFAULT 3,
-  emergency_ref_factor REAL NOT NULL DEFAULT 1.25,
-  currency TEXT NOT NULL,               -- set from the user's language when the account is created
-  CHECK (excellent_rate >= 0 AND good_rate >= 0 AND max_debt_rate >= 0 AND max_luxury_rate >= 0
-         AND emergency_cut_rate >= 0 AND saving_rate_em_incomplete >= 0
-         AND saving_rate_em_complete >= 0 AND emergency_ref_months >= 0 AND emergency_ref_factor >= 0)
+-- Settings are key/value rows, so a new setting is one INSERT into default_settings, not a
+-- schema change. A user without a row for a key gets default_value. The Python registry in
+-- app/db/repo/settings.py validates values (type and range) since TEXT can't CHECK them here;
+-- a test keeps the registry and this table in step.
+CREATE TABLE default_settings (
+  key TEXT PRIMARY KEY,
+  default_value TEXT NOT NULL,
+  type TEXT NOT NULL CHECK (type IN ('rate','number','text','json'))
 );
 
+CREATE TABLE user_settings (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  key TEXT NOT NULL REFERENCES default_settings(key),
+  value TEXT NOT NULL,
+  value2 TEXT,                          -- customisation details (JSON), e.g. a custom theme's colours
+  PRIMARY KEY (user_id, key)
+);
+
+INSERT INTO default_settings (key, default_value, type) VALUES
+  ('excellent_rate', '0.2', 'rate'),
+  ('good_rate', '0.1', 'rate'),
+  ('max_debt_rate', '0.33', 'rate'),
+  ('max_luxury_rate', '0.3', 'rate'),
+  ('emergency_cut_rate', '0.3', 'rate'),
+  ('saving_rate_em_incomplete', '0.2', 'rate'),
+  ('saving_rate_em_complete', '0.5', 'rate'),
+  ('emergency_ref_months', '3', 'number'),
+  ('emergency_ref_factor', '1.25', 'number'),
+  ('currency', '', 'text'),             -- set from the user's language when the account is created
+  ('theme', 'auto', 'text'),
+  -- the dashboards' layout (app/dashboard.py); a test keeps it equal to default_dashboards()
+  ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["summary","suggestions","warnings"],["incomes","emergency","savings"],["expenses"],["goals"],["payments","by_type","progress"],["daily"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details"]}', 'json');
+
+-- Built-in colour themes: five base colours each; app/themes.py derives the rest. Names are
+-- strings.json "theme.<id>". A user's choice is user_settings key 'theme' ('auto' = follow
+-- Windows light/dark, a theme id, or 'custom' with the colours as JSON in value2).
+CREATE TABLE themes (
+  id TEXT PRIMARY KEY,
+  sort_order INTEGER NOT NULL,
+  mode TEXT NOT NULL CHECK (mode IN ('light','dark')),
+  colors TEXT NOT NULL                  -- JSON {"text","background","primary","secondary","accent"}
+);
+
+INSERT INTO themes (id, sort_order, mode, colors) VALUES
+  ('ember', 1, 'dark', '{"text":"#fcf3ee","background":"#090401","primary":"#d2481e","secondary":"#3b8212","accent":"#18aa29"}'),
+  ('sky', 2, 'light', '{"text":"#110803","background":"#b8e5f2","primary":"#e1572d","secondary":"#a6ed7d","accent":"#55e766"}'),
+  ('lavender', 3, 'light', '{"text":"#120c16","background":"#e3d4f2","primary":"#8164a6","secondary":"#cba5ba","accent":"#b56e82"}'),
+  ('midnight', 4, 'dark', '{"text":"#dfe3ee","background":"#080b12","primary":"#94aadf","secondary":"#1b3a81","accent":"#245de2"}'),
+  ('mezaniya_light', 5, 'light', '{"text":"#1f2933","background":"#f4f6f8","primary":"#0f766e","secondary":"#cde2fb","accent":"#2a78d6"}'),
+  ('mezaniya_dark', 6, 'dark', '{"text":"#e6edf3","background":"#0f1419","primary":"#2dd4bf","secondary":"#1b2c42","accent":"#3987e5"}'),
+  ('sand', 7, 'light', '{"text":"#2b2118","background":"#f6f0e6","primary":"#9a5b13","secondary":"#d9c7a8","accent":"#2f6f62"}'),
+  ('mint', 8, 'light', '{"text":"#0f241c","background":"#eef8f3","primary":"#0f766e","secondary":"#bfe3d4","accent":"#7c3aed"}'),
+  ('ocean', 9, 'dark', '{"text":"#e3eef2","background":"#0b1a20","primary":"#38bdf8","secondary":"#1e3a4a","accent":"#f59e0b"}');
+
+-- Types and categories made at registration carry name_key ('savings' → strings.json
+-- "seed.type.savings") and are shown in the viewer's language; name stays NULL until the user
+-- renames one, and then that name is shown in every language. Types the user adds have name only.
 CREATE TABLE expense_types (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
+  name_key TEXT,
+  name TEXT,
   role TEXT NOT NULL DEFAULT 'other'
        CHECK (role IN ('essential','luxury','debt','savings','emergency','other')),
   is_system INTEGER NOT NULL DEFAULT 0,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (user_id, name),
+  UNIQUE (user_id, name_key),
   UNIQUE (id, user_id)
 );
 
 CREATE TABLE goal_categories (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
+  name_key TEXT,                        -- strings.json "seed.category.<key>", as for expense_types
+  name TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (user_id, name),
+  UNIQUE (user_id, name_key),
   UNIQUE (id, user_id)
 );
 

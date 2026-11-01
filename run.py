@@ -5,7 +5,7 @@ import socket
 from waitress import serve
 
 from app import create_app
-from app.config import Config
+from app.config import Config, data_dir_problem
 from app.i18n import t
 from app.logging_setup import setup_logging
 from app.services.backup import BackupScheduler
@@ -24,7 +24,9 @@ def lan_addresses() -> list[str]:
 
 
 def main() -> None:
-    Config.DATA_DIR.mkdir(parents=True, exist_ok=True)
+    problem = data_dir_problem(Config.DATA_DIR)
+    if problem:
+        raise SystemExit(t("log.data_dir_unwritable", path=Config.DATA_DIR, error=problem))
     setup_logging(Config.LOG_DIR)
     app = create_app()                      # applies pending DB migrations
     scheduler = None

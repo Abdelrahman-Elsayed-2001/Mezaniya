@@ -1,0 +1,17 @@
+{# dashboard widget "summary": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('summary.title') }}</h2>
+  <div class="status" :class="'status-' + d.summary.status.level" x-text="d.summary.status.text"></div>
+  <table class="kv">
+    <tr><th>{{ t('summary.income') }}</th><td x-text="money(d.summary.income)"></td><td class="muted">100%</td></tr>
+    <tr><th>{{ t('summary.expenses') }}</th><td x-text="money(d.summary.expenses)"></td><td class="muted" x-text="pct(d.summary.expenses_pct)"></td></tr>
+    <tr class="sub"><th>{{ t('summary.debt') }}</th><td x-text="money(d.summary.debt)"></td>
+      <td :class="d.summary.debt_pct > d.settings.max_debt_rate ? 'neg' : 'muted'" x-text="pct(d.summary.debt_pct)"></td></tr>
+    <tr class="sub"><th>{{ t('summary.luxury') }}</th><td x-text="money(d.summary.luxury)"></td>
+      <td :class="d.summary.luxury_pct > d.settings.max_luxury_rate ? 'neg' : 'muted'" x-text="pct(d.summary.luxury_pct)"></td></tr>
+    <tr class="sub"><th>{{ t('summary.essential') }}</th><td x-text="money(d.summary.essential)"></td><td class="muted" x-text="pct(d.summary.essential_pct)"></td></tr>
+    <tr class="total"><th>{{ t('summary.net') }}</th>
+      <td :class="d.summary.net < 0 ? 'neg' : 'pos'" x-text="money(d.summary.net)"></td>
+      <td class="muted" x-text="pct(d.summary.net_pct)"></td></tr>
+  </table>
+</article>

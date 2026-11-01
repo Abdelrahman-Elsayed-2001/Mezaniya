@@ -1,0 +1,14 @@
+{# dashboard widget "suggestions": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('suggestions.title') }}</h2>
+  <table class="kv">
+    <tr><th>{{ t('suggestions.emergency') }}</th><td x-text="money(d.suggestions.emergency)"></td><td class="muted" x-text="pct(d.suggestions.emergency_pct)"></td></tr>
+    <tr><th>{{ t('suggestions.saving') }}</th><td x-text="money(d.suggestions.saving)"></td><td class="muted" x-text="pct(d.suggestions.saving_pct)"></td></tr>
+    <tr class="total"><th>{{ t('suggestions.safe_spend') }}</th><td x-text="money(d.suggestions.safe_spend)"></td><td class="muted" x-text="pct(d.suggestions.safe_spend_pct)"></td></tr>
+    <tr class="sub"><th x-text="t('suggestions.daily', {days: d.suggestions.days_text})"></th><td x-text="money(d.suggestions.safe_daily)"></td><td></td></tr>
+    <tr class="sub"><th>{{ t('suggestions.weekly') }}</th><td x-text="money(d.suggestions.safe_weekly)"></td><td></td></tr>
+    <tr x-show="d.suggestions.return_to_savings > 0">
+      <th>{{ t('suggestions.return') }}</th><td class="warn-text" x-text="money(d.suggestions.return_to_savings)"></td>
+      <td class="muted" x-text="pct(d.suggestions.return_to_savings_pct)"></td></tr>
+  </table>
+</article>

@@ -1,0 +1,16 @@
+{# dashboard widget "warnings": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('warnings.title') }} <span class="count" :class="d.warnings_count ? 'count-warn' : 'count-ok'" x-text="d.warnings_count"></span></h2>
+  <p class="muted" x-text="d.warnings_text"></p>
+  <ul class="warnings">
+    <template x-for="w in sortedWarnings()" :key="w.key">
+      <li :class="w.active ? 'active' : ''">
+        <span x-text="w.active ? '⚠️' : '✅'"></span>
+        <div>
+          <strong x-text="w.title"></strong>
+          <small x-show="w.details" x-text="w.details"></small>
+        </div>
+      </li>
+    </template>
+  </ul>
+</article>

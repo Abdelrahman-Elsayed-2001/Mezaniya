@@ -34,15 +34,18 @@ class Table:
     bools: frozenset[str] = frozenset()
     scope: str | None = None                     # column grouping sort_order (e.g. budget_id)
     order_by: str = "sort_order, id"
+    # rows with name_key and no name show the translation "<name_prefix>.<name_key>"
+    name_prefix: str | None = None
 
 
-def _t(name, columns, refs=None, bools=(), scope=None, order_by="sort_order, id") -> Table:
-    return Table(name, frozenset(columns.split()), refs or {}, frozenset(bools), scope, order_by)
+def _t(name, columns, refs=None, bools=(), scope=None, order_by="sort_order, id", name_prefix=None) -> Table:
+    return Table(name, frozenset(columns.split()), refs or {}, frozenset(bools), scope, order_by, name_prefix)
 
 
 TABLES: dict[str, Table] = {t.name: t for t in (
-    _t("expense_types", "name role is_system sort_order", bools=("is_system",)),
-    _t("goal_categories", "name sort_order"),
+    _t("expense_types", "name_key name role is_system sort_order", bools=("is_system",),
+       name_prefix="seed.type"),
+    _t("goal_categories", "name_key name sort_order", name_prefix="seed.category"),
     _t("recurring_templates",
        "kind name type_id amount is_savings_withdrawal active notes sort_order",
        refs={"type_id": "expense_types"}, bools=("is_savings_withdrawal", "active")),
@@ -81,7 +84,17 @@ def row_to_dict(t: Table, row: sqlite3.Row) -> dict:
     d = dict(row)
     for b in t.bools:
         d[b] = bool(d[b])
+    if t.name_prefix:
+        # `name` is what to show, in the current request's language; `custom_name` says the user set it
+        d["custom_name"] = d["name"] is not None
+        if d["name"] is None:
+            d["name"] = translated_name(t.name_prefix, d["name_key"])
     return d
+
+
+def translated_name(prefix: str, key: str, lang: str | None = None) -> str:
+    from app.i18n import current_lang, t
+    return t(f"{prefix}.{key}", lang or current_lang())
 
 
 def exists(conn: sqlite3.Connection, user_id: int, table: str, id_) -> bool:
