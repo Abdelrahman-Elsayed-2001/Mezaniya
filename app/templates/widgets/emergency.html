@@ -1,0 +1,18 @@
+{# dashboard widget "emergency": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('emergency.title') }}</h2>
+  <table class="kv">
+    <tr><th>{{ t('emergency.current') }}</th><td colspan="2"><input class="num" type="number" step="0.01" min="0" :value="d.budget.emergency_current"
+           @change="setBalance('emergency_current', $event.target.value)"></td></tr>
+    <tr><th>{{ t('emergency.minimum') }}</th><td colspan="2"><input class="num" type="number" step="0.01" min="0" :value="d.budget.emergency_min"
+           @change="setBalance('emergency_min', $event.target.value)"></td></tr>
+    <tr class="sub"><th>{{ t('emergency.from_expenses') }}</th><td x-text="money(d.emergency.from_expenses)"></td><td></td></tr>
+    <tr><th>{{ t('emergency.after') }}</th><td x-text="money(d.emergency.after)"></td><td></td></tr>
+    <tr class="sub"><th x-text="t('emergency.reference', {months: d.settings.emergency_ref_months, factor: d.settings.emergency_ref_factor})"></th>
+      <td x-text="money(d.emergency.reference)"></td><td></td></tr>
+    <tr><th>{{ t('emergency.remaining') }}</th><td :class="d.emergency.remaining > 0 ? 'neg' : 'pos'" x-text="money(d.emergency.remaining)"></td><td></td></tr>
+    <tr><th>{{ t('emergency.status') }}</th><td colspan="2" :class="d.emergency.complete ? 'pos' : 'warn-text'" x-text="d.emergency.status_text"></td></tr>
+    <tr class="sub"><th>{{ t('emergency.months') }}</th>
+      <td colspan="2" x-text="d.emergency.months === null ? '-' : d.emergency.months"></td></tr>
+  </table>
+</article>

@@ -1,0 +1,99 @@
+{# dashboard widget "expenses": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <div class="card-head">
+    <h2>{{ t('expenses.title') }}</h2>
+    <button class="btn btn-small btn-ghost" type="button" @click="applyTemplates()" :disabled="busy"
+            title="{{ t('expenses.apply_templates_hint') }}">{{ t('expenses.apply_templates') }}</button>
+  </div>
+  <div class="table-wrap">
+    <table class="grid">
+      <thead>
+        <tr>
+          <th class="w-name">{{ t('expenses.name') }}</th><th>{{ t('expenses.type') }}</th><th>{{ t('expenses.cash') }}</th>
+          <th>{{ t('expenses.inst_balance') }}</th><th>{{ t('expenses.inst_count') }}</th>
+          <th>{{ t('expenses.monthly') }}</th><th>{{ t('expenses.carried') }}</th><th>{{ t('expenses.due') }}</th>
+          <th>{{ t('expenses.status') }}</th><th>{{ t('expenses.deferred_amount') }}</th><th>{{ t('expenses.paid_at') }}</th><th></th><th></th>
+        </tr>
+      </thead>
+      <template x-for="e in d.expenses" :key="e.id">
+        <tbody>
+          <tr :class="{ needs: e.needs_amount, paid: e.status === 'paid', deferred: e.status === 'deferred' }">
+            <td><input :value="e.name" @change="updateItem('expenses', e, 'name', $event.target.value)"
+                       :title="e.needs_amount ? t('expenses.needs_amount') : ''"></td>
+            <td>
+              <select @change="updateItem('expenses', e, 'type_id', Number($event.target.value))">
+                <template x-for="ty in d.expense_types" :key="ty.id">
+                  <option :value="ty.id" :selected="ty.id === e.type_id" x-text="ty.name"></option>
+                </template>
+              </select>
+            </td>
+            <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="e.cash_amount"
+                       @change="updateItem('expenses', e, 'cash_amount', num($event.target.value))"></td>
+            <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="e.inst_balance"
+                       @change="updateItem('expenses', e, 'inst_balance', num($event.target.value))"></td>
+            <td>
+              <input class="num short" type="number" step="1" min="0" inputmode="numeric" :value="e.inst_count"
+                     @change="updateItem('expenses', e, 'inst_count', num($event.target.value))">
+              <small class="muted" x-show="e.inst_original_count && e.inst_count"
+                     x-text="t('expenses.payment_of', {current: e.inst_original_count - e.inst_count + 1, total: e.inst_original_count})"></small>
+            </td>
+            <td class="num" x-text="money(e.base)"></td>
+            <td class="num"><span class="chip" x-show="e.carried_in > 0" title="{{ t('expenses.carried_hint') }}"
+                                  x-text="money(e.carried_in)"></span></td>
+            <td class="num strong" x-text="money(e.due)"></td>
+            <td>
+              <select class="status-select" :class="'st-' + e.status" @change="setStatus(e, $event.target.value)">
+                <option value="unpaid" :selected="e.status === 'unpaid'">{{ t('expenses.status_unpaid') }}</option>
+                <option value="paid" :selected="e.status === 'paid'">{{ t('expenses.status_paid') }}</option>
+                <option value="deferred" :selected="e.status === 'deferred'">{{ t('expenses.status_deferred') }}</option>
+              </select>
+            </td>
+            <td>
+              <input class="num" type="number" step="0.01" min="0" x-show="e.status === 'deferred'" :value="e.deferred_amount"
+                     title="{{ t('expenses.deferred_hint') }}" @change="setDeferred(e, $event.target.value)">
+              <span class="muted" x-show="e.status !== 'deferred'">—</span>
+            </td>
+            <td><input type="date" :value="e.paid_at ?? ''"
+                       @change="updateItem('expenses', e, 'paid_at', $event.target.value || null)"></td>
+            <td><button class="icon-btn note" type="button" :class="e.notes ? 'has-note' : ''"
+                        :title="e.notes || t('common.note_add')" @click="toggleNotes('expenses', e)">📝</button></td>
+            <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeItem('expenses', e)">✕</button></td>
+          </tr>
+          <tr class="notes-row" x-show="notesOpen('expenses', e)">
+            <td colspan="13"><textarea rows="2" placeholder="{{ t('expenses.note_placeholder') }}" :value="e.notes ?? ''"
+                                       @change="updateItem('expenses', e, 'notes', $event.target.value.trim() || null)"></textarea></td>
+          </tr>
+        </tbody>
+      </template>
+      <tfoot>
+        <tr class="add-row">
+          <td><input placeholder="{{ t('expenses.new_placeholder') }}" x-model="newExpense.name" @keydown.enter="addExpense()"></td>
+          <td>
+            <select x-model.number="newExpense.type_id">
+              <template x-for="ty in d.expense_types" :key="ty.id">
+                <option :value="ty.id" x-text="ty.name"></option>
+              </template>
+            </select>
+          </td>
+          <td><input class="num" type="number" step="0.01" min="0" placeholder="0" x-model="newExpense.cash_amount" @keydown.enter="addExpense()"></td>
+          <td><input class="num" type="number" step="0.01" min="0" placeholder="0" x-model="newExpense.inst_balance" @keydown.enter="addExpense()"></td>
+          <td><input class="num short" type="number" step="1" min="0" placeholder="0" x-model="newExpense.inst_count" @keydown.enter="addExpense()"></td>
+          <td colspan="7"></td>
+          <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addExpense()">+</button></td>
+        </tr>
+        <tr class="total">
+          <th>{{ t('common.total') }}</th><td></td>
+          <td class="num" x-text="money(d.payments.cash_total)"></td>
+          <td class="num" x-text="money(d.payments.installment_total)"></td>
+          <td></td>
+          <td class="num" x-text="money(sum(d.expenses, 'base'))"></td>
+          <td class="num" x-text="money(d.payments.carried_in_total)"></td>
+          <td class="num strong" x-text="money(sum(d.expenses, 'due'))"></td>
+          <td class="muted small" x-text="t('expenses.counts', {paid: d.payments.paid_count, deferred: d.payments.deferred_count})"></td>
+          <td class="num" x-text="money(d.payments.deferred)"></td>
+          <td colspan="3"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</article>

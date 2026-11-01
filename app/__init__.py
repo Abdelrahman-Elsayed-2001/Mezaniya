@@ -53,7 +53,8 @@ def create_app(config: type[Config] = Config) -> Flask:
     @app.get("/")
     @login_required
     def index():
-        return render_template("app.html", username=current_user()["username"])
+        from .dashboard import DEFAULT_LAYOUT
+        return render_template("app.html", username=current_user()["username"], dashboard_layout=DEFAULT_LAYOUT)
 
     @app.get("/settings")
     @login_required

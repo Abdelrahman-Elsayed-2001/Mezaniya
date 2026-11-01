@@ -1,0 +1,41 @@
+{# dashboard widget "incomes": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('incomes.title') }}</h2>
+  <div class="table-wrap">
+    <table class="grid">
+      <thead><tr><th>{{ t('incomes.source') }}</th><th>{{ t('incomes.amount') }}</th>
+        <th title="{{ t('incomes.withdrawal_hint') }}">{{ t('incomes.withdrawal_short') }}</th><th></th><th></th></tr></thead>
+      <template x-for="i in d.incomes" :key="i.id">
+        <tbody>
+          <tr :class="i.needs_amount ? 'needs' : ''">
+            <td><input :value="i.source" @change="updateItem('incomes', i, 'source', $event.target.value)"
+                       :title="i.needs_amount ? t('incomes.needs_amount') : ''"></td>
+            <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="i.amount"
+                       @change="updateItem('incomes', i, 'amount', num($event.target.value))"></td>
+            <td class="center"><input type="checkbox" :checked="i.is_savings_withdrawal"
+                       title="{{ t('incomes.withdrawal_hint') }}"
+                       @change="updateItem('incomes', i, 'is_savings_withdrawal', $event.target.checked)"></td>
+            <td><button class="icon-btn note" type="button" :class="i.notes ? 'has-note' : ''"
+                        :title="i.notes || t('common.note_add')" @click="toggleNotes('incomes', i)">📝</button></td>
+            <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeItem('incomes', i)">✕</button></td>
+          </tr>
+          <tr class="notes-row" x-show="notesOpen('incomes', i)">
+            <td colspan="5"><textarea rows="2" placeholder="{{ t('common.note_placeholder') }}" :value="i.notes ?? ''"
+                                      @change="updateItem('incomes', i, 'notes', $event.target.value.trim() || null)"></textarea></td>
+          </tr>
+        </tbody>
+      </template>
+      <tfoot>
+        <tr class="add-row">
+          <td><input placeholder="{{ t('incomes.new_placeholder') }}" x-model="newIncome.source" @keydown.enter="addIncome()"></td>
+          <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" placeholder="0"
+                     x-model="newIncome.amount" @keydown.enter="addIncome()"></td>
+          <td class="center"><input type="checkbox" x-model="newIncome.is_savings_withdrawal" title="{{ t('incomes.withdrawal_hint') }}"></td>
+          <td></td>
+          <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addIncome()">+</button></td>
+        </tr>
+        <tr class="total"><th>{{ t('common.total') }}</th><td class="num" x-text="money(d.summary.income)"></td><td colspan="3"></td></tr>
+      </tfoot>
+    </table>
+  </div>
+</article>

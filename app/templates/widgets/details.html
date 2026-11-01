@@ -1,0 +1,14 @@
+{# dashboard widget "details": rendered inside the dashboard's x-data, with `d` loaded #}
+<details class="card">
+  <summary><h2>{{ t('details.title') }}</h2></summary>
+  <table class="kv">
+    <tr><th>{{ t('details.available') }}</th><td x-text="money(d.debug.available)"></td></tr>
+    <tr><th>{{ t('details.base') }}</th><td x-text="money(d.debug.base)"></td></tr>
+    <tr><th>{{ t('details.em_gap') }}</th><td x-text="money(d.debug.emergency_gap_before)"></td></tr>
+    <tr><th>{{ t('details.em_target') }}</th><td x-text="money(d.debug.emergency_target)"></td></tr>
+    <tr><th>{{ t('details.saving_rate') }}</th><td x-text="pct(d.debug.saving_rate)"></td></tr>
+    <tr><th>{{ t('details.saving_target') }}</th><td x-text="money(d.debug.saving_target)"></td></tr>
+    <tr><th>{{ t('details.goals_pool') }}</th><td x-text="money(d.debug.goals_pool)"></td></tr>
+    <tr><th>{{ t('details.goals_monthly_pool') }}</th><td x-text="money(d.debug.goals_monthly_pool)"></td></tr>
+  </table>
+</details>

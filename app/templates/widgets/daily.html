@@ -1,0 +1,61 @@
+{# dashboard widget "daily": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <div class="card-head">
+    <h2>{{ t('charts.daily_title') }}</h2>
+    <button class="btn btn-small btn-ghost" type="button" @click="showDailyTable = !showDailyTable"
+            x-text="showDailyTable ? t('charts.daily_show_chart') : t('charts.daily_show_table')"></button>
+  </div>
+  <p class="muted small">{{ t('charts.daily_subtitle') }}</p>
+
+  <template x-if="!hasDailyData()">
+    <p class="muted">{{ t('charts.daily_empty') }}</p>
+  </template>
+
+  <template x-if="hasDailyData() && !showDailyTable">
+    <div class="cols" @mouseleave="hoverDay = null">
+      <div class="cols-plot">
+        <div class="cols-grid">
+          <template x-for="tick in dailyTicks()" :key="tick">
+            <div class="gridline" :style="'bottom:' + (tick / dailyScale() * 100) + '%'">
+              <span x-text="compact(tick)"></span>
+            </div>
+          </template>
+        </div>
+        <div class="cols-bars">
+          <template x-for="(amount, i) in d.charts.daily.by_day" :key="i">
+            <div class="col" :class="hoverDay === i ? 'hover' : ''" :tabindex="amount > 0 ? 0 : -1"
+                 @mouseenter="hoverDay = i" @focus="hoverDay = i" @blur="hoverDay = null"
+                 :aria-label="t('charts.daily_day', {day: i + 1}) + ': ' + money(amount)">
+              <span class="col-bar" :style="'height:' + (amount / dailyScale() * 100) + '%'"></span>
+              <span class="col-peak" x-show="amount > 0 && i === peakDay()"
+                    :style="'bottom:' + (amount / dailyScale() * 100) + '%'" x-text="compact(amount)"></span>
+            </div>
+          </template>
+        </div>
+        <div class="col-tip" x-show="hoverDay !== null && d.charts.daily.by_day[hoverDay] > 0"
+             :style="tipStyle()">
+          <strong x-text="money(d.charts.daily.by_day[hoverDay] ?? 0) + ' ' + d.settings.currency"></strong>
+          <span class="muted" x-text="t('charts.daily_day', {day: hoverDay + 1})"></span>
+        </div>
+      </div>
+      <div class="cols-axis">
+        <template x-for="(amount, i) in d.charts.daily.by_day" :key="i">
+          <span x-text="dayTick(i)"></span>
+        </template>
+      </div>
+    </div>
+  </template>
+
+  <template x-if="hasDailyData() && showDailyTable">
+    <table class="kv daily-table">
+      <template x-for="(amount, i) in d.charts.daily.by_day" :key="i">
+        <tr x-show="amount > 0"><th x-text="t('charts.daily_day', {day: i + 1})"></th><td x-text="money(amount)"></td></tr>
+      </template>
+    </table>
+  </template>
+
+  <div class="daily-extra" x-show="d.charts.daily.no_date > 0 || d.charts.daily.outside_month > 0">
+    <span x-show="d.charts.daily.no_date > 0">{{ t('charts.daily_no_date') }} <strong x-text="money(d.charts.daily.no_date)"></strong></span>
+    <span x-show="d.charts.daily.outside_month > 0">{{ t('charts.daily_outside') }} <strong x-text="money(d.charts.daily.outside_month)"></strong></span>
+  </div>
+</article>

@@ -1,0 +1,81 @@
+{# dashboard widget "goals": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('goals.title') }}</h2>
+  <p class="muted small">{{ t('goals.hint') }}</p>
+  <div class="table-wrap">
+    <table class="grid">
+      <thead>
+        <tr>
+          <th class="w-name">{{ t('goals.name') }}</th><th>{{ t('goals.category') }}</th><th>{{ t('goals.target') }}</th>
+          <th>{{ t('goals.priority') }}</th><th>{{ t('goals.manual') }}</th><th>{{ t('goals.allocated') }}</th>
+          <th>{{ t('goals.remaining') }}</th><th>{{ t('goals.progress') }}</th><th>{{ t('goals.monthly') }}</th>
+          <th>{{ t('goals.months') }}</th><th></th><th></th>
+        </tr>
+      </thead>
+      <template x-for="g in d.goals" :key="g.id">
+        <tbody>
+          <tr :class="g.valid ? '' : 'ignored'">
+            <td><input :value="g.name" @change="updateItem('goals', g, 'name', $event.target.value)"></td>
+            <td>
+              <select @change="updateItem('goals', g, 'category_id', $event.target.value ? Number($event.target.value) : null)">
+                <option value="" :selected="g.category_id === null">—</option>
+                <template x-for="c in d.goal_categories" :key="c.id">
+                  <option :value="c.id" :selected="c.id === g.category_id" x-text="c.name"></option>
+                </template>
+              </select>
+            </td>
+            <td><input class="num" type="number" step="0.01" min="0" :value="g.target_amount ?? ''"
+                       @change="updateItem('goals', g, 'target_amount', numOrNull($event.target.value))"></td>
+            <td>
+              <input class="num short" type="number" step="0.1" min="0" max="100"
+                     :placeholder="g.valid && g.mode !== 'priority' ? pctPlain(g.effective_priority) : ''"
+                     :value="g.priority === null ? '' : pctPlain(g.priority)"
+                     @change="updateItem('goals', g, 'priority', percentToRatio($event.target.value))">
+            </td>
+            <td>
+              <input class="num" type="number" step="0.01" min="0"
+                     :placeholder="g.valid && g.mode !== 'manual' ? money(g.requested) : ''"
+                     :value="g.manual_allocation ?? ''"
+                     @change="updateItem('goals', g, 'manual_allocation', numOrNull($event.target.value))">
+            </td>
+            <td class="num strong" x-text="money(g.allocated)"></td>
+            <td class="num" x-text="money(g.remaining)"></td>
+            <td>
+              <div class="bar small" x-show="g.progress !== null"><span :style="'width:' + Math.min(100, (g.progress || 0) * 100) + '%'"></span></div>
+              <small class="muted" x-show="g.progress !== null" x-text="pct(g.progress)"></small>
+            </td>
+            <td class="num" x-text="money(g.monthly)"></td>
+            <td x-text="g.months_text"></td>
+            <td><button class="icon-btn note" type="button" :class="g.notes ? 'has-note' : ''"
+                        :title="g.notes || t('common.note_add')" @click="toggleNotes('goals', g)">📝</button></td>
+            <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeItem('goals', g)">✕</button></td>
+          </tr>
+          <tr class="notes-row" x-show="notesOpen('goals', g)">
+            <td colspan="12"><textarea rows="2" placeholder="{{ t('goals.note_placeholder') }}" :value="g.notes ?? ''"
+                                       @change="updateItem('goals', g, 'notes', $event.target.value.trim() || null)"></textarea></td>
+          </tr>
+        </tbody>
+      </template>
+      <tfoot>
+        <tr class="add-row">
+          <td><input placeholder="{{ t('goals.new_placeholder') }}" x-model="newGoal.name" @keydown.enter="addGoal()"></td>
+          <td></td>
+          <td><input class="num" type="number" step="0.01" min="0" placeholder="{{ t('goals.target_placeholder') }}" x-model="newGoal.target_amount" @keydown.enter="addGoal()"></td>
+          <td colspan="8"></td>
+          <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addGoal()">+</button></td>
+        </tr>
+        <tr class="total">
+          <th>{{ t('common.total') }}</th><td></td>
+          <td class="num" x-text="money(d.goals_total.target)"></td>
+          <td class="num" :class="d.goals_total.explicit_priority > 1 ? 'neg' : ''" x-text="pct(d.goals_total.explicit_priority)"></td>
+          <td class="num" x-text="money(d.goals_total.manual)"></td>
+          <td class="num strong" x-text="money(d.goals_total.allocated)"></td>
+          <td class="num" x-text="money(d.goals_total.remaining)"></td>
+          <td class="num" x-text="pct(d.goals_total.progress)"></td>
+          <td class="num" x-text="money(d.goals_total.monthly)"></td>
+          <td colspan="3" x-text="d.goals_total.status_text"></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</article>

@@ -1,0 +1,20 @@
+{# dashboard widget "progress": rendered inside the dashboard's x-data, with `d` loaded #}
+<article class="card">
+  <h2>{{ t('charts.progress_title') }}</h2>
+  <template x-for="bar in d.charts.progress" :key="bar.key">
+    <div class="meter">
+      <div class="meter-head">
+        <strong x-text="bar.label"></strong>
+        <span class="muted" x-text="pct(progress(bar))"></span>
+      </div>
+      <div class="meter-track" role="meter" :aria-valuenow="Math.round(progress(bar) * 100)"
+           aria-valuemin="0" aria-valuemax="100" :aria-label="bar.label">
+        <span class="meter-fill" :style="'width:' + progress(bar) * 100 + '%'"></span>
+      </div>
+      <div class="meter-foot muted small">
+        <span x-text="t('charts.progress_available', {amount: money(bar.available)})"></span>
+        <span x-text="t('charts.progress_remaining', {amount: money(bar.remaining)})"></span>
+      </div>
+    </div>
+  </template>
+</article>
