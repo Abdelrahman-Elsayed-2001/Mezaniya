@@ -18,28 +18,90 @@
     <nav>
       <span class="muted">{{ username }}</span>
       {% include "_lang_switch.html" %}
+      <button class="btn btn-small btn-ghost" type="button" x-show="!editing" @click="startEdit()">{{ t('dashboard.customize') }}</button>
       <a class="btn btn-small btn-ghost" href="/settings">{{ t('common.settings') }}</a>
       <button class="btn btn-small btn-ghost" type="button" data-logout>{{ t('common.logout') }}</button>
     </nav>
   </header>
 
   <main class="page" x-show="d">
+    <!-- ================= boards (app/dashboard.py) ================= -->
+    <nav class="tabs board-tabs" role="tablist" x-show="boards().length > 1 || editing">
+      <template x-for="(b, bi) in boards()" :key="b.id">
+        <button type="button" role="tab" :aria-selected="b.id === boardId" :class="b.id === boardId ? 'active' : ''"
+                @click="showBoard(b.id)" x-text="boardName(b, bi)"></button>
+      </template>
+      <button type="button" x-show="editing && boards().length < maxBoards" @click="addBoard()">{{ t('dashboard.add_board') }}</button>
+    </nav>
+
+    <section class="card layout-editor" x-show="editing" x-cloak>
+      <div class="card-head">
+        <h2>{{ t('dashboard.editing_title') }}</h2>
+        <div class="layout-actions">
+          <button class="btn btn-small btn-primary" type="button" :disabled="busy" @click="saveEdit()">{{ t('dashboard.done') }}</button>
+          <button class="btn btn-small btn-ghost" type="button" @click="cancelEdit()">{{ t('common.cancel') }}</button>
+        </div>
+      </div>
+      <p class="muted small">{{ t('dashboard.editing_hint') }}</p>
+      <div class="layout-actions">
+        <button class="btn btn-small btn-ghost" type="button" @click="renameBoard()">{{ t('dashboard.rename_board') }}</button>
+        <button class="btn btn-small btn-ghost" type="button" x-show="boards().length > 1" @click="deleteBoard()">{{ t('dashboard.delete_board') }}</button>
+        <button class="btn btn-small btn-ghost" type="button" @click="resetLayout()">{{ t('dashboard.reset') }}</button>
+      </div>
+      <details class="widget-picker">
+      <summary><h3>{{ t('dashboard.widgets_title') }}</h3></summary>
+      <ul class="widget-list">
+        <template x-for="w in widgetIds" :key="w">
+          <li>
+            <span><strong x-text="widgetName(w)"></strong>
+              <small :class="usedIn(w).length ? 'chip' : 'muted'"
+                     x-text="usedIn(w).length ? t('dashboard.used_in', {boards: usedIn(w).join(t('dashboard.list_sep'))}) : t('dashboard.unused')"></small></span>
+            <button class="btn btn-small btn-ghost" type="button" @click="addWidget(w)">{{ t('dashboard.add_here') }}</button>
+          </li>
+        </template>
+      </ul>
+      </details>
+    </section>
+
     <template x-if="d">
       <div class="stack">
-
-        {# the widgets, in rows: app/dashboard.py (DEFAULT_LAYOUT) #}
-        {% for row in dashboard_layout %}
-        {% if row|length > 1 %}
-        <section class="grid-3">
-          {% for widget in row %}{% include "widgets/" ~ widget ~ ".html" %}{% endfor %}
-        </section>
-        {% else %}
-        {% include "widgets/" ~ row[0] ~ ".html" %}
-        {% endif %}
-        {% endfor %}
+        <p class="muted" x-show="!board().rows.length">{{ t('dashboard.empty_board') }}</p>
+        {# rows of 1-3 widgets; in view mode the wrappers are display: contents, so the cards lay out as before #}
+        <template x-for="(row, ri) in board().rows" :key="boardId + '|' + ri + '|' + row.join(',')">
+          <div class="board-row" :class="row.length > 1 ? 'grid-3' : 'single'">
+            <template x-for="(w, wi) in row" :key="w + '|' + wi">
+              <div class="widget-slot" :class="editing ? 'editing' : ''">
+                <template x-if="editing"><div class="widget-tools">
+                  <strong x-text="widgetName(w)"></strong>
+                  <span class="widget-buttons">
+                    <button class="icon-btn" type="button" :title="t('dashboard.move_up')" :disabled="ri === 0 && row.length === 1" @click="moveVertical(ri, wi, -1)">↑</button>
+                    <button class="icon-btn" type="button" :title="t('dashboard.move_down')" :disabled="ri === board().rows.length - 1 && row.length === 1" @click="moveVertical(ri, wi, 1)">↓</button>
+                    <button class="icon-btn" type="button" :title="t('dashboard.move_before')" :disabled="wi === 0" @click="moveSideways(ri, wi, -1)" x-text="arrowBefore()"></button>
+                    <button class="icon-btn" type="button" :title="t('dashboard.move_after')" :disabled="wi === row.length - 1" @click="moveSideways(ri, wi, 1)" x-text="arrowAfter()"></button>
+                    <button class="icon-btn" type="button" :title="t('dashboard.own_row')" :disabled="row.length === 1" @click="ownRow(ri, wi)">⇲</button>
+                    <select class="copy-to" :title="t('dashboard.copy_to')" x-show="boards().length > 1"
+                            @change="copyTo(w, $event.target.value); $event.target.value = ''">
+                      <option value="">{{ t('dashboard.copy_to') }}</option>
+                      <template x-for="(b, bi) in boards()" :key="b.id">
+                        <option :value="b.id" x-text="boardName(b, bi)"></option>
+                      </template>
+                    </select>
+                    <button class="icon-btn" type="button" :title="t('dashboard.hide')" @click="hideWidget(ri, wi)">✕</button>
+                  </span>
+                </div></template>
+                <div class="widget-body" x-widget="w"></div>
+              </div>
+            </template>
+          </div>
+        </template>
       </div>
     </template>
   </main>
+  <script type="application/json" id="dashboard-layout">{{ dashboard_payload|tojson }}</script>
+  {# each widget once; x-widget clones the one a slot shows (static/js/dashboard.js) #}
+  {% for widget in widget_ids %}
+  <template id="widget-{{ widget }}">{% include "widgets/" ~ widget ~ ".html" %}</template>
+  {% endfor %}
 
   <p class="page muted" x-show="!d && !error">{{ t('common.loading') }}</p>
   <p class="page neg" x-show="error" x-text="error"></p>

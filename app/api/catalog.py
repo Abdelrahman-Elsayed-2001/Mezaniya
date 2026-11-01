@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from flask import jsonify
 
-from app import themes
+from app import dashboard, themes
 from app.db import get_db, transaction
 from app.db.repo import base, settings, templates, types
 from app.i18n import current_lang, t
@@ -25,6 +25,7 @@ SETTINGS = {
     "currency": Field(text, required=True, max_len=10),
     "theme": Field(text, max_len=40),
     "theme_colors": Field(lambda v, f: themes.parse_colors(v), nullable=True),
+    "dashboards": Field(lambda v, f: dashboard.validate(v)),
 }
 ROLES = ("essential", "luxury", "debt", "savings", "emergency", "other")
 EXPENSE_TYPE = {

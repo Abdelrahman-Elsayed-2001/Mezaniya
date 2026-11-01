@@ -647,3 +647,44 @@ details[open].card summary { margin-bottom: 12px; }
 .color-field { display: flex; align-items: center; gap: 8px; }
 .color-field input[type="color"] { width: 44px; height: 32px; padding: 2px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); cursor: pointer; }
 .color-field code { color: var(--muted); font-size: 0.85em; }
+
+/* ---------- dashboards: rows of widgets (app/dashboard.py) */
+/* in view mode the wrappers vanish from layout, so cards sit in .stack / .grid-3 as plain children */
+.board-row.single, .widget-slot, .widget-body { display: contents; }
+.widget-slot.editing {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px;
+  border: 2px dashed var(--border);
+  border-radius: calc(var(--radius) + 4px);
+}
+.widget-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+.widget-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.widget-buttons .icon-btn:disabled { opacity: 0.35; cursor: default; }
+.widget-buttons .copy-to { font: inherit; font-size: 0.85rem; padding: 3px 6px; max-width: 150px; }
+.board-tabs { margin-bottom: 16px; }
+.layout-editor { margin-bottom: 16px; }
+.layout-editor h3 { margin: 16px 0 8px; font-size: 1rem; }
+.layout-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.widget-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.widget-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.widget-list li > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.widget-picker summary { cursor: pointer; }
+.widget-picker summary h3 { display: inline; }

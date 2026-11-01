@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from app.db.connection import transaction
-from app import themes
+from app import dashboard, themes
 from app.engine import Settings
 
 from .base import Conflict, NotFound
@@ -26,6 +26,8 @@ class Spec:
     max_len: int = 200
     on_create: bool = False      # written for the user at registration (later default changes skip them)
     value2: str | None = None    # name under which this key's value2 (JSON) is read and written
+    check: object = None         # 'json': validates a value sent in (strict; ValueError)
+    clean: object = None         # 'json': makes a stored value safe to use (lenient; never fails)
 
 
 _RATE = Spec("rate", min=0, on_create=True)
@@ -42,6 +44,8 @@ SPECS: dict[str, Spec] = {
     "currency": Spec("text", max_len=10),
     # a theme id, 'auto' or 'custom'; the custom colours live in value2 (theme_colors)
     "theme": Spec("text", max_len=40, value2="theme_colors"),
+    # every board and the widgets on it, as one JSON value (app/dashboard.py)
+    "dashboards": Spec("json", check=dashboard.validate, clean=dashboard.normalize),
 }
 VALUE2 = {s.value2: k for k, s in SPECS.items() if s.value2}     # theme_colors → theme
 
@@ -69,6 +73,11 @@ def _encode(key: str, value) -> str:
                 (spec.max is not None and x > Decimal(str(spec.max))):
             raise Conflict(f"user_settings: {key} out of range", "integrity")
         return str(x)
+    if spec.type == "json":
+        try:
+            return json.dumps(spec.check(value), ensure_ascii=False, separators=(",", ":"))
+        except ValueError as e:
+            raise Conflict(f"user_settings: {key}: {e}", "integrity") from e
     if not isinstance(value, str):
         raise Conflict(f"user_settings: {key} must be text", "integrity")
     if len(value) > spec.max_len:
@@ -104,7 +113,16 @@ def _decode_value2(text: str | None):
 
 
 def _decode(key: str, text: str):
-    return float(text) if SPECS[key].type in ("rate", "number") else text
+    spec = SPECS[key]
+    if spec.type in ("rate", "number"):
+        return float(text)
+    if spec.type == "json":
+        try:
+            value = json.loads(text)
+        except ValueError:
+            value = None
+        return spec.clean(value)
+    return text
 
 
 def _write(conn: sqlite3.Connection, user_id: int, rows: dict[str, str]) -> None:

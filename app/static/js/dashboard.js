@@ -16,6 +16,45 @@ document.addEventListener("alpine:init", () => {
              balancesFor: null, balances: { emergency_current: 0, emergency_min: 0, savings_current: 0 } };
   }
 
+  // the user's boards (app/dashboard.py): printed into the page, so the first paint is already right
+  function layoutPayload() {
+    try {
+      return JSON.parse(document.getElementById("dashboard-layout").textContent);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  const BOARD_KEY = "mezaniya.board";
+  function rememberBoard(id) {
+    try { localStorage.setItem(BOARD_KEY, id); } catch (e) { /* private mode: not remembered */ }
+  }
+  function rememberedBoard() {
+    try { return localStorage.getItem(BOARD_KEY); } catch (e) { return null; }
+  }
+
+  const clone = (x) => JSON.parse(JSON.stringify(x));
+
+  // x-widget="w": puts a copy of <template id="widget-<w>"> here. Each widget's markup is in the
+  // page once; a slot clones only the one it shows, and Alpine binds the copy to this slot's scope.
+  Alpine.directive("widget", (el, { expression }, { evaluateLater, effect, cleanup }) => {
+    const getId = evaluateLater(expression);
+    let shown = null;
+    effect(() => getId((id) => {
+      if (id === shown) return;
+      shown = id;
+      Alpine.mutateDom(() => el.replaceChildren());
+      const tpl = document.getElementById(`widget-${id}`);
+      if (!tpl) return;
+      const node = tpl.content.firstElementChild.cloneNode(true);
+      // added with the observer paused, then initialised once here (not again by the observer)
+      Alpine.mutateDom(() => el.appendChild(node));
+      Alpine.initTree(node);
+    }));
+    cleanup(() => el.replaceChildren());
+  });
+  const MAX_PER_ROW = 3;
+
   Alpine.data("dashboard", () => ({
     ...pageMixin(),
     months: [],
@@ -29,14 +68,187 @@ document.addEventListener("alpine:init", () => {
     hoverDay: null,
     showDailyTable: false,
     wizard: emptyWizard(),
+    layout: { boards: [{ id: "main", name: null, rows: [] }] },
+    defaultLayout: null,
+    widgetTitles: {},
+    widgetIds: [],
+    maxBoards: 10,
+    boardId: "main",
+    editing: false,
+    draft: null,
 
     async init() {
+      const p = layoutPayload();
+      if (p) {
+        this.layout = p.layout;
+        this.defaultLayout = p.default;
+        this.widgetTitles = p.widgets;
+        this.widgetIds = Object.keys(p.widgets);
+        this.maxBoards = p.max_boards;
+      }
+      const saved = rememberedBoard();
+      this.boardId = this.layout.boards.some((b) => b.id === saved) ? saved : this.layout.boards[0].id;
       await this.loadMonths();
       if (!this.months.length) {
         this.error = tr("dashboard.no_months");
         return;
       }
       await this.load(this.initialMonth());
+    },
+
+    // ---------- boards and layout editing
+
+    boards() {
+      return (this.editing ? this.draft : this.layout).boards;
+    },
+
+    board() {
+      return this.boards().find((b) => b.id === this.boardId) || this.boards()[0];
+    },
+
+    boardName(b, index) {
+      if (b.name) return b.name;
+      return index === 0 ? tr("dashboard.board_main") : tr("dashboard.board_n", { n: index + 1 });
+    },
+
+    widgetName(w) {
+      return tr(this.widgetTitles[w]);
+    },
+
+    showBoard(id) {
+      this.boardId = id;
+      rememberBoard(id);
+    },
+
+    // RTL pages run right to left, so "before" points right there
+    arrowBefore() {
+      return document.dir === "rtl" ? "→" : "←";
+    },
+    arrowAfter() {
+      return document.dir === "rtl" ? "←" : "→";
+    },
+
+    usedIn(w) {
+      return this.boards().map((b, i) => (b.rows.some((r) => r.includes(w)) ? this.boardName(b, i) : null))
+        .filter(Boolean);
+    },
+
+    startEdit() {
+      this.draft = clone(this.layout);
+      this.editing = true;
+    },
+
+    cancelEdit() {
+      this.editing = false;
+      this.draft = null;
+      if (!this.layout.boards.some((b) => b.id === this.boardId)) this.showBoard(this.layout.boards[0].id);
+    },
+
+    async saveEdit() {
+      const r = await this.request("PATCH", "/api/settings", { dashboards: { boards: this.draft.boards } });
+      if (!r) return;
+      this.layout = r.dashboards;
+      this.editing = false;
+      this.draft = null;
+      if (!this.layout.boards.some((b) => b.id === this.boardId)) this.showBoard(this.layout.boards[0].id);
+      this.notify(tr("dashboard.saved"));
+    },
+
+    // take widget wi out of row ri; returns it, and drops the row if it is now empty
+    takeOut(rows, ri, wi) {
+      const [w] = rows[ri].splice(wi, 1);
+      if (!rows[ri].length) rows.splice(ri, 1);
+      return w;
+    },
+
+    // ↑ / ↓: join the neighbouring row if it has room; otherwise a lone widget swaps rows with
+    // it, and one that shares its row goes onto a row of its own on that side
+    moveVertical(ri, wi, dir) {
+      const rows = this.board().rows;
+      const to = ri + dir;
+      const hasRoom = to >= 0 && to < rows.length && rows[to].length < MAX_PER_ROW;
+      if (rows[ri].length === 1) {
+        if (to < 0 || to >= rows.length) return;
+        if (hasRoom) {
+          const [w] = rows.splice(ri, 1)[0];
+          if (dir < 0) rows[to].push(w);
+          else rows[ri].unshift(w);            // the row below has moved up to index ri
+        } else {
+          [rows[ri], rows[to]] = [rows[to], rows[ri]];
+        }
+        return;
+      }
+      const [w] = rows[ri].splice(wi, 1);
+      if (hasRoom) {
+        if (dir < 0) rows[to].push(w);
+        else rows[to].unshift(w);
+      } else {
+        rows.splice(dir < 0 ? ri : ri + 1, 0, [w]);
+      }
+    },
+
+    moveSideways(ri, wi, dir) {
+      const row = this.board().rows[ri];
+      const to = wi + dir;
+      if (to < 0 || to >= row.length) return;
+      [row[wi], row[to]] = [row[to], row[wi]];
+    },
+
+    ownRow(ri, wi) {
+      const rows = this.board().rows;
+      if (rows[ri].length < 2) return;
+      const w = this.takeOut(rows, ri, wi);
+      rows.splice(ri + 1, 0, [w]);
+    },
+
+    hideWidget(ri, wi) {
+      this.takeOut(this.board().rows, ri, wi);
+    },
+
+    addWidget(w) {
+      this.board().rows.push([w]);
+    },
+
+    copyTo(w, boardId) {
+      const target = this.boards().find((b) => b.id === boardId);
+      if (!target) return;
+      target.rows.push([w]);
+      this.notify(tr("dashboard.copied", { name: this.boardName(target, this.boards().indexOf(target)) }));
+    },
+
+    askName(current) {
+      const name = prompt(tr("dashboard.board_name_prompt"), current || "");
+      return name && name.trim() ? name.trim().slice(0, 40) : null;
+    },
+
+    addBoard() {
+      if (this.draft.boards.length >= this.maxBoards) return;
+      const name = this.askName(tr("dashboard.board_n", { n: this.draft.boards.length + 1 }));
+      if (!name) return;
+      const id = "b" + Date.now().toString(36);
+      this.draft.boards.push({ id, name, rows: [] });
+      this.showBoard(id);
+    },
+
+    renameBoard() {
+      const b = this.board();
+      const name = this.askName(this.boardName(b, this.boards().indexOf(b)));
+      if (name) b.name = name;
+    },
+
+    deleteBoard() {
+      const boards = this.draft.boards;
+      if (boards.length < 2) return;
+      const b = this.board();
+      if (!confirm(tr("dashboard.delete_board_confirm", { name: this.boardName(b, boards.indexOf(b)) }))) return;
+      boards.splice(boards.indexOf(b), 1);
+      this.showBoard(boards[0].id);
+    },
+
+    resetLayout() {
+      if (!confirm(tr("dashboard.reset_confirm"))) return;
+      this.draft = clone(this.defaultLayout);
+      this.showBoard(this.draft.boards[0].id);
     },
 
     // ---------- loading

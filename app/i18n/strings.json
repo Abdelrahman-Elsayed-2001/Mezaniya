@@ -114,7 +114,35 @@
 
   "dashboard": {
     "no_months": {"ar": "لا توجد أشهر بعد", "en": "No months yet"},
-    "month_created": {"ar": "أُنشئ شهر {label}", "en": "Month {label} created"}
+    "month_created": {"ar": "أُنشئ شهر {label}", "en": "Month {label} created"},
+    "customize": {"ar": "تخصيص", "en": "Customize"},
+    "editing_title": {"ar": "تخصيص الداشبورد", "en": "Customize the dashboard"},
+    "editing_hint": {"ar": "رتّب العناصر بالأزرار فوق كل عنصر: ↑ ↓ ينقله للسطر السابق أو التالي، والأسهم الجانبية تبدّله مع جاره، و⇲ يضعه في سطر وحده، و✕ يخفيه. السطر يتسع لثلاثة عناصر. لا يُحفظ شيء حتى تضغط «حفظ التخطيط».", "en": "Arrange widgets with the buttons above each one: ↑ ↓ move it to the row above or below, the side arrows swap it with its neighbour, ⇲ puts it on a row of its own and ✕ hides it. A row holds up to three widgets. Nothing is saved until you press Save layout."},
+    "done": {"ar": "حفظ التخطيط", "en": "Save layout"},
+    "saved": {"ar": "حُفظ التخطيط", "en": "Layout saved"},
+    "board_main": {"ar": "الرئيسية", "en": "Main"},
+    "board_n": {"ar": "داشبورد {n}", "en": "Dashboard {n}"},
+    "add_board": {"ar": "+ داشبورد جديدة", "en": "+ New dashboard"},
+    "board_name_prompt": {"ar": "اسم الداشبورد", "en": "Dashboard name"},
+    "rename_board": {"ar": "تغيير اسم هذه الداشبورد", "en": "Rename this dashboard"},
+    "delete_board": {"ar": "حذف هذه الداشبورد", "en": "Delete this dashboard"},
+    "delete_board_confirm": {"ar": "حذف «{name}»؟ عناصرها تبقى كما هي في الداشبوردات الأخرى.", "en": "Delete \"{name}\"? Its widgets stay as they are on the other dashboards."},
+    "reset": {"ar": "الرجوع للتخطيط الافتراضي", "en": "Back to the default layout"},
+    "reset_confirm": {"ar": "سيُستبدل تخطيطك كله بالتخطيط الافتراضي (داشبورد واحدة). يُحفظ عند الضغط على «حفظ التخطيط».", "en": "Your whole layout will be replaced by the default one (a single dashboard). It is saved when you press Save layout."},
+    "widgets_title": {"ar": "العناصر (إظهار عنصر مخفي أو تكراره)", "en": "Widgets (show a hidden one or repeat one)"},
+    "used_in": {"ar": "مستخدم في: {boards}", "en": "Used in: {boards}"},
+    "unused": {"ar": "غير مستخدم", "en": "Not used"},
+    "list_sep": {"ar": "، ", "en": ", "},
+    "add_here": {"ar": "إضافة لهذه الداشبورد", "en": "Add to this dashboard"},
+    "move_up": {"ar": "للسطر السابق", "en": "To the row above"},
+    "move_down": {"ar": "للسطر التالي", "en": "To the row below"},
+    "move_before": {"ar": "قبل جاره", "en": "Before its neighbour"},
+    "move_after": {"ar": "بعد جاره", "en": "After its neighbour"},
+    "own_row": {"ar": "في سطر وحده", "en": "On a row of its own"},
+    "hide": {"ar": "إخفاء من هذه الداشبورد", "en": "Hide from this dashboard"},
+    "copy_to": {"ar": "نسخ إلى…", "en": "Copy to…"},
+    "copied": {"ar": "نُسخ إلى «{name}»", "en": "Copied to \"{name}\""},
+    "empty_board": {"ar": "هذه الداشبورد فارغة. اضغط «تخصيص» وأضف لها عناصر.", "en": "This dashboard is empty. Press Customize and add widgets to it."}
   },
 
   "status": {
@@ -379,6 +407,7 @@
   "field": {
     "theme": {"ar": "الثيم", "en": "Theme"},
     "theme_colors": {"ar": "الألوان المخصصة", "en": "Custom colours"},
+    "dashboards": {"ar": "تخطيط الداشبورد", "en": "Dashboard layout"},
     "emergency_current": {"ar": "مبلغ الطوارئ الحالي", "en": "Current emergency amount"},
     "emergency_min": {"ar": "الحد الأدنى للطوارئ", "en": "Emergency minimum"},
     "savings_current": {"ar": "المدخرات الحالية", "en": "Current savings"},

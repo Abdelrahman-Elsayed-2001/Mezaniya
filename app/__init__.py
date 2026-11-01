@@ -53,8 +53,13 @@ def create_app(config: type[Config] = Config) -> Flask:
     @app.get("/")
     @login_required
     def index():
-        from .dashboard import DEFAULT_LAYOUT
-        return render_template("app.html", username=current_user()["username"], dashboard_layout=DEFAULT_LAYOUT)
+        from .dashboard import MAX_BOARDS, WIDGETS, default_dashboards
+        from .db.repo import settings
+        user = current_user()
+        saved = settings.get_settings(db.get_db(), user["id"])["dashboards"]
+        payload = {"layout": saved, "default": default_dashboards(), "widgets": WIDGETS, "max_boards": MAX_BOARDS}
+        return render_template("app.html", username=user["username"], widget_ids=list(WIDGETS),
+                               dashboard_payload=payload)
 
     @app.get("/settings")
     @login_required

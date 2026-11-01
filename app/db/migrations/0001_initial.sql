@@ -45,7 +45,9 @@ INSERT INTO default_settings (key, default_value, type) VALUES
   ('emergency_ref_months', '3', 'number'),
   ('emergency_ref_factor', '1.25', 'number'),
   ('currency', '', 'text'),             -- set from the user's language when the account is created
-  ('theme', 'auto', 'text');
+  ('theme', 'auto', 'text'),
+  -- the dashboards' layout (app/dashboard.py); a test keeps it equal to default_dashboards()
+  ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["summary","suggestions","warnings"],["incomes","emergency","savings"],["expenses"],["goals"],["payments","by_type","progress"],["daily"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details"]}', 'json');
 
 -- Built-in colour themes: five base colours each; app/themes.py derives the rest. Names are
 -- strings.json "theme.<id>". A user's choice is user_settings key 'theme' ('auto' = follow
