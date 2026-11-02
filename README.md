@@ -14,10 +14,10 @@
 
 - البيانات والإعدادات والسجلات في `%LOCALAPPDATA%\Mezaniya` (قاعدة البيانات، و`mezaniya.env`، و`backups\`، و`logs\`)، وليست بجانب البرنامج.
 - عند إزالة البرنامج يسألك: **الاحتفاظ بالبيانات** (لتجدها كما هي إذا ثبّتَّه مرة أخرى) أو **حذف كل شيء**.
-- التحديث: ثبّت الإصدار الجديد فوق القديم مباشرة، والبيانات تبقى كما هي (عدا الانتقال من beta 0.1.0، انظر التنبيه).
+- التحديث: ثبّت الإصدار الجديد فوق القديم مباشرة، والبيانات تبقى كما هي (عدا الانتقال من إصدار beta سابق، انظر التنبيه).
 
 > [!WARNING]
-> **beta 0.2.0 غير متوافق مع beta 0.1.0.** شكل قاعدة البيانات تغيّر (الإعدادات صارت مفتاح/قيمة)، ولا يوجد تحويل لبيانات 0.1.0. إن جرّبت 0.1.0، احذف مجلد البيانات (`%LOCALAPPDATA%\Mezaniya`، أو `data\` عند التشغيل من الشيفرة) قبل تشغيل 0.2.0، وإلا يتوقف الخادم برسالة تطلب ذلك. خلال مرحلة beta قد تتكرر تغييرات كهذه دون تحويل.
+> **beta 0.3.0 غير متوافق مع beta 0.2.0 ولا 0.1.0.** شكل قاعدة البيانات تغيّر (العملات المتعددة وأسعار الصرف، وملاحظات الشهر، وأسماء البنود التجريبية حسب اللغة)، ولا يوجد تحويل لبيانات الإصدارات السابقة. إن جرّبت إصدارًا سابقًا، احذف مجلد البيانات أو انقله (`%LOCALAPPDATA%\Mezaniya`، أو `data\` عند التشغيل من الشيفرة) قبل تشغيل 0.3.0، وإلا يتوقف الخادم برسالة تطلب ذلك. وكذلك لا تُسترجع نسخة احتياطية من إصدار سابق. خلال مرحلة beta قد تتكرر تغييرات كهذه دون تحويل.
 
 ## النسخة المحمولة (Portable، دون تثبيت)
 
@@ -204,6 +204,6 @@ New-NetFirewallRule -DisplayName "Mezaniya" -Direction Inbound -Protocol TCP -Lo
 .venv\Scripts\python.exe -m pip install -r requirements-build.txt
 .venv\Scripts\python.exe build_installer.py
 ```
-يشغّل PyInstaller (`packaging/mezaniya.spec`) فيخرج `dist\Mezaniya\` وفيه `Mezaniya.exe` (المدير، دون نافذة سوداء) و`MezaniyaServer.exe` (الخادم الذي يشغّله المدير ويوقفه)، ثم يخرج في `Output\` ملفين جاهزين للرفع على GitHub Releases: `Mezaniya-Setup-v0.2.0-beta.exe` (من `installer.iss`) و`Mezaniya-Portable-v0.2.0-beta.zip` (المجلد نفسه ومعه `packaging\portable.txt`). `--skip-installer` يتخطى المثبّت (فلا حاجة إلى Inno Setup)، و`--skip-portable` يتخطى النسخة المحمولة. رقم الإصدار يُقرأ من `app/version.py`. المجلدات `dist\` و`build\` و`Output\` غير مرفوعة.
+يشغّل PyInstaller (`packaging/mezaniya.spec`) فيخرج `dist\Mezaniya\` وفيه `Mezaniya.exe` (المدير، دون نافذة سوداء) و`MezaniyaServer.exe` (الخادم الذي يشغّله المدير ويوقفه)، ثم يخرج في `Output\` ملفين جاهزين للرفع على GitHub Releases: `Mezaniya-Setup-v0.3.0-beta.exe` (من `installer.iss`) و`Mezaniya-Portable-v0.3.0-beta.zip` (المجلد نفسه ومعه `packaging\portable.txt`). `--skip-installer` يتخطى المثبّت (فلا حاجة إلى Inno Setup)، و`--skip-portable` يتخطى النسخة المحمولة. رقم الإصدار يُقرأ من `app/version.py`. المجلدات `dist\` و`build\` و`Output\` غير مرفوعة.
 
 - يتحقق اختبار تلقائي من وجود كل نص بالعربية والإنجليزية بالمتغيرات نفسها، ومن أن كل مفتاح يستخدمه الكود موجود، ومن خلوّ ملفات البرمجة من النصوص العربية.
