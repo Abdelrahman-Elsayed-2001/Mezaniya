@@ -550,6 +550,24 @@ document.addEventListener("alpine:init", () => {
       return `inset-inline-start:${r * 100}%;transform:translateX(${shift})`;
     },
 
+    // ---------- other currencies
+
+    // tooltip for an item's currency list: the rate it uses this month
+    fxTitle(row) {
+      if (!row.fx) return tr("common.currency");
+      if (row.fx.missing) return tr("fx.no_rate", { code: row.currency });
+      const from = `${String(row.fx.from_ym % 100).padStart(2, "0")}/${Math.floor(row.fx.from_ym / 100)}`;
+      return tr("fx.rate_title", { code: row.currency, rate: row.fx.rate, base: this.d.currency.symbol, from,
+                                  source: tr("settings.rates_source_" + row.fx.source) });
+    },
+
+    // "≈ 770 SAR" (in the base currency) under an amount kept in another currency
+    fxLine(row, col) {
+      if (!row.fx) return "";
+      if (row.fx.missing) return tr("fx.no_rate_short");
+      return `≈ ${this.money(row.fx[col + "_base"] ?? 0)} ${this.d.currency.symbol}`;
+    },
+
     compact(x) {
       return x >= 1000 ? `${moneyFmt.format(Math.round(x / 100) / 10)}K` : moneyFmt.format(Math.round(x));
     },

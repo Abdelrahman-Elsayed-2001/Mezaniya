@@ -19,7 +19,7 @@ from decimal import Decimal
 
 from app.db.connection import transaction
 from app.db.repo import base, budgets, templates
-from app.db.repo.loader import load_budget_input
+from app.db.repo.loader import expense_amounts, foreign_balances, load_budget_input, month_conversion
 from app.engine import compute
 from app.i18n import t as tr
 
@@ -139,13 +139,18 @@ def plan_rollover(conn: sqlite3.Connection, user_id: int, year: int, month: int,
                   carry_unpaid_ids=(), lang: str | None = None) -> RolloverPlan:
     src = _source_for(conn, user_id, year, month)
     carry_note = tr("rollover.carry_note", lang, label=label(src["year"], src["month"]))
-    d = compute(load_budget_input(conn, user_id, src["id"]))
+    conv = month_conversion(conn, user_id, src)
+    d = compute(load_budget_input(conn, user_id, src["id"], conv))
+    foreign = foreign_balances(conn, user_id, src["id"], conv)   # copied as they are; not part of the base balances
     rows = base.list_rows(conn, user_id, "expenses", budget_id=src["id"])
     active = [t for t in templates.list_templates(conn, user_id) if t["active"]]
     expense_templates = {t["id"]: t for t in active if t["kind"] == "expense"}
 
-    unpaid = [{"id": r["id"], "name": r["name"], "due": _f(line.due)}
-              for r, line in zip(rows, d.expenses) if r["status"] == "unpaid" and line.due > 0]
+    # amounts written into rows are in each row's own currency, so these use the row (not the
+    # engine's line, which is in the base currency)
+    own = {r["id"]: expense_amounts(r) for r in rows}
+    unpaid = [{"id": r["id"], "name": r["name"], "due": _f(own[r["id"]].due), "currency": r["currency"]}
+              for r in rows if r["status"] == "unpaid" and own[r["id"]].due > 0]
     carry_unpaid_ids = set(carry_unpaid_ids)
     unknown = carry_unpaid_ids - {u["id"] for u in unpaid}
     if unknown:
@@ -159,8 +164,9 @@ def plan_rollover(conn: sqlite3.Connection, user_id: int, year: int, month: int,
 
     plan = RolloverPlan(
         source=src, year=year, month=month,
-        balances={"emergency_current": _f(d.emergency.after), "emergency_min": src["emergency_min"],
-                  "savings_current": _f(max(Decimal(0), d.savings.total))},
+        balances={"emergency_current": _f(max(Decimal(0), d.emergency.after - foreign["emergency"])),
+                  "emergency_min": src["emergency_min"],
+                  "savings_current": _f(max(Decimal(0), d.savings.total - foreign["savings"]))},
         return_to_savings=_f(d.suggestions.return_to_savings),
         unpaid=unpaid,
     )
@@ -178,7 +184,7 @@ def plan_rollover(conn: sqlite3.Connection, user_id: int, year: int, month: int,
                                  inst_balance=_f(balance - balance / count), inst_count=count - 1,
                                  inst_original_count=r["inst_original_count"], prev_expense_id=r["id"],
                                  notes=r["notes"], name_key=_key(r), currency=r["currency"])
-        carry = line.due if r["id"] in carry_unpaid_ids else line.deferred
+        carry = own[r["id"]].due if r["id"] in carry_unpaid_ids else own[r["id"]].deferred
         if carry > 0:
             if out is None:
                 out = PlannedExpense("carry", r["name"], r["type_id"], prev_expense_id=r["id"], notes=carry_note,

@@ -730,3 +730,5 @@ details[open].card summary { margin-bottom: 12px; }
 /* exchange rates (settings) */
 .rate-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0 12px; align-items: end; margin-bottom: 16px; }
 .chip.chip-manual { background: var(--pos-bg); color: var(--pos); }
+.fx-line { display: block; font-size: 0.75rem; text-align: end; white-space: nowrap; }
+.grid select.cur-select.fx-missing { border-color: var(--warn-text); color: var(--warn-text); }

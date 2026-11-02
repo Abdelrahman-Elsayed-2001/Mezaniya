@@ -21,7 +21,7 @@
             <td><div class="name-cell"><input :value="e.name" @change="updateItem('expenses', e, 'name', $event.target.value)"
                        :title="e.needs_amount ? t('expenses.needs_amount') : ''">
                 <button class="icon-btn note" type="button" :class="e.notes ? 'has-note' : ''" :title="e.notes || t('common.note_add')" @click="toggleNotes('expenses', e)">📝</button>
-                <select class="cur-select" title="{{ t('common.currency') }}" @change="updateItem('expenses', e, 'currency', $event.target.value)">
+                <select class="cur-select" :class="e.fx?.missing ? 'fx-missing' : ''" :title="fxTitle(e)" @change="updateItem('expenses', e, 'currency', $event.target.value)">
                   <template x-for="c in d.currencies" :key="c.code"><option :value="c.code" :selected="c.code === (e.currency ?? d.currency.code)" x-text="c.code"></option></template>
                 </select></div></td>
             <td>
@@ -32,9 +32,11 @@
               </select>
             </td>
             <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="e.cash_amount"
-                       @change="updateItem('expenses', e, 'cash_amount', num($event.target.value))"></td>
+                       @change="updateItem('expenses', e, 'cash_amount', num($event.target.value))">
+                <small class="fx-line" x-show="e.fx && e.cash_amount" :class="e.fx?.missing ? 'warn-text' : 'muted'" x-text="fxLine(e, 'cash_amount')"></small></td>
             <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="e.inst_balance"
-                       @change="updateItem('expenses', e, 'inst_balance', num($event.target.value))"></td>
+                       @change="updateItem('expenses', e, 'inst_balance', num($event.target.value))">
+                <small class="fx-line" x-show="e.fx && e.inst_balance" :class="e.fx?.missing ? 'warn-text' : 'muted'" x-text="fxLine(e, 'inst_balance')"></small></td>
             <td>
               <input class="num short" type="number" step="1" min="0" inputmode="numeric" :value="e.inst_count"
                      @change="updateItem('expenses', e, 'inst_count', num($event.target.value))">

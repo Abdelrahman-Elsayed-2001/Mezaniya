@@ -17,7 +17,7 @@
           <tr :class="g.valid ? '' : 'ignored'">
             <td><div class="name-cell"><input :value="g.name" @change="updateItem('goals', g, 'name', $event.target.value)">
                 <button class="icon-btn note" type="button" :class="g.notes ? 'has-note' : ''" :title="g.notes || t('common.note_add')" @click="toggleNotes('goals', g)">📝</button>
-                <select class="cur-select" title="{{ t('common.currency') }}" @change="updateItem('goals', g, 'currency', $event.target.value)">
+                <select class="cur-select" :class="g.fx?.missing ? 'fx-missing' : ''" :title="fxTitle(g)" @change="updateItem('goals', g, 'currency', $event.target.value)">
                   <template x-for="c in d.currencies" :key="c.code"><option :value="c.code" :selected="c.code === (g.currency ?? d.currency.code)" x-text="c.code"></option></template>
                 </select></div></td>
             <td>
@@ -29,7 +29,8 @@
               </select>
             </td>
             <td><input class="num" type="number" step="0.01" min="0" :value="g.target_amount ?? ''"
-                       @change="updateItem('goals', g, 'target_amount', numOrNull($event.target.value))"></td>
+                       @change="updateItem('goals', g, 'target_amount', numOrNull($event.target.value))">
+                <small class="fx-line" x-show="g.fx && g.target_amount" :class="g.fx?.missing ? 'warn-text' : 'muted'" x-text="fxLine(g, 'target_amount')"></small></td>
             <td>
               <input class="num short" type="number" step="0.1" min="0" max="100"
                      :placeholder="g.valid && g.mode !== 'priority' ? pctPlain(g.effective_priority) : ''"
