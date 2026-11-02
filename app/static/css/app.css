@@ -230,7 +230,7 @@ a { color: var(--primary-ink); }
   padding: 5px 8px;
 }
 
-.page { max-width: 1280px; margin: 0 auto; padding: 20px 16px 48px; }
+.page { max-width: 1440px; margin: 0 auto; padding: 20px 16px 48px; }
 .stack { display: grid; gap: 16px; }
 
 .grid-3 {
@@ -313,6 +313,8 @@ details[open].card summary { margin-bottom: 12px; }
 .grid { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
 .grid th, .grid td { padding: 4px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 .grid thead th { text-align: start; font-weight: 600; color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+/* wide grids: long headers ("Installment balance") wrap to two lines instead of widening the table */
+.grid.pin-ends thead th { white-space: normal; vertical-align: bottom; }
 .grid td.num, .grid input.num { text-align: end; font-variant-numeric: tabular-nums; }
 .grid td.num { white-space: nowrap; }
 .grid input { width: 100%; min-width: 90px; }
