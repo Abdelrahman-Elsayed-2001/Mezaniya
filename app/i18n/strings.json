@@ -741,7 +741,15 @@
     "goal_car": {"ar": "سيارة جديدة", "en": "New car"},
     "goal_trip": {"ar": "رحلة صيفية", "en": "Summer trip"},
     "goal_laptop": {"ar": "حاسوب محمول", "en": "Laptop"},
-    "note_card": {"ar": "دُفع بالبطاقة", "en": "Paid by card"}
+    "note_card": {"ar": "دُفع بالبطاقة", "en": "Paid by card"},
+    "freelance": {"ar": "عمل حر", "en": "Freelance"},
+    "egypt_rent": {"ar": "إيجار شقة مصر", "en": "Egypt flat rent"},
+    "family_support": {"ar": "مصروف الأهل في مصر", "en": "Family support in Egypt"},
+    "goal_gold": {"ar": "ادخار ذهب", "en": "Gold savings"},
+    "note_transfer": {"ar": "يصل بتحويل بنكي من مصر", "en": "Arrives by bank transfer from Egypt"},
+    "month_note_1": {"ar": "بداية تتبّع الميزانية. أرصدة: 1000 دولار مدخرات و20000 جنيه طوارئ في مصر.", "en": "Started tracking the budget. Balances: 1,000 USD savings and 20,000 EGP emergency money in Egypt."},
+    "month_note_2": {"ar": "أُجّل 500 جنيه من مصروف الأهل للشهر القادم. الدورة التدريبية لم تُدفع بعد.", "en": "500 EGP of the family support moved to next month. The training course isn't paid yet."},
+    "month_note_3": {"ar": "راجع سعر الجنيه آخر الشهر قبل التحويل.", "en": "Check the EGP rate at the end of the month before transferring."}
   },
 
   "admin": {

@@ -1,7 +1,10 @@
 """A ready-made demo user with three months of realistic data, to try the app.
 
 The months are built the way a real user would: recurring items, installments, partial
-carry-overs, unpaid items carried by the new-month wizard, and payments with dates.
+carry-overs, unpaid items carried by the new-month wizard, and payments with dates. They also
+show 0.3.0's features: items, a goal and savings/emergency balances in other currencies (USD,
+EGP) with the user's own monthly exchange rates, a deferred foreign-currency expense carried
+over, and notes for each month. Fetching rates online stays off.
 Item names are strings.json keys ("demo.*", stored as name_key with no name), so they read in
 the viewer's language; only the notes are written in the requested language.
 """
@@ -12,7 +15,7 @@ import sqlite3
 from datetime import date
 
 from app.db.connection import transaction
-from app.db.repo import base, budgets, templates, users
+from app.db.repo import base, budgets, rates, settings, templates, users
 from app.engine import DEFAULT_TYPE_KEYS
 from app.i18n import t as tr
 
@@ -21,6 +24,9 @@ from . import admin, rollover
 DEMO_USERNAME = "test"
 DEMO_PASSWORD = "test123"
 DEMO_MONTHS = 3
+# the user's own rates (1 unit in SAR): USD is pegged; EGP moves a little each month
+USD_RATE = 3.75
+EGP_RATES = (0.078, 0.077, 0.0755)
 
 
 def _months_ending(today: date, count: int) -> list[tuple[int, int]]:
@@ -47,8 +53,9 @@ class _Builder:
     def day(self, year: int, month: int, d: int) -> str:
         return date(year, month, min(d, calendar.monthrange(year, month)[1])).isoformat()
 
-    def template(self, kind: str, key: str, amount: float | None, type_key: str | None = None) -> None:
-        values = {"kind": kind, "name_key": key, "amount": amount}
+    def template(self, kind: str, key: str, amount: float | None, type_key: str | None = None,
+                 currency: str | None = None) -> None:
+        values = {"kind": kind, "name_key": key, "amount": amount, "currency": currency}
         if type_key:
             values["type_id"] = self.type[type_key]
         templates.create_template(self.conn, self.uid, values)
@@ -107,11 +114,25 @@ def _fill(b: _Builder) -> None:
     b.template("expense", "subscriptions", 60, "luxury")
     b.template("expense", "saving", 500, "savings")
     b.template("expense", "emergency", 400, "emergency")
+    b.template("income", "freelance", 400, currency="USD")
+    b.template("income", "egypt_rent", 6000, currency="EGP")
+    b.template("expense", "family_support", 1500, "giving", currency="EGP")
+
+    # exchange rates entered by hand (the base currency is SAR, the default)
+    base_currency = settings.get_settings(conn, uid)["currency"]
+    rates.set_manual(conn, uid, base_currency, "USD", rates.ym(y1, m1), USD_RATE)
+    for (y, m), rate in zip(((y1, m1), (y2, m2), (y3, m3)), EGP_RATES):
+        rates.set_manual(conn, uid, base_currency, "EGP", rates.ym(y, m), rate)
 
     # ---- month 1
     first = budgets.create_budget(conn, uid, y1, m1, emergency_current=3000, emergency_min=15000,
                                   savings_current=6000)
+    budgets.update_budget(conn, uid, first["id"], {"notes": b.name("month_note_1")})
+    budgets.set_balance(conn, uid, first["id"], "savings", "USD", 1000)
+    budgets.set_balance(conn, uid, first["id"], "emergency", "EGP", 20000)
     rollover.apply_templates(conn, uid, first["id"])
+    rent_in = next(r for r in budgets.list_items(conn, uid, "incomes", first["id"]) if r["name_key"] == "egypt_rent")
+    budgets.update_item(conn, uid, "incomes", first["id"], rent_in["id"], {"notes": b.name("note_transfer")})
     budgets.create_item(conn, uid, "incomes", first["id"], {"name_key": "bonus", "amount": 750})
     b.expense(first["id"], "phone", "debt", inst_balance=3600, inst_count=12)
     b.expense(first["id"], "car", "debt", inst_balance=54000, inst_count=36)
@@ -121,13 +142,14 @@ def _fill(b: _Builder) -> None:
     b.update(first["id"], "electricity", cash_amount=320)
     b.update(first["id"], "groceries", cash_amount=1400)
     b.pay(first, {"rent": 1, "saving": 1, "emergency": 1, "car": 2, "internet": 3, "subscriptions": 5,
-                  "groceries": 6, "phone": 10, "outing": 15, "charity": 20})
+                  "groceries": 6, "phone": 10, "outing": 15, "charity": 20, "family_support": 4})
     b.update(first["id"], "electricity", status="deferred", deferred_amount=120,
              paid_at=b.day(y1, m1, 12))                                    # paid 200, 120 to next month
     for key, target, extra in (("goal_car", 60000, {"priority": 0.4, "category_id": b.category["essential"]}),
                                ("goal_trip", 8000, {"category_id": b.category["luxury"]}),
                                ("goal_laptop", 4500, {"manual_allocation": 1500,
-                                                      "category_id": b.category["other"]})):
+                                                      "category_id": b.category["other"]}),
+                               ("goal_gold", 2000, {"currency": "USD", "category_id": b.category["investment"]})):
         budgets.create_item(conn, uid, "goals", first["id"], {"name_key": key, "target_amount": target, **extra})
 
     # ---- month 2: the unpaid gift is carried by the wizard
@@ -138,10 +160,14 @@ def _fill(b: _Builder) -> None:
     b.expense(second["id"], "course", "luxury", cash_amount=900)
     b.pay(second, {"rent": 1, "saving": 1, "emergency": 1, "car": 2, "internet": 3, "subscriptions": 5,
                    "groceries": 7, "gift": 8, "phone": 10, "electricity": 14, "outing": 22})
+    b.update(second["id"], "family_support", status="deferred", deferred_amount=500,
+             paid_at=b.day(y2, m2, 4))                                     # paid 1000 EGP, 500 to next month
+    budgets.update_budget(conn, uid, second["id"], {"notes": b.name("month_note_2")})
 
     # ---- month 3 (the current month): only what is already due by today is paid
     third = rollover.create_from_previous(conn, uid, y3, m3, lang=lang)
     b.update(third["id"], "electricity", cash_amount=340)
     b.update(third["id"], "groceries", cash_amount=1350)
     b.pay(third, {"rent": 1, "saving": 1, "emergency": 1, "car": 2, "internet": 3, "subscriptions": 5,
-                  "groceries": 6, "phone": 10, "electricity": 13}, up_to=b.today.day)
+                  "groceries": 6, "phone": 10, "electricity": 13, "family_support": 4}, up_to=b.today.day)
+    budgets.update_budget(conn, uid, third["id"], {"notes": b.name("month_note_3")})

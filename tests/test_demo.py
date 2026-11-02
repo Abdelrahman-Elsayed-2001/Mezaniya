@@ -35,7 +35,7 @@ def test_demo_user_has_three_linked_months(conn):
     assert [(m["year"], m["month"]) for m in months] == [(2026, 8), (2026, 9), (2026, 10)]
     assert months[0]["source_budget_id"] is None
     assert months[1]["source_budget_id"] == months[0]["id"] and months[2]["source_budget_id"] == months[1]["id"]
-    assert len(templates.list_templates(conn, uid)) == 8
+    assert len(templates.list_templates(conn, uid)) == 11
 
     first, second, third = (budgets.list_items(conn, uid, "expenses", m["id"]) for m in months)
     gift = by_name(first, "gift")

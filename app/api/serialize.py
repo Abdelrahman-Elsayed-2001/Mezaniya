@@ -110,7 +110,7 @@ def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang:
     type_rows = types.list_expense_types(conn, user_id)
     type_by_id = {row["id"]: row for row in type_rows}
     expenses = [
-        {**row, **fx(row, "cash_amount", "inst_balance"), "type_name": type_by_id[row["type_id"]]["name"],
+        {**row, **fx(row, "cash_amount", "inst_balance", "carried_in", "deferred_amount"), "type_name": type_by_id[row["type_id"]]["name"],
          "role": line.role.value,
          **plain(_without(dataclasses.asdict(line), "expense", "role"))}
         for row, line in zip(expense_rows, d.expenses)
