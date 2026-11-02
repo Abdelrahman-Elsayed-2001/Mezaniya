@@ -36,10 +36,13 @@ class Table:
     order_by: str = "sort_order, id"
     # rows with name_key and no name show the translation "<name_prefix>.<name_key>"
     name_prefix: str | None = None
+    name_col: str = "name"                       # the column holding the shown name
 
 
-def _t(name, columns, refs=None, bools=(), scope=None, order_by="sort_order, id", name_prefix=None) -> Table:
-    return Table(name, frozenset(columns.split()), refs or {}, frozenset(bools), scope, order_by, name_prefix)
+def _t(name, columns, refs=None, bools=(), scope=None, order_by="sort_order, id", name_prefix=None,
+       name_col="name") -> Table:
+    return Table(name, frozenset(columns.split()), refs or {}, frozenset(bools), scope, order_by, name_prefix,
+                 name_col)
 
 
 TABLES: dict[str, Table] = {t.name: t for t in (
@@ -47,23 +50,24 @@ TABLES: dict[str, Table] = {t.name: t for t in (
        name_prefix="seed.type"),
     _t("goal_categories", "name_key name sort_order", name_prefix="seed.category"),
     _t("recurring_templates",
-       "kind name type_id amount is_savings_withdrawal active notes sort_order",
-       refs={"type_id": "expense_types"}, bools=("is_savings_withdrawal", "active")),
+       "kind name_key name type_id amount is_savings_withdrawal active notes sort_order",
+       refs={"type_id": "expense_types"}, bools=("is_savings_withdrawal", "active"), name_prefix="demo"),
     _t("budgets", "year month emergency_current emergency_min savings_current source_budget_id notes",
        refs={"source_budget_id": "budgets"}, order_by="year, month"),
     _t("incomes",
-       "budget_id source amount is_savings_withdrawal template_id needs_amount notes sort_order",
+       "budget_id name_key source amount is_savings_withdrawal template_id needs_amount notes sort_order",
        refs={"budget_id": "budgets", "template_id": "recurring_templates"},
-       bools=("is_savings_withdrawal", "needs_amount"), scope="budget_id"),
+       bools=("is_savings_withdrawal", "needs_amount"), scope="budget_id",
+       name_prefix="demo", name_col="source"),
     _t("expenses",
-       "budget_id name type_id cash_amount inst_balance inst_count inst_original_count carried_in "
+       "budget_id name_key name type_id cash_amount inst_balance inst_count inst_original_count carried_in "
        "status deferred_amount paid_at notes template_id prev_expense_id needs_amount sort_order",
        refs={"budget_id": "budgets", "type_id": "expense_types",
              "template_id": "recurring_templates", "prev_expense_id": "expenses"},
-       bools=("needs_amount",), scope="budget_id"),
+       bools=("needs_amount",), scope="budget_id", name_prefix="demo"),
     _t("goals",
-       "budget_id name category_id target_amount priority manual_allocation notes sort_order",
-       refs={"budget_id": "budgets", "category_id": "goal_categories"}, scope="budget_id"),
+       "budget_id name_key name category_id target_amount priority manual_allocation notes sort_order",
+       refs={"budget_id": "budgets", "category_id": "goal_categories"}, scope="budget_id", name_prefix="demo"),
 )}
 
 
@@ -85,11 +89,22 @@ def row_to_dict(t: Table, row: sqlite3.Row) -> dict:
     for b in t.bools:
         d[b] = bool(d[b])
     if t.name_prefix:
-        # `name` is what to show, in the current request's language; `custom_name` says the user set it
-        d["custom_name"] = d["name"] is not None
-        if d["name"] is None:
-            d["name"] = translated_name(t.name_prefix, d["name_key"])
+        # the name column is what to show, in the current request's language; `custom_name` says
+        # the user (or a plain insert) set it, so it reads the same in every language
+        col = t.name_col
+        d["custom_name"] = d[col] is not None
+        if d[col] is None:
+            d[col] = translated_name(t.name_prefix, d["name_key"])
     return d
+
+
+def name_values(row: dict, src: str = "name", dst: str = "name") -> dict:
+    """The name columns for a new row copied from `row` (a template into a month, a month into the
+    next): a translated name stays translated (name_key, name NULL) instead of being frozen in the
+    language it happens to be read in. src/dst: the name column of each table ("source" for incomes)."""
+    if row.get("name_key") and not row.get("custom_name", True):
+        return {"name_key": row["name_key"], dst: None}
+    return {"name_key": None, dst: row[src]}
 
 
 def translated_name(prefix: str, key: str, lang: str | None = None) -> str:

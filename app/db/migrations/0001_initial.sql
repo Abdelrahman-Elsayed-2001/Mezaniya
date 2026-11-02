@@ -104,17 +104,23 @@ CREATE TABLE goal_categories (
   UNIQUE (id, user_id)
 );
 
+-- Demo names: rows the demo creates (recurring items and month items) carry name_key
+-- ('rent' → strings.json "demo.rent") with the name NULL, so they read in the viewer's language,
+-- and copying them into a new month keeps them that way. Once the user renames one, the name is
+-- theirs and reads the same in every language. Rows the user adds have a name only.
 CREATE TABLE recurring_templates (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   kind TEXT NOT NULL CHECK (kind IN ('income','expense')),
-  name TEXT NOT NULL,
+  name_key TEXT,                        -- see "Demo names" above
+  name TEXT,
   type_id INTEGER,
   amount REAL CHECK (amount IS NULL OR amount >= 0),     -- NULL = variable price
   is_savings_withdrawal INTEGER NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1,
   notes TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (id, user_id),
   CHECK ((kind = 'expense') = (type_id IS NOT NULL)),
   FOREIGN KEY (type_id, user_id) REFERENCES expense_types(id, user_id)
@@ -142,13 +148,15 @@ CREATE TABLE incomes (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   budget_id INTEGER NOT NULL,
-  source TEXT NOT NULL,
+  name_key TEXT,
+  source TEXT,
   amount REAL NOT NULL DEFAULT 0 CHECK (amount >= 0),
   is_savings_withdrawal INTEGER NOT NULL DEFAULT 0,
   template_id INTEGER,
   needs_amount INTEGER NOT NULL DEFAULT 0,
   notes TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (source IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (id, user_id),
   FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE,
   FOREIGN KEY (template_id, user_id) REFERENCES recurring_templates(id, user_id)
@@ -158,7 +166,8 @@ CREATE TABLE expenses (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   budget_id INTEGER NOT NULL,
-  name TEXT NOT NULL,
+  name_key TEXT,
+  name TEXT,
   type_id INTEGER NOT NULL,
   cash_amount REAL NOT NULL DEFAULT 0 CHECK (cash_amount >= 0),
   inst_balance REAL NOT NULL DEFAULT 0 CHECK (inst_balance >= 0),        -- remaining installment balance
@@ -173,6 +182,7 @@ CREATE TABLE expenses (
   prev_expense_id INTEGER,
   needs_amount INTEGER NOT NULL DEFAULT 0,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (id, user_id),
   FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE,
   FOREIGN KEY (type_id, user_id) REFERENCES expense_types(id, user_id),
@@ -184,13 +194,15 @@ CREATE TABLE goals (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   budget_id INTEGER NOT NULL,
-  name TEXT NOT NULL,
+  name_key TEXT,
+  name TEXT,
   category_id INTEGER,
   target_amount REAL CHECK (target_amount IS NULL OR target_amount >= 0),
   priority REAL CHECK (priority IS NULL OR priority >= 0),               -- NULL = auto (≠ 0)
   manual_allocation REAL CHECK (manual_allocation IS NULL OR manual_allocation >= 0),
   notes TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (id, user_id),
   CHECK (priority IS NULL OR manual_allocation IS NULL),
   FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE,

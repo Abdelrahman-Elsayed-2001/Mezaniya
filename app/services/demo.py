@@ -2,7 +2,8 @@
 
 The months are built the way a real user would: recurring items, installments, partial
 carry-overs, unpaid items carried by the new-month wizard, and payments with dates.
-Item names come from strings.json ("demo.*") in the requested language.
+Item names are strings.json keys ("demo.*", stored as name_key with no name), so they read in
+the viewer's language; only the notes are written in the requested language.
 """
 from __future__ import annotations
 
@@ -47,7 +48,7 @@ class _Builder:
         return date(year, month, min(d, calendar.monthrange(year, month)[1])).isoformat()
 
     def template(self, kind: str, key: str, amount: float | None, type_key: str | None = None) -> None:
-        values = {"kind": kind, "name": self.name(key), "amount": amount}
+        values = {"kind": kind, "name_key": key, "amount": amount}
         if type_key:
             values["type_id"] = self.type[type_key]
         templates.create_template(self.conn, self.uid, values)
@@ -56,11 +57,10 @@ class _Builder:
         if values.get("inst_count"):
             values.setdefault("inst_original_count", values["inst_count"])
         return budgets.create_item(self.conn, self.uid, "expenses", budget_id,
-                                   {"name": self.name(key), "type_id": self.type[type_key], **values})
+                                   {"name_key": key, "type_id": self.type[type_key], **values})
 
     def line(self, budget_id: int, key: str) -> dict:
-        name = self.name(key)
-        return next(r for r in budgets.list_items(self.conn, self.uid, "expenses", budget_id) if r["name"] == name)
+        return next(r for r in budgets.list_items(self.conn, self.uid, "expenses", budget_id) if r["name_key"] == key)
 
     def update(self, budget_id: int, key: str, **values) -> None:
         row = self.line(budget_id, key)
@@ -112,7 +112,7 @@ def _fill(b: _Builder) -> None:
     first = budgets.create_budget(conn, uid, y1, m1, emergency_current=3000, emergency_min=15000,
                                   savings_current=6000)
     rollover.apply_templates(conn, uid, first["id"])
-    budgets.create_item(conn, uid, "incomes", first["id"], {"source": b.name("bonus"), "amount": 750})
+    budgets.create_item(conn, uid, "incomes", first["id"], {"name_key": "bonus", "amount": 750})
     b.expense(first["id"], "phone", "debt", inst_balance=3600, inst_count=12)
     b.expense(first["id"], "car", "debt", inst_balance=54000, inst_count=36)
     b.expense(first["id"], "outing", "luxury", cash_amount=450)
@@ -128,7 +128,7 @@ def _fill(b: _Builder) -> None:
                                ("goal_trip", 8000, {"category_id": b.category["luxury"]}),
                                ("goal_laptop", 4500, {"manual_allocation": 1500,
                                                       "category_id": b.category["other"]})):
-        budgets.create_item(conn, uid, "goals", first["id"], {"name": b.name(key), "target_amount": target, **extra})
+        budgets.create_item(conn, uid, "goals", first["id"], {"name_key": key, "target_amount": target, **extra})
 
     # ---- month 2: the unpaid gift is carried by the wizard
     second = rollover.create_from_previous(conn, uid, y2, m2, lang=lang, carry_unpaid_ids=[gift["id"]])

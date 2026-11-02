@@ -61,10 +61,30 @@ def test_demo_user_can_log_in_and_see_every_month(app, conn):
         assert d["summary"]["income"] >= 9000 and d["expenses"] and d["goals"]
 
 
-def test_demo_in_english(conn):
+def _names(app, conn, uid, table, budget_id, lang, col="name"):
+    with app.test_request_context(headers={"Cookie": f"mezaniya_lang={lang}"}):
+        return {r[col] for r in budgets.list_items(conn, uid, table, budget_id)}
+
+
+def test_demo_names_follow_the_viewers_language(app, conn):
     uid = demo.create_demo_user(conn, "en", TODAY)
-    rows = budgets.list_items(conn, uid, "expenses", budgets.list_budgets(conn, uid)[0]["id"])
-    assert {"Rent", "Electricity", "Car installment"} <= {r["name"] for r in rows}
+    months = budgets.list_budgets(conn, uid)
+    first, last = months[0]["id"], months[-1]["id"]
+    for b in (first, last):                       # copied months keep the translation too
+        assert {"Rent", "Electricity", "Car installment"} <= _names(app, conn, uid, "expenses", b, "en")
+        assert {t("demo.rent", "ar"), t("demo.car", "ar")} <= _names(app, conn, uid, "expenses", b, "ar")
+    assert t("demo.salary", "ar") in _names(app, conn, uid, "incomes", last, "ar", "source")
+    assert t("demo.goal_car", "ar") in _names(app, conn, uid, "goals", last, "ar")
+    with app.test_request_context(headers={"Cookie": "mezaniya_lang=ar"}):
+        assert t("demo.rent", "ar") in {r["name"] for r in templates.list_templates(conn, uid)}
+    # stored as keys, not text
+    assert conn.execute("SELECT COUNT(*) FROM expenses WHERE user_id = ? AND name IS NOT NULL",
+                        (uid,)).fetchone()[0] == 0
+
+    # a renamed item is the user's text in every language, and the next month copies that text
+    rent = next(r for r in budgets.list_items(conn, uid, "expenses", last) if r["name_key"] == "rent")
+    budgets.update_item(conn, uid, "expenses", last, rent["id"], {"name": "سكن"})
+    assert "سكن" in _names(app, conn, uid, "expenses", last, "en")
 
 
 def test_demo_exists_and_replace(conn):
@@ -82,3 +102,20 @@ def test_demo_exists_and_replace(conn):
 def test_demo_across_new_year(conn):
     uid = demo.create_demo_user(conn, "ar", date(2027, 1, 5))
     assert [(m["year"], m["month"]) for m in budgets.list_budgets(conn, uid)] == [(2026, 11), (2026, 12), (2027, 1)]
+
+
+def test_new_month_from_an_english_session_keeps_demo_names_translated(app, conn):
+    uid = demo.create_demo_user(conn, "ar", TODAY)
+    api = Api(app)
+    api.post("/auth/login", {"username": demo.DEMO_USERNAME, "password": demo.DEMO_PASSWORD})
+    api.client.set_cookie("mezaniya_lang", "en")
+    last = budgets.list_budgets(conn, uid)[-1]
+    # the car installment is copied from the month itself (not from a recurring item)
+    car = next(r for r in budgets.list_items(conn, uid, "expenses", last["id"]) if r["name_key"] == "car")
+    api.patch(f"/api/budgets/{last['id']}/expenses/{car['id']}", {"name": "My car"})
+    r = api.post("/api/budgets", {"year": 2026, "month": 11, "copy_from_previous": True})
+    assert r.status_code == 201, r.get_json()
+    new = r.get_json()["budget"]["id"]
+    ar = _names(app, conn, uid, "expenses", new, "ar")
+    assert "My car" in ar and t("demo.internet", "ar") in ar and "Internet" not in ar
+    assert t("demo.salary", "ar") in _names(app, conn, uid, "incomes", new, "ar", "source")

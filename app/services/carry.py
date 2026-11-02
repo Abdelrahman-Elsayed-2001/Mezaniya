@@ -46,7 +46,7 @@ def sync_expense(conn: sqlite3.Connection, user_id: int, expense_id: int, *, del
     if not linked:
         if amount > 0:
             base.insert(conn, user_id, "expenses", {
-                "budget_id": nxt["id"], "name": row["name"], "type_id": row["type_id"], "carried_in": amount,
+                "budget_id": nxt["id"], **base.name_values(row), "type_id": row["type_id"], "carried_in": amount,
                 "prev_expense_id": expense_id,
                 "notes": tr("rollover.carry_note", lang, label=label(month["year"], month["month"]))})
         return
