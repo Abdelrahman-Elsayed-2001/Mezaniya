@@ -27,6 +27,7 @@ class Conversion:
     the user enters a rate, rather than being guessed."""
     base: str
     rates: dict[str, rates_repo.Rate | None] = field(default_factory=dict)
+    at: int | None = None            # the month (yyyymm), to tell an online rate carried from earlier
 
     def factor(self, code: str | None) -> Decimal:
         if code is None or code == self.base:
@@ -52,7 +53,9 @@ class Conversion:
             return None
         r = self.rates.get(code)
         return {"rate": r.rate if r else None, "source": r.source if r else None,
-                "from_ym": r.from_ym if r else None, "missing": r is None}
+                "from_ym": r.from_ym if r else None, "missing": r is None,
+                # fetched for an earlier month (this month's couldn't be fetched): an estimate
+                "estimated": bool(r and r.source == "online" and self.at and r.from_ym < self.at)}
 
 
 def month_conversion(conn: sqlite3.Connection, user_id: int, budget: dict) -> Conversion:
@@ -62,7 +65,8 @@ def month_conversion(conn: sqlite3.Connection, user_id: int, budget: dict) -> Co
         (user_id, budget["id"]))}
     codes.discard(base_currency)
     return Conversion(base_currency, {c: rates_repo.rate_for(conn, user_id, base_currency, c, budget["year"],
-                                                              budget["month"]) for c in sorted(codes)})
+                                                              budget["month"]) for c in sorted(codes)},
+                      rates_repo.ym(budget["year"], budget["month"]))
 
 
 def expense_model(r: dict, type_name: str, conv: Conversion | None = None) -> Expense:

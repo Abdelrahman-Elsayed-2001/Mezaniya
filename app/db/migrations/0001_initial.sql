@@ -27,7 +27,7 @@ CREATE TABLE users (
 CREATE TABLE default_settings (
   key TEXT PRIMARY KEY,
   default_value TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('rate','number','text','json'))
+  type TEXT NOT NULL CHECK (type IN ('rate','number','text','json','bool'))
 );
 
 CREATE TABLE user_settings (
@@ -75,6 +75,7 @@ INSERT INTO default_settings (key, default_value, type) VALUES
   ('emergency_ref_factor', '1.25', 'number'),
   ('currency', 'SAR', 'text'),          -- the base currency: a code from currencies
   ('theme', 'auto', 'text'),
+  ('fetch_rates', '0', 'bool'),         -- fetch exchange rates online (off until the user turns it on)
   -- the dashboards' layout (app/dashboard.py); a test keeps it equal to default_dashboards()
   ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["incomes","summary"],["expenses"],["by_type","payments","suggestions"],["warnings"],["emergency","savings","progress"],["goals"],["daily","notes"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details","notes"]}', 'json');
 

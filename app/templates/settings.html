@@ -199,6 +199,14 @@
     <section class="card settings-card" x-show="tab === 'rates'" x-cloak>
       <h2>{{ t('settings.rates_title') }}</h2>
       <p class="muted small">{{ t('settings.rates_hint') }}</p>
+      <div class="rate-fetch" x-show="settings">
+        <label class="check"><input type="checkbox" :checked="settings && settings.fetch_rates"
+                                    @change="setFetchRates($event.target.checked)">
+          <span>{{ t('settings.rates_fetch_toggle') }}</span></label>
+        <button class="btn btn-small" type="button" x-show="settings && settings.fetch_rates" :disabled="busy"
+                @click="fetchRatesNow()">{{ t('settings.rates_fetch_now') }}</button>
+        <p class="muted small">{{ t('settings.rates_fetch_hint') }}</p>
+      </div>
       <form class="rate-form" @submit.prevent="saveRate()" novalidate>
         <label class="field"><span>{{ t('common.currency') }}</span>
           <select x-model="newRate.currency" required>

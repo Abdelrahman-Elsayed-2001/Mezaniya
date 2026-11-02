@@ -1,4 +1,4 @@
-"""Exchange rates: the user's own rates per period (rates fetched online are added later)."""
+"""Exchange rates: the user's own rates per period, and fetching online on demand."""
 from __future__ import annotations
 
 from flask import jsonify
@@ -7,6 +7,7 @@ from app import currency
 from app.db import get_db, transaction
 from app.db.repo import rates, settings
 from app.i18n import current_lang
+from app.services import fx_online
 
 from . import bp, uid
 from .errors import invalid
@@ -75,3 +76,14 @@ def delete_rate(rate_id: int):
     conn, user_id = get_db(), uid()
     rates.delete_rate(conn, user_id, rate_id)
     return jsonify(_rates_json(conn, user_id))
+
+
+@bp.post("/rates/fetch")
+def fetch_rates():
+    """The "fetch now" button: rates for every month that uses another currency (needs the
+    fetch_rates setting on). Rates the user entered are kept."""
+    conn, user_id = get_db(), uid()
+    if not settings.get_settings(conn, user_id)["fetch_rates"]:
+        raise invalid("api.err.fetch_rates_off", "fetch_rates")
+    written = fx_online.refresh_all(conn, user_id)
+    return jsonify({**_rates_json(conn, user_id), "fetched": written})

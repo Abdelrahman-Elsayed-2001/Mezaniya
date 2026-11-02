@@ -20,7 +20,7 @@ from .base import Conflict, NotFound
 
 @dataclass(frozen=True)
 class Spec:
-    type: str                    # 'rate' | 'number' | 'text' | 'json', as in default_settings.type
+    type: str                    # 'rate' | 'number' | 'text' | 'json' | 'bool', as in default_settings.type
     min: float | None = None
     max: float | None = None
     max_len: int = 200
@@ -42,6 +42,7 @@ SPECS: dict[str, Spec] = {
     "emergency_ref_months": Spec("number", min=0, on_create=True),
     "emergency_ref_factor": Spec("number", min=0, on_create=True),
     "currency": Spec("text", max_len=3),           # a code from the currencies table
+    "fetch_rates": Spec("bool"),                     # fetch exchange rates online (app/services/fx_online.py)
     # a theme id, 'auto' or 'custom'; the custom colours live in value2 (theme_colors)
     "theme": Spec("text", max_len=40, value2="theme_colors"),
     # every board and the widgets on it, as one JSON value (app/dashboard.py)
@@ -73,6 +74,10 @@ def _encode(key: str, value) -> str:
                 (spec.max is not None and x > Decimal(str(spec.max))):
             raise Conflict(f"user_settings: {key} out of range", "integrity")
         return str(x)
+    if spec.type == "bool":
+        if not isinstance(value, bool):
+            raise Conflict(f"user_settings: {key} must be true or false", "integrity")
+        return "1" if value else "0"
     if spec.type == "json":
         try:
             return json.dumps(spec.check(value), ensure_ascii=False, separators=(",", ":"))
@@ -119,6 +124,8 @@ def _decode(key: str, text: str):
     spec = SPECS[key]
     if spec.type in ("rate", "number"):
         return float(text)
+    if spec.type == "bool":
+        return text == "1"
     if spec.type == "json":
         try:
             value = json.loads(text)

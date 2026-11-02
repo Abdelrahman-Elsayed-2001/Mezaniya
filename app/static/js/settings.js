@@ -269,6 +269,21 @@ document.addEventListener("alpine:init", () => {
       this.notify(tr("settings.saved"));
     },
 
+    async setFetchRates(on) {
+      const s = await this.request("PATCH", "/api/settings", { fetch_rates: on });
+      if (!s) return;
+      this.settings = { ...this.settings, fetch_rates: s.fetch_rates };
+      if (on) await this.fetchRatesNow();
+      else this.notify(tr("settings.saved"));
+    },
+
+    async fetchRatesNow() {
+      const r = await this.request("POST", "/api/rates/fetch");
+      if (!r) return;
+      this.rates = r;
+      this.notify(r.fetched ? tr("settings.rates_fetched", { n: r.fetched }) : tr("settings.rates_fetch_none"));
+    },
+
     async removeRate(row) {
       if (!confirm(tr("settings.rates_confirm_delete", { from: this.ymText(row.from_ym) }))) return;
       const r = await this.request("DELETE", `/api/rates/${row.id}`);

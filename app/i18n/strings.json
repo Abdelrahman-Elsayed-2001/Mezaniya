@@ -372,7 +372,8 @@
     "enter_rate": {"ar": "أدخل السعر", "en": "Enter a rate"},
     "rate_title": {"ar": "1 {code} = {rate} {base} ({source}، من {from})", "en": "1 {code} = {rate} {base} ({source}, from {from})"},
     "no_rate": {"ar": "لا يوجد سعر صرف لـ {code} لهذا الشهر", "en": "No exchange rate for {code} this month"},
-    "no_rate_short": {"ar": "⚠ بلا سعر صرف", "en": "⚠ no exchange rate"}
+    "no_rate_short": {"ar": "⚠ بلا سعر صرف", "en": "⚠ no exchange rate"},
+    "estimated": {"ar": "تقديري: لم يُجلب سعر هذا الشهر بعد", "en": "estimate: this month's rate hasn't been fetched yet"}
   },
 
   "month_notes": {
@@ -430,6 +431,7 @@
     "to_year": {"ar": "سنة النهاية", "en": "End year"},
     "to_month": {"ar": "شهر النهاية", "en": "End month"},
     "rate": {"ar": "سعر الصرف", "en": "Exchange rate"},
+    "fetch_rates": {"ar": "جلب الأسعار من الإنترنت", "en": "Fetch rates online"},
     "theme": {"ar": "الثيم", "en": "Theme"},
     "theme_colors": {"ar": "الألوان المخصصة", "en": "Custom colours"},
     "dashboards": {"ar": "تخطيط الداشبورد", "en": "Dashboard layout"},
@@ -497,6 +499,7 @@
       "period": {"ar": "الشهر أو السنة غير صحيحين", "en": "Invalid month or year"},
       "rate_range": {"ar": "سعر الصرف يجب أن يكون أكبر من صفر", "en": "The exchange rate must be more than zero"},
       "rate_base_currency": {"ar": "هذه هي العملة الأساسية: لا تحتاج إلى سعر صرف", "en": "That is the base currency: it needs no exchange rate"},
+      "fetch_rates_off": {"ar": "فعّل جلب الأسعار من الإنترنت أولًا", "en": "Turn on fetching rates online first"},
       "period_order": {"ar": "نهاية الفترة قبل بدايتها", "en": "The period ends before it starts"},
       "balance_in_base_currency": {"ar": "هذه هي العملة الأساسية: اكتب المبلغ في الرصيد الحالي نفسه", "en": "That is the base currency: enter the amount in the current balance itself"},
       "period_pair": {"ar": "أرسل السنة والشهر معًا", "en": "Send the year and the month together"},
@@ -549,6 +552,11 @@
     "rates_source_online": {"ar": "من الإنترنت", "en": "Online"},
     "rates_empty": {"ar": "لا توجد أسعار بعد.", "en": "No rates yet."},
     "rates_err_missing": {"ar": "اختر العملة وشهر البداية واكتب السعر", "en": "Pick the currency and start month, and enter the rate"},
+    "rates_fetch_toggle": {"ar": "جلب أسعار الصرف من الإنترنت تلقائيًا", "en": "Fetch exchange rates online automatically"},
+    "rates_fetch_hint": {"ar": "مقفول افتراضيًا. عند تفعيله يجلب البرنامج سعر كل عملة مستخدمة في الشهر عند فتحه (سعر آخر يوم للشهور المنتهية، وسعر اليوم للشهر الحالي) من خدمة مجانية مفتوحة، ولا يُرسل غير رمز العملة والتاريخ. الأسعار المتاحة تبدأ من مارس 2024؛ الشهور الأقدم تحتاج سعرًا يدويًا. سعرك اليدوي يغلب دائمًا.", "en": "Off by default. When on, the app fetches the rate of each currency a month uses when you open it (the last day's rate for ended months, today's for the current month) from a free open service; only the currency code and date are sent. Rates are available from March 2024; older months need a manual rate. Your manual rates always win."},
+    "rates_fetch_now": {"ar": "جلب الآن", "en": "Fetch now"},
+    "rates_fetched": {"ar": "تم جلب {n} سعر", "en": "Fetched {n} rate(s)"},
+    "rates_fetch_none": {"ar": "لا جديد: الأسعار محدثة أو تعذر الاتصال", "en": "Nothing new: rates are up to date or the service couldn't be reached"},
     "rates_confirm_delete": {"ar": "حذف السعر الذي يبدأ في {from}؟ ستأخذ شهوره السعر الذي قبله.", "en": "Delete the rate starting {from}? Its months take the rate before it."},
     "tab_appearance": {"ar": "المظهر", "en": "Appearance"},
     "appearance_title": {"ar": "ألوان البرنامج", "en": "App colours"},

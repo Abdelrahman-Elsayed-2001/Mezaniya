@@ -557,8 +557,9 @@ document.addEventListener("alpine:init", () => {
       if (!row.fx) return tr("common.currency");
       if (row.fx.missing) return tr("fx.no_rate", { code: row.currency });
       const from = `${String(row.fx.from_ym % 100).padStart(2, "0")}/${Math.floor(row.fx.from_ym / 100)}`;
-      return tr("fx.rate_title", { code: row.currency, rate: row.fx.rate, base: this.d.currency.symbol, from,
-                                  source: tr("settings.rates_source_" + row.fx.source) });
+      const title = tr("fx.rate_title", { code: row.currency, rate: row.fx.rate, base: this.d.currency.symbol, from,
+                                          source: tr("settings.rates_source_" + row.fx.source) });
+      return row.fx.estimated ? `${title} — ${tr("fx.estimated")}` : title;
     },
 
     // "≈ 770 SAR" (in the base currency) under an amount kept in another currency

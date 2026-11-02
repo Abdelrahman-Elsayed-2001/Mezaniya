@@ -25,6 +25,7 @@ SETTINGS = {
     "emergency_ref_factor": Field(number, max_value=10),
     "currency": Field(choice, required=True, choices=tuple(currency.CURRENCIES)),
     "theme": Field(text, max_len=40),
+    "fetch_rates": Field(boolean),
     "theme_colors": Field(lambda v, f: themes.parse_colors(v), nullable=True),
     "dashboards": Field(lambda v, f: dashboard.validate(v)),
 }

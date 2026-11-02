@@ -18,6 +18,7 @@ from app.engine import compute, validate
 from app.engine.calc import Dashboard
 from app.engine.rules import Warning
 from app.i18n import plural, t
+from app.services import fx_online
 
 _ISSUE_FIELD = re.compile(r"^(incomes|expenses|goals)\[(\d+)\](?:\.(\w+))?$")
 
@@ -90,6 +91,8 @@ def months_text(line, lang: str) -> str:
 
 def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang: str) -> dict:
     budget = budgets.get_budget(conn, user_id, budget_id)
+    if not conn.in_transaction:
+        fx_online.refresh_month(conn, user_id, budget)      # only when the user turned fetching on
     user_settings = settings.get_settings(conn, user_id)
     currency = money_currency.symbol(user_settings["currency"], lang)
     conv = month_conversion(conn, user_id, budget)
