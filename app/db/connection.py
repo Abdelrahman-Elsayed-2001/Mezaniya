@@ -68,7 +68,9 @@ def migrate(conn: sqlite3.Connection, migrations_dir: Path = MIGRATIONS_DIR) -> 
 
 
 class IncompatibleDatabase(RuntimeError):
-    pass
+    def __init__(self, message: str, generation: int | None = None):
+        super().__init__(message)
+        self.generation = generation
 
 
 # Bumped whenever 0001_initial.sql changes in a way older databases can't follow while in beta
@@ -89,4 +91,4 @@ def check_compatible(conn: sqlite3.Connection) -> None:
         raise IncompatibleDatabase(
             f"This database was made by an older beta of Mezaniya (schema {generation}), which this "
             f"version (schema {SCHEMA_GENERATION}) can't open. Move or delete the data folder "
-            "(mezaniya.db) and start again.")
+            "(mezaniya.db) and start again.", generation)

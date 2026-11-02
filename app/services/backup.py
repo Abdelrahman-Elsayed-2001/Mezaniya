@@ -10,6 +10,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from app.db.connection import check_compatible
 from app.i18n import t
 
 log = logging.getLogger(__name__)
@@ -65,7 +66,8 @@ def backup_due(backup_dir: Path, interval_hours: float, now: float | None = None
 
 def restore(db_path: Path, backup_file: Path, backup_dir: Path, keep: int) -> Path | None:
     """Replace the live DB with a backup. The current DB is backed up first.
-    The server must be stopped. Returns the safety backup's path."""
+    The server must be stopped. Returns the safety backup's path. Raises ValueError for a damaged
+    file and IncompatibleDatabase for one from another version, before anything is changed."""
     check = sqlite3.connect(backup_file)
     try:
         healthy = check.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
@@ -75,6 +77,11 @@ def restore(db_path: Path, backup_file: Path, backup_dir: Path, keep: int) -> Pa
         check.close()
     if not healthy:
         raise ValueError(f"{backup_file} is not a healthy database")
+    check = sqlite3.connect(backup_file)
+    try:
+        check_compatible(check)          # a backup from another beta would leave an app that can't start
+    finally:
+        check.close()
     safety = backup_now(db_path, backup_dir, keep=0) if db_path.exists() else None
     for suffix in ("-wal", "-shm"):
         side = db_path.with_name(db_path.name + suffix)

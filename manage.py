@@ -20,7 +20,7 @@ from pathlib import Path
 from app import i18n
 from app.auth.passwords import is_manual
 from app.config import Config
-from app.db.connection import connect, migrate
+from app.db.connection import IncompatibleDatabase, SCHEMA_GENERATION, connect, migrate
 from app.db.repo import users
 from app.services import admin, backup, demo
 
@@ -123,7 +123,14 @@ def cmd_restore(args) -> int:
     if not args.yes:
         say("cli.restore_needs_yes", error=True)
         return 2
-    safety = backup.restore(Config.DB_PATH, source, Config.BACKUP_DIR, Config.BACKUP_KEEP)
+    try:
+        safety = backup.restore(Config.DB_PATH, source, Config.BACKUP_DIR, Config.BACKUP_KEEP)
+    except IncompatibleDatabase as e:
+        say("cli.restore_incompatible", error=True, found=e.generation, expected=SCHEMA_GENERATION)
+        return 1
+    except ValueError:
+        say("cli.restore_unhealthy", error=True)
+        return 1
     say("cli.restored", db=Config.DB_PATH, file=source)
     if safety:
         say("cli.previous_saved", path=safety)

@@ -21,6 +21,7 @@ from pathlib import Path
 from tkinter import messagebox, simpledialog, ttk
 
 from app import i18n
+from app.version import STAGE, __version__
 from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem
 from app.db.connection import connect, migrate
 from app.services import admin, backup, demo
@@ -192,7 +193,7 @@ class ManagerApp(tk.Tk):
         ui, t = self.ui, self.t
         if self.root_frame is not None:
             self.root_frame.destroy()
-        self.title(t("manager.title"))
+        self.title(f"{t('manager.title')} · v{__version__}{' ' + STAGE if STAGE else ''}")
         root = self.root_frame = ttk.Frame(self, padding=12)
         root.pack(fill="both", expand=True)
 
@@ -220,6 +221,9 @@ class ManagerApp(tk.Tk):
         port_row = ttk.Frame(srv)
         port_row.pack(fill="x", pady=(10, 0))
         ttk.Label(port_row, text=t("manager.port")).pack(side=ui.start)
+        # the version on the far side; caption and (Latin) number in separate labels, as for backups
+        ttk.Label(port_row, text=f"{__version__}{' ' + STAGE if STAGE else ''}", foreground="#52606d").pack(side=ui.end)
+        ttk.Label(port_row, text=t("manager.version")).pack(side=ui.end, padx=6)
         self.port_var = tk.StringVar(value=str(configured_port()))
         ttk.Entry(port_row, textvariable=self.port_var, width=8, justify="center").pack(side=ui.start, padx=6)
         ttk.Button(port_row, text=t("manager.save_port"), command=self.save_port).pack(side=ui.start)

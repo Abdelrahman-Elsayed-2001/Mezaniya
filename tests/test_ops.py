@@ -116,6 +116,22 @@ def test_restore_rejects_a_non_database(live_db, tmp_path):
     assert count_users(path) == 1
 
 
+
+def test_restore_rejects_a_backup_from_another_version(live_db, tmp_path):
+    from app.db.connection import IncompatibleDatabase
+    path, conn = live_db
+    old = backup.backup_now(path, tmp_path / "b", keep=5)
+    c = sqlite3.connect(old)
+    c.execute("PRAGMA user_version = 0")                             # how 0.1.0 / 0.2.0 databases read
+    c.commit()
+    c.close()
+    create_seeded_user(conn, "bob", "scrypt:y", TODAY, "ar")
+    conn.close()
+    with pytest.raises(IncompatibleDatabase):
+        backup.restore(path, old, tmp_path / "b", keep=5)
+    assert count_users(path) == 2                                    # nothing replaced
+
+
 # ---------- manage.py
 
 @pytest.fixture
@@ -162,6 +178,12 @@ def test_backup_and_restore_commands(managed, capsys, tmp_path):
     assert manage.main(["restore", str(tmp_path / "missing.db"), "--yes"]) == 1
     assert manage.main(["restore", str(files[0]), "--yes"]) == 0
     assert count_users(Config.DB_PATH) == 1
+    c = sqlite3.connect(files[0])
+    c.execute("PRAGMA user_version = 2")
+    c.commit()
+    c.close()
+    assert manage.main(["--lang", "en", "restore", str(files[0]), "--yes"]) == 1
+    assert "another version" in capsys.readouterr().err
 
 
 def test_migrate_command(managed, capsys):
