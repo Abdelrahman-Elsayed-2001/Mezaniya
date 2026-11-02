@@ -47,7 +47,7 @@ INSERT INTO default_settings (key, default_value, type) VALUES
   ('currency', '', 'text'),             -- set from the user's language when the account is created
   ('theme', 'auto', 'text'),
   -- the dashboards' layout (app/dashboard.py); a test keeps it equal to default_dashboards()
-  ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["summary","suggestions","warnings"],["incomes","emergency","savings"],["expenses"],["goals"],["payments","by_type","progress"],["daily"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details"]}', 'json');
+  ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["incomes","summary"],["expenses"],["by_type","payments","suggestions"],["warnings"],["emergency","savings","progress"],["goals"],["daily"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details"]}', 'json');
 
 -- Built-in colour themes: five base colours each; app/themes.py derives the rest. Names are
 -- strings.json "theme.<id>". A user's choice is user_settings key 'theme' ('auto' = follow

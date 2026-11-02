@@ -34,11 +34,12 @@ WIDGETS: dict[str, str] = {
 }
 
 DEFAULT_LAYOUT: tuple[tuple[str, ...], ...] = (
-    ("summary", "suggestions", "warnings"),
-    ("incomes", "emergency", "savings"),
+    ("incomes", "summary"),
     ("expenses",),
+    ("by_type", "payments", "suggestions"),
+    ("warnings",),
+    ("emergency", "savings", "progress"),
     ("goals",),
-    ("payments", "by_type", "progress"),
     ("daily",),
     ("details",),
 )

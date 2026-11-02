@@ -3,19 +3,20 @@
   <h2>{{ t('goals.title') }}</h2>
   <p class="muted small">{{ t('goals.hint') }}</p>
   <div class="table-wrap">
-    <table class="grid">
+    <table class="grid pin-ends">
       <thead>
         <tr>
           <th class="w-name">{{ t('goals.name') }}</th><th>{{ t('goals.category') }}</th><th>{{ t('goals.target') }}</th>
           <th>{{ t('goals.priority') }}</th><th>{{ t('goals.manual') }}</th><th>{{ t('goals.allocated') }}</th>
           <th>{{ t('goals.remaining') }}</th><th>{{ t('goals.progress') }}</th><th>{{ t('goals.monthly') }}</th>
-          <th>{{ t('goals.months') }}</th><th></th><th></th>
+          <th>{{ t('goals.months') }}</th><th></th>
         </tr>
       </thead>
       <template x-for="g in d.goals" :key="g.id">
         <tbody>
           <tr :class="g.valid ? '' : 'ignored'">
-            <td><input :value="g.name" @change="updateItem('goals', g, 'name', $event.target.value)"></td>
+            <td><div class="name-cell"><input :value="g.name" @change="updateItem('goals', g, 'name', $event.target.value)">
+                <button class="icon-btn note" type="button" :class="g.notes ? 'has-note' : ''" :title="g.notes || t('common.note_add')" @click="toggleNotes('goals', g)">📝</button></div></td>
             <td>
               <select @change="updateItem('goals', g, 'category_id', $event.target.value ? Number($event.target.value) : null)">
                 <option value="" :selected="g.category_id === null">—</option>
@@ -46,12 +47,10 @@
             </td>
             <td class="num" x-text="money(g.monthly)"></td>
             <td x-text="g.months_text"></td>
-            <td><button class="icon-btn note" type="button" :class="g.notes ? 'has-note' : ''"
-                        :title="g.notes || t('common.note_add')" @click="toggleNotes('goals', g)">📝</button></td>
             <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeItem('goals', g)">✕</button></td>
           </tr>
           <tr class="notes-row" x-show="notesOpen('goals', g)">
-            <td colspan="12"><textarea rows="2" placeholder="{{ t('goals.note_placeholder') }}" :value="g.notes ?? ''"
+            <td colspan="11"><textarea rows="2" placeholder="{{ t('goals.note_placeholder') }}" :value="g.notes ?? ''"
                                        @change="updateItem('goals', g, 'notes', $event.target.value.trim() || null)"></textarea></td>
           </tr>
         </tbody>
@@ -61,7 +60,7 @@
           <td><input placeholder="{{ t('goals.new_placeholder') }}" x-model="newGoal.name" @keydown.enter="addGoal()"></td>
           <td></td>
           <td><input class="num" type="number" step="0.01" min="0" placeholder="{{ t('goals.target_placeholder') }}" x-model="newGoal.target_amount" @keydown.enter="addGoal()"></td>
-          <td colspan="8"></td>
+          <td colspan="7"></td>
           <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addGoal()">+</button></td>
         </tr>
         <tr class="total">
@@ -73,7 +72,7 @@
           <td class="num" x-text="money(d.goals_total.remaining)"></td>
           <td class="num" x-text="pct(d.goals_total.progress)"></td>
           <td class="num" x-text="money(d.goals_total.monthly)"></td>
-          <td colspan="3" x-text="d.goals_total.status_text"></td>
+          <td colspan="2" x-text="d.goals_total.status_text"></td>
         </tr>
       </tfoot>
     </table>

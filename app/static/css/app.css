@@ -365,6 +365,24 @@ details[open].card summary { margin-bottom: 12px; }
 .icon-btn.note { opacity: 0.45; }
 .icon-btn.note.has-note { opacity: 1; border-color: var(--primary); }
 .grid tr.notes-row td { background: var(--bg); }
+.name-cell { display: flex; align-items: center; gap: 4px; }
+.name-cell input { flex: 1; }
+.name-cell .icon-btn { flex: none; }
+
+/* wide grids scroll sideways: the name (with its 📝) and the row's ✕ / + stay in view in
+   both directions. A pinned cell must be opaque, so it takes the row's colour from --row-bg. */
+.grid.pin-ends thead th:first-child, .grid.pin-ends tbody tr:not(.notes-row) > td:first-child,
+.grid.pin-ends tr.add-row > td:first-child, .grid.pin-ends tr.total > th:first-child {
+  position: sticky; inset-inline-start: 0; z-index: 1; background: var(--row-bg, var(--surface));
+}
+.grid.pin-ends thead th:last-child, .grid.pin-ends tbody tr:not(.notes-row) > td:last-child,
+.grid.pin-ends tr.add-row > td:last-child {
+  position: sticky; inset-inline-end: 0; z-index: 1; background: var(--row-bg, var(--surface));
+}
+.grid tr.add-row { --row-bg: var(--bg); }
+.grid tr.paid { --row-bg: var(--pos-bg); }
+.grid tr.deferred { --row-bg: var(--orange-bg); }
+.grid tr.needs { --row-bg: var(--warn-bg); }
 .grid textarea {
   width: 100%;
   font: inherit;
