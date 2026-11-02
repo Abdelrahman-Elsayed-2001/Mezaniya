@@ -64,7 +64,10 @@ def create_app(config: type[Config] = Config) -> Flask:
     @app.get("/settings")
     @login_required
     def settings_page():
-        return render_template("settings.html", username=current_user()["username"])
+        from .currency import options
+        from .i18n import current_lang
+        return render_template("settings.html", username=current_user()["username"],
+                               currencies=options(current_lang()))
 
     @app.get("/healthz")
     def healthz():

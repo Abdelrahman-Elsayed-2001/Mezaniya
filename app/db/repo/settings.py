@@ -41,7 +41,7 @@ SPECS: dict[str, Spec] = {
     "saving_rate_em_complete": _RATE,
     "emergency_ref_months": Spec("number", min=0, on_create=True),
     "emergency_ref_factor": Spec("number", min=0, on_create=True),
-    "currency": Spec("text", max_len=10),
+    "currency": Spec("text", max_len=3),           # a code from the currencies table
     # a theme id, 'auto' or 'custom'; the custom colours live in value2 (theme_colors)
     "theme": Spec("text", max_len=40, value2="theme_colors"),
     # every board and the widgets on it, as one JSON value (app/dashboard.py)
@@ -90,6 +90,9 @@ def _check_value(conn: sqlite3.Connection, key: str, value: str) -> None:
     if key == "theme" and value not in themes.SPECIAL and \
             conn.execute("SELECT 1 FROM themes WHERE id = ?", (value,)).fetchone() is None:
         raise Conflict(f"user_settings: unknown theme {value!r}", "integrity")
+    if key == "currency" and \
+            conn.execute("SELECT 1 FROM currencies WHERE code = ?", (value,)).fetchone() is None:
+        raise Conflict(f"user_settings: unknown currency {value!r}", "integrity")
 
 
 def _encode_value2(name: str, value) -> str | None:

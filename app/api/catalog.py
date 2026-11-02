@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from flask import jsonify
 
-from app import dashboard, themes
+from app import currency, dashboard, themes
 from app.db import get_db, transaction
 from app.db.repo import base, settings, templates, types
 from app.i18n import current_lang, t
@@ -22,7 +22,7 @@ SETTINGS = {
     "saving_rate_em_complete": Field(ratio),
     "emergency_ref_months": Field(number, max_value=60),
     "emergency_ref_factor": Field(number, max_value=10),
-    "currency": Field(text, required=True, max_len=10),
+    "currency": Field(choice, required=True, choices=tuple(currency.CURRENCIES)),
     "theme": Field(text, max_len=40),
     "theme_colors": Field(lambda v, f: themes.parse_colors(v), nullable=True),
     "dashboards": Field(lambda v, f: dashboard.validate(v)),

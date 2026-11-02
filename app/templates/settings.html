@@ -49,7 +49,10 @@
           </label>
           <label class="field">
             <span>{{ t('settings.currency') }}</span>
-            <input name="currency" maxlength="10" x-model="form.currency" required>
+            <select name="currency" x-model="form.currency" required>
+              {% for c in currencies %}<option value="{{ c.code }}">{{ c.name }} ({{ c.symbol }})</option>{% endfor %}
+            </select>
+            <small class="hint">{{ t('settings.currency_hint') }}</small>
           </label>
           <div class="form-actions">
             <button class="btn btn-primary btn-small" type="submit" :disabled="busy">{{ t('common.save') }}</button>

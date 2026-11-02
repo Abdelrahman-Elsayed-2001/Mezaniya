@@ -11,6 +11,7 @@ from datetime import date
 from decimal import Decimal
 from enum import Enum
 
+from app import currency as money_currency
 from app.db.repo import base, budgets, settings, types
 from app.db.repo.loader import load_budget_input
 from app.engine import compute, validate
@@ -90,7 +91,7 @@ def months_text(line, lang: str) -> str:
 def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang: str) -> dict:
     budget = budgets.get_budget(conn, user_id, budget_id)
     user_settings = settings.get_settings(conn, user_id)
-    currency = user_settings["currency"]
+    currency = money_currency.symbol(user_settings["currency"], lang)
     inp = load_budget_input(conn, user_id, budget_id)
     d: Dashboard = compute(inp)
 
@@ -118,6 +119,7 @@ def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang:
     return {
         "budget": {**budget, "days_in_month": d.suggestions.days_in_month},
         "settings": user_settings,
+        "currency": money_currency.info(user_settings["currency"], lang),
         "expense_types": type_rows,
         "goal_categories": types.list_goal_categories(conn, user_id),
         "incomes": base.list_rows(conn, user_id, "incomes", budget_id=budget_id),

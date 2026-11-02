@@ -24,7 +24,7 @@ def test_seed(conn, alice):
     assert sum(t["is_system"] for t in ts) == 5
     assert [c["name"] for c in types.list_goal_categories(conn, alice)] == ["أساسي", "كمالي", "استثمار", "أخرى"]
     s = settings.get_settings(conn, alice)
-    assert (s["max_debt_rate"], s["emergency_ref_factor"], s["currency"]) == (0.33, 1.25, "ر.س")
+    assert (s["max_debt_rate"], s["emergency_ref_factor"], s["currency"]) == (0.33, 1.25, "SAR")
     assert [(b["year"], b["month"]) for b in budgets.list_budgets(conn, alice)] == [(2026, 11)]
 
 
@@ -203,9 +203,9 @@ def test_users(conn, alice):
 
 
 def test_settings_update(conn, alice):
-    s = settings.update_settings(conn, alice, {"emergency_ref_factor": 1.5, "currency": "ج.م"})
+    s = settings.update_settings(conn, alice, {"emergency_ref_factor": 1.5, "currency": "EGP"})
     eng = settings.to_engine(s)
-    assert eng.emergency_ref_factor == Decimal("1.5") and s["currency"] == "ج.م"
+    assert eng.emergency_ref_factor == Decimal("1.5") and s["currency"] == "EGP"
     assert eng.max_debt_rate == Decimal("0.33")
     with pytest.raises(ValueError):
         settings.update_settings(conn, alice, {"user_id": 2})

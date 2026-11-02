@@ -1,10 +1,11 @@
 """Initial data for a newly registered user. Types and categories are stored by key and shown
-in the viewer's language; only the currency follows the language chosen at registration."""
+in the viewer's language. The base currency starts as currency.DEFAULT (a code)."""
 from __future__ import annotations
 
 import sqlite3
 from datetime import date
 
+from app import currency
 from app.db.connection import transaction
 from app.db.repo import base, budgets, settings, users
 from app.engine import DEFAULT_TYPE_KEYS, Role
@@ -16,7 +17,7 @@ DEFAULT_GOAL_CATEGORY_KEYS = ("essential", "luxury", "investment", "other")
 def seed_user(conn: sqlite3.Connection, user_id: int, today: date, lang: str) -> dict:
     """Settings, expense types, goal categories and the current month. Returns the month."""
     with transaction(conn):
-        settings.create_settings(conn, user_id, t("seed.currency", lang))
+        settings.create_settings(conn, user_id, currency.DEFAULT)
         for key, role in DEFAULT_TYPE_KEYS:
             base.insert(conn, user_id, "expense_types",
                         {"name_key": key, "role": role.value, "is_system": role != Role.OTHER})

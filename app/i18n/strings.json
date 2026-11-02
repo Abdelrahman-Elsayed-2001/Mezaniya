@@ -560,7 +560,8 @@
     "emergency_ref_months_hint": {"ar": "المرجع = (الأساسيات + الأقساط) × الأشهر × المعامل", "en": "Reference = (essentials + installments) × months × factor"},
     "emergency_ref_factor": {"ar": "معامل زيادة مرجع الطوارئ", "en": "Emergency reference factor"},
     "emergency_ref_factor_hint": {"ar": "1.25 تعني احتياطيًا إضافيًا بنسبة 25%", "en": "1.25 means a 25% extra buffer"},
-    "currency": {"ar": "العملة", "en": "Currency"},
+    "currency": {"ar": "العملة الأساسية", "en": "Base currency"},
+    "currency_hint": {"ar": "كل الحسابات والمجاميع تظهر بها.", "en": "All totals and calculations are shown in it."},
     "types_title": {"ar": "أنواع المصروفات", "en": "Expense types"},
     "types_hint": {"ar": "التصنيف هو ما يحدد الحسابات (أساسي، كمالي، أقساط، ادخار، طوارئ). يمكن تغيير أسماء الأنواع الخمسة الأساسية فقط. الأنواع الأصلية تظهر بلغة الواجهة؛ إن غيّرت اسمًا ثبت كما كتبته، وإن أعدته لاسمه الأصلي عاد يتبع اللغة.", "en": "The category drives the calculations (essential, luxury, installments, savings, emergency). The five core types can only be renamed. The original types follow the interface language; a name you change stays as you wrote it, and changing it back to the original makes it follow the language again."},
     "types_name": {"ar": "الاسم", "en": "Name"},
@@ -600,8 +601,62 @@
     "other": {"ar": "مصروف عادي", "en": "Regular expense"}
   },
 
+  "currency": {
+    "SAR": {
+      "symbol": {"ar": "ر.س", "en": "SAR"},
+      "name": {"ar": "ريال سعودي", "en": "Saudi riyal"}
+    },
+    "EGP": {
+      "symbol": {"ar": "ج.م", "en": "EGP"},
+      "name": {"ar": "جنيه مصري", "en": "Egyptian pound"}
+    },
+    "AED": {
+      "symbol": {"ar": "د.إ", "en": "AED"},
+      "name": {"ar": "درهم إماراتي", "en": "UAE dirham"}
+    },
+    "KWD": {
+      "symbol": {"ar": "د.ك", "en": "KWD"},
+      "name": {"ar": "دينار كويتي", "en": "Kuwaiti dinar"}
+    },
+    "QAR": {
+      "symbol": {"ar": "ر.ق", "en": "QAR"},
+      "name": {"ar": "ريال قطري", "en": "Qatari riyal"}
+    },
+    "BHD": {
+      "symbol": {"ar": "د.ب", "en": "BHD"},
+      "name": {"ar": "دينار بحريني", "en": "Bahraini dinar"}
+    },
+    "OMR": {
+      "symbol": {"ar": "ر.ع", "en": "OMR"},
+      "name": {"ar": "ريال عماني", "en": "Omani rial"}
+    },
+    "JOD": {
+      "symbol": {"ar": "د.أ", "en": "JOD"},
+      "name": {"ar": "دينار أردني", "en": "Jordanian dinar"}
+    },
+    "USD": {
+      "symbol": {"ar": "$", "en": "USD"},
+      "name": {"ar": "دولار أمريكي", "en": "US dollar"}
+    },
+    "EUR": {
+      "symbol": {"ar": "€", "en": "EUR"},
+      "name": {"ar": "يورو", "en": "Euro"}
+    },
+    "GBP": {
+      "symbol": {"ar": "£", "en": "GBP"},
+      "name": {"ar": "جنيه إسترليني", "en": "British pound"}
+    },
+    "TRY": {
+      "symbol": {"ar": "ل.ت", "en": "TRY"},
+      "name": {"ar": "ليرة تركية", "en": "Turkish lira"}
+    },
+    "MAD": {
+      "symbol": {"ar": "د.م", "en": "MAD"},
+      "name": {"ar": "درهم مغربي", "en": "Moroccan dirham"}
+    }
+  },
+
   "seed": {
-    "currency": {"ar": "ر.س", "en": "SAR"},
     "type": {
       "emergency": {"ar": "طوارئ", "en": "Emergency"},
       "savings": {"ar": "ادخار", "en": "Savings"},

@@ -38,6 +38,29 @@ CREATE TABLE user_settings (
   PRIMARY KEY (user_id, key)
 );
 
+-- Currencies a user can pick (app/currency.py holds the same list; a test keeps them equal).
+-- Symbols and names are strings.json "currency.<code>.symbol" / ".name".
+CREATE TABLE currencies (
+  code TEXT PRIMARY KEY CHECK (length(code) = 3 AND code = upper(code)),
+  decimals INTEGER NOT NULL CHECK (decimals BETWEEN 0 AND 3),
+  sort_order INTEGER NOT NULL
+);
+
+INSERT INTO currencies (code, decimals, sort_order) VALUES
+  ('SAR', 2, 1),
+  ('EGP', 2, 2),
+  ('AED', 2, 3),
+  ('KWD', 3, 4),
+  ('QAR', 2, 5),
+  ('BHD', 3, 6),
+  ('OMR', 3, 7),
+  ('JOD', 3, 8),
+  ('USD', 2, 9),
+  ('EUR', 2, 10),
+  ('GBP', 2, 11),
+  ('TRY', 2, 12),
+  ('MAD', 2, 13);
+
 INSERT INTO default_settings (key, default_value, type) VALUES
   ('excellent_rate', '0.2', 'rate'),
   ('good_rate', '0.1', 'rate'),
@@ -48,7 +71,7 @@ INSERT INTO default_settings (key, default_value, type) VALUES
   ('saving_rate_em_complete', '0.5', 'rate'),
   ('emergency_ref_months', '3', 'number'),
   ('emergency_ref_factor', '1.25', 'number'),
-  ('currency', '', 'text'),             -- set from the user's language when the account is created
+  ('currency', 'SAR', 'text'),          -- the base currency: a code from currencies
   ('theme', 'auto', 'text'),
   -- the dashboards' layout (app/dashboard.py); a test keeps it equal to default_dashboards()
   ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["incomes","summary"],["expenses"],["by_type","payments","suggestions"],["warnings"],["emergency","savings","progress"],["goals"],["daily","notes"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details","notes"]}', 'json');

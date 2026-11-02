@@ -38,7 +38,7 @@ def test_reset_removes_the_row(conn, alice):
 
 def test_values_are_validated(conn, alice):
     for bad in ({"good_rate": "abc"}, {"good_rate": True}, {"good_rate": float("nan")},
-                {"currency": 5}, {"currency": "x" * 11}):
+                {"currency": 5}, {"currency": "x" * 11}, {"currency": "XYZ"}, {"currency": "sar"}):
         with pytest.raises(Conflict):
             settings.update_settings(conn, alice, bad)
     assert settings.get_settings(conn, alice)["good_rate"] == 0.1

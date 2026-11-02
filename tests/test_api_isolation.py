@@ -93,8 +93,8 @@ def test_lists_are_per_user(world):
 
 
 def test_settings_are_per_user(world):
-    world["alice"].patch("/api/settings", {"currency": "ج.م"})
-    assert world["bob"].get("/api/settings").get_json()["currency"] == "ر.س"
+    world["alice"].patch("/api/settings", {"currency": "EGP"})
+    assert world["bob"].get("/api/settings").get_json()["currency"] == "SAR"
 
 
 @pytest.mark.parametrize("n", range(ATTACK_COUNT))
