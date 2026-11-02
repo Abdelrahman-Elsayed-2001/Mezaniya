@@ -16,7 +16,10 @@
         <tbody>
           <tr :class="g.valid ? '' : 'ignored'">
             <td><div class="name-cell"><input :value="g.name" @change="updateItem('goals', g, 'name', $event.target.value)">
-                <button class="icon-btn note" type="button" :class="g.notes ? 'has-note' : ''" :title="g.notes || t('common.note_add')" @click="toggleNotes('goals', g)">📝</button></div></td>
+                <button class="icon-btn note" type="button" :class="g.notes ? 'has-note' : ''" :title="g.notes || t('common.note_add')" @click="toggleNotes('goals', g)">📝</button>
+                <select class="cur-select" title="{{ t('common.currency') }}" @change="updateItem('goals', g, 'currency', $event.target.value)">
+                  <template x-for="c in d.currencies" :key="c.code"><option :value="c.code" :selected="c.code === (g.currency ?? d.currency.code)" x-text="c.code"></option></template>
+                </select></div></td>
             <td>
               <select @change="updateItem('goals', g, 'category_id', $event.target.value ? Number($event.target.value) : null)">
                 <option value="" :selected="g.category_id === null">—</option>

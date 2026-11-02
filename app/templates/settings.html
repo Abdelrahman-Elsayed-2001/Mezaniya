@@ -135,7 +135,7 @@
         <table class="grid">
           <thead>
             <tr><th>{{ t('settings.templates_kind') }}</th><th class="w-name">{{ t('settings.templates_name') }}</th>
-              <th>{{ t('settings.templates_expense_type') }}</th><th>{{ t('settings.templates_amount') }}</th>
+              <th>{{ t('settings.templates_expense_type') }}</th><th>{{ t('settings.templates_amount') }}</th><th>{{ t('common.currency') }}</th>
               <th title="{{ t('incomes.withdrawal_hint') }}">{{ t('settings.templates_withdrawal') }}</th>
               <th>{{ t('settings.templates_active') }}</th><th>{{ t('settings.templates_notes') }}</th><th></th></tr>
           </thead>
@@ -154,6 +154,9 @@
                 </td>
                 <td><input class="num" type="number" step="0.01" min="0" placeholder="{{ t('settings.templates_variable') }}" :value="tp.amount ?? ''"
                            @change="updateRow('templates', tp, {amount: numOrNull($event.target.value)})"></td>
+                <td><select class="cur-select" @change="updateRow('templates', tp, {currency: $event.target.value})">
+                  {% for c in currencies %}<option value="{{ c.code }}" :selected="(tp.currency ?? settings.currency) === '{{ c.code }}'">{{ c.code }}</option>{% endfor %}
+                </select></td>
                 <td class="center"><input type="checkbox" x-show="tp.kind === 'income'" :checked="tp.is_savings_withdrawal"
                            @change="updateRow('templates', tp, {is_savings_withdrawal: $event.target.checked})"></td>
                 <td class="center"><input type="checkbox" :checked="tp.active"
@@ -182,6 +185,7 @@
               </td>
               <td><input class="num" type="number" step="0.01" min="0" placeholder="{{ t('settings.templates_variable') }}" x-model="newTemplate.amount"
                          @keydown.enter="addTemplate()"></td>
+              <td></td>
               <td class="center"><input type="checkbox" x-show="newTemplate.kind === 'income'" x-model="newTemplate.is_savings_withdrawal"></td>
               <td colspan="2"></td>
               <td><button class="icon-btn add" type="button" title="{{ t('common.add') }}" @click="addTemplate()">+</button></td>

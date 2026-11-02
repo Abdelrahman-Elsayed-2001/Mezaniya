@@ -31,6 +31,7 @@
     "error_generic": {"ar": "حدث خطأ، حاول مرة أخرى.", "en": "Something went wrong. Please try again."},
     "error_network": {"ar": "تعذّر الاتصال بالخادم، تحقّق من الاتصال.", "en": "Can't reach the server. Check your connection."},
     "note_add": {"ar": "إضافة ملاحظة", "en": "Add a note"},
+    "currency": {"ar": "العملة", "en": "Currency"},
     "note_placeholder": {"ar": "ملاحظة…", "en": "Note…"},
     "dash": {"ar": "—", "en": "—"},
     "list_sep": {"ar": "، ", "en": ", "}
@@ -361,6 +362,11 @@
     "goals_monthly_pool": {"ar": "المتاح للأهداف شهريًا", "en": "Available for goals each month"}
   },
 
+  "balances": {
+    "add": {"ar": "+ رصيد بعملة أخرى", "en": "+ Balance in another currency"},
+    "add_hint": {"ar": "مال تحتفظ به بعملة غير العملة الأساسية، مثل نقد بالجنيه", "en": "Money you keep in a currency other than the base one, e.g. cash in another currency"}
+  },
+
   "month_notes": {
     "title": {"ar": "ملاحظات الشهر", "en": "Notes for the month"},
     "placeholder": {"ar": "اكتب أي ملاحظات عن هذا الشهر…", "en": "Anything worth remembering about this month…"},
@@ -476,6 +482,7 @@
       "choice": {"ar": "يجب أن تكون قيمة «{field}» إحدى: {choices}", "en": "“{field}” must be one of: {choices}"},
       "date": {"ar": "يجب أن تكون قيمة «{field}» تاريخًا بالصيغة YYYY-MM-DD", "en": "“{field}” must be a date in the form YYYY-MM-DD"},
       "period": {"ar": "الشهر أو السنة غير صحيحين", "en": "Invalid month or year"},
+      "balance_in_base_currency": {"ar": "هذه هي العملة الأساسية: اكتب المبلغ في الرصيد الحالي نفسه", "en": "That is the base currency: enter the amount in the current balance itself"},
       "period_pair": {"ar": "أرسل السنة والشهر معًا", "en": "Send the year and the month together"},
       "rollover_options": {"ar": "هذه الخيارات تعمل فقط مع النسخ من الشهر السابق", "en": "These options only work when copying from the previous month"},
       "template_kind": {"ar": "هذا البند المتكرر من نوع آخر", "en": "This recurring item is of a different kind"},

@@ -41,6 +41,7 @@ class PlannedIncome:
     template_id: int | None
     notes: str | None
     name_key: str | None = None       # set when the name is a translation (see base.name_values)
+    currency: str | None = None       # None = the base currency
 
 
 @dataclass
@@ -58,6 +59,7 @@ class PlannedExpense:
     prev_expense_id: int | None = None
     notes: str | None = None
     name_key: str | None = None
+    currency: str | None = None
 
 
 @dataclass
@@ -70,6 +72,7 @@ class PlannedGoal:
     notes: str | None
     completed: bool
     name_key: str | None = None
+    currency: str | None = None
 
 
 @dataclass
@@ -151,7 +154,8 @@ def plan_rollover(conn: sqlite3.Connection, user_id: int, year: int, month: int,
     def template_line(t: dict, prev_id: int | None) -> PlannedExpense:
         return PlannedExpense("template", t["name"], t["type_id"], cash_amount=t["amount"] or 0,
                               needs_amount=t["amount"] is None, template_id=t["id"],
-                              prev_expense_id=prev_id, notes=t["notes"], name_key=_key(t))
+                              prev_expense_id=prev_id, notes=t["notes"], name_key=_key(t),
+                              currency=t["currency"])
 
     plan = RolloverPlan(
         source=src, year=year, month=month,
@@ -173,25 +177,26 @@ def plan_rollover(conn: sqlite3.Connection, user_id: int, year: int, month: int,
             out = PlannedExpense("installment", r["name"], r["type_id"],
                                  inst_balance=_f(balance - balance / count), inst_count=count - 1,
                                  inst_original_count=r["inst_original_count"], prev_expense_id=r["id"],
-                                 notes=r["notes"], name_key=_key(r))
+                                 notes=r["notes"], name_key=_key(r), currency=r["currency"])
         carry = line.due if r["id"] in carry_unpaid_ids else line.deferred
         if carry > 0:
             if out is None:
                 out = PlannedExpense("carry", r["name"], r["type_id"], prev_expense_id=r["id"], notes=carry_note,
-                                      name_key=_key(r))
+                                      name_key=_key(r), currency=r["currency"])
             out.carried_in = _f(carry)
         if out is not None:
             plan.expenses.append(out)
     plan.expenses += [template_line(t, None) for tid, t in expense_templates.items() if tid not in used_templates]
 
     plan.incomes = [PlannedIncome(t["name"], t["amount"] or 0, t["is_savings_withdrawal"], t["amount"] is None,
-                                  t["id"], t["notes"], name_key=_key(t))
+                                  t["id"], t["notes"], name_key=_key(t),
+                                  currency=t["currency"])
                     for t in active if t["kind"] == "income"]
 
     goal_rows = base.list_rows(conn, user_id, "goals", budget_id=src["id"])
     plan.goals = [PlannedGoal(g["name"], g["category_id"], g["target_amount"], g["priority"],
                               g["manual_allocation"], g["notes"], completed=line.valid and line.remaining == 0,
-                              name_key=_key(g))
+                              name_key=_key(g), currency=g["currency"])
                   for g, line in zip(goal_rows, d.goals.lines)]
     return plan
 
@@ -210,6 +215,7 @@ def create_from_previous(conn: sqlite3.Connection, user_id: int, year: int, mont
             opening["savings_current"] = round(opening["savings_current"] + plan.return_to_savings, 2)
         opening.update(balances or {})
         budget = budgets.create_budget(conn, user_id, year, month, source_budget_id=plan.source["id"], **opening)
+        budgets.copy_balances(conn, user_id, plan.source["id"], budget["id"])
 
         for i in plan.incomes:
             values = asdict(i)
@@ -249,11 +255,12 @@ def apply_templates(conn: sqlite3.Connection, user_id: int, budget_id: int) -> i
             if t["kind"] == "income":
                 budgets.create_item(conn, user_id, "incomes", budget_id, {
                     **base.name_values(t, "name", "source"), "amount": t["amount"] or 0, "needs_amount": t["amount"] is None,
-                    "is_savings_withdrawal": t["is_savings_withdrawal"], "template_id": t["id"], "notes": t["notes"]})
+                    "is_savings_withdrawal": t["is_savings_withdrawal"], "template_id": t["id"], "notes": t["notes"],
+                    "currency": t["currency"]})
             else:
                 budgets.create_item(conn, user_id, "expenses", budget_id, {
                     **base.name_values(t), "type_id": t["type_id"], "cash_amount": t["amount"] or 0,
                     "needs_amount": t["amount"] is None, "template_id": t["id"], "notes": t["notes"],
-                    "prev_expense_id": prev_rows.get(t["id"])})
+                    "prev_expense_id": prev_rows.get(t["id"]), "currency": t["currency"]})
             added += 1
     return added

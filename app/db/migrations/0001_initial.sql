@@ -39,7 +39,9 @@ CREATE TABLE user_settings (
 );
 
 -- Currencies a user can pick (app/currency.py holds the same list; a test keeps them equal).
--- Symbols and names are strings.json "currency.<code>.symbol" / ".name".
+-- Symbols and names are strings.json "currency.<code>.symbol" / ".name". The user's base
+-- currency is the setting 'currency'; an item's `currency` column is NULL in the base currency
+-- (so most rows never name one) or the code of another currency its amounts are kept in.
 CREATE TABLE currencies (
   code TEXT PRIMARY KEY CHECK (length(code) = 3 AND code = upper(code)),
   decimals INTEGER NOT NULL CHECK (decimals BETWEEN 0 AND 3),
@@ -139,6 +141,7 @@ CREATE TABLE recurring_templates (
   name TEXT,
   type_id INTEGER,
   amount REAL CHECK (amount IS NULL OR amount >= 0),     -- NULL = variable price
+  currency TEXT REFERENCES currencies(code),             -- NULL = the base currency (see "Currencies")
   is_savings_withdrawal INTEGER NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1,
   notes TEXT,
@@ -167,6 +170,21 @@ CREATE TABLE budgets (
   FOREIGN KEY (source_budget_id, user_id) REFERENCES budgets(id, user_id)
 );
 
+-- Savings / emergency money kept in another currency (e.g. EGP cash while the base is SAR),
+-- one row per month, kind and currency; budgets.savings_current / emergency_current stay the
+-- part in the base currency. A new month copies these rows as they are.
+CREATE TABLE budget_balances (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  budget_id INTEGER NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('savings','emergency')),
+  currency TEXT NOT NULL REFERENCES currencies(code),
+  amount REAL NOT NULL DEFAULT 0 CHECK (amount >= 0),
+  UNIQUE (budget_id, kind, currency),
+  UNIQUE (id, user_id),
+  FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE
+);
+
 CREATE TABLE incomes (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -174,6 +192,7 @@ CREATE TABLE incomes (
   name_key TEXT,
   source TEXT,
   amount REAL NOT NULL DEFAULT 0 CHECK (amount >= 0),
+  currency TEXT REFERENCES currencies(code),
   is_savings_withdrawal INTEGER NOT NULL DEFAULT 0,
   template_id INTEGER,
   needs_amount INTEGER NOT NULL DEFAULT 0,
@@ -192,6 +211,7 @@ CREATE TABLE expenses (
   name_key TEXT,
   name TEXT,
   type_id INTEGER NOT NULL,
+  currency TEXT REFERENCES currencies(code),            -- every amount of the row is in it
   cash_amount REAL NOT NULL DEFAULT 0 CHECK (cash_amount >= 0),
   inst_balance REAL NOT NULL DEFAULT 0 CHECK (inst_balance >= 0),        -- remaining installment balance
   inst_count INTEGER NOT NULL DEFAULT 0 CHECK (inst_count >= 0),          -- remaining payments
@@ -220,6 +240,7 @@ CREATE TABLE goals (
   name_key TEXT,
   name TEXT,
   category_id INTEGER,
+  currency TEXT REFERENCES currencies(code),            -- target and manual amount are in it
   target_amount REAL CHECK (target_amount IS NULL OR target_amount >= 0),
   priority REAL CHECK (priority IS NULL OR priority >= 0),               -- NULL = auto (≠ 0)
   manual_allocation REAL CHECK (manual_allocation IS NULL OR manual_allocation >= 0),

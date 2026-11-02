@@ -10,7 +10,10 @@
           <tr :class="i.needs_amount ? 'needs' : ''">
             <td><div class="name-cell"><input :value="i.source" @change="updateItem('incomes', i, 'source', $event.target.value)"
                        :title="i.needs_amount ? t('incomes.needs_amount') : ''">
-                <button class="icon-btn note" type="button" :class="i.notes ? 'has-note' : ''" :title="i.notes || t('common.note_add')" @click="toggleNotes('incomes', i)">📝</button></div></td>
+                <button class="icon-btn note" type="button" :class="i.notes ? 'has-note' : ''" :title="i.notes || t('common.note_add')" @click="toggleNotes('incomes', i)">📝</button>
+                <select class="cur-select" title="{{ t('common.currency') }}" @change="updateItem('incomes', i, 'currency', $event.target.value)">
+                  <template x-for="c in d.currencies" :key="c.code"><option :value="c.code" :selected="c.code === (i.currency ?? d.currency.code)" x-text="c.code"></option></template>
+                </select></div></td>
             <td><input class="num" type="number" step="0.01" min="0" inputmode="decimal" :value="i.amount"
                        @change="updateItem('incomes', i, 'amount', num($event.target.value))"></td>
             <td class="center"><input type="checkbox" :checked="i.is_savings_withdrawal"

@@ -120,6 +120,8 @@ def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang:
         "budget": {**budget, "days_in_month": d.suggestions.days_in_month},
         "settings": user_settings,
         "currency": money_currency.info(user_settings["currency"], lang),
+        "currencies": money_currency.options(lang),
+        "balances": budgets.list_balances(conn, user_id, budget_id),
         "expense_types": type_rows,
         "goal_categories": types.list_goal_categories(conn, user_id),
         "incomes": base.list_rows(conn, user_id, "incomes", budget_id=budget_id),

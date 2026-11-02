@@ -3,8 +3,9 @@ from __future__ import annotations
 
 from flask import jsonify
 
+from app import currency
 from app.db import get_db, transaction
-from app.db.repo import Conflict, base, budgets
+from app.db.repo import Conflict, base, budgets, settings
 from app.db.repo.loader import load_budget_input
 from app.engine import validate
 from app.i18n import current_lang
@@ -39,12 +40,19 @@ ROLLOVER_PREVIEW = {
 ROLLOVER_OPTIONS = ("carry_unpaid_ids", "add_return_to_savings", "drop_completed_goals")
 _NOTES = Field(optional_text, nullable=True, max_len=1000)
 _SORT = Field(count)
+_CURRENCY = Field(choice, nullable=True, choices=tuple(currency.CURRENCIES))   # null = base currency
+BALANCE = {
+    "kind": Field(choice, required=True, choices=budgets.BALANCE_KINDS),
+    "currency": Field(choice, required=True, choices=tuple(currency.CURRENCIES)),
+    "amount": Field(money, required=True),
+}
 BUDGET_EDIT = {**BALANCES, "notes": Field(optional_text, nullable=True, max_len=5000)}
 
 ITEM_SPECS = {
     "incomes": {
         "source": Field(text, required=True, max_len=100),
         "amount": Field(money),
+        "currency": _CURRENCY,
         "is_savings_withdrawal": Field(boolean),
         "needs_amount": Field(boolean),
         "template_id": Field(ref_id, nullable=True),
@@ -54,6 +62,7 @@ ITEM_SPECS = {
     "expenses": {
         "name": Field(text, required=True, max_len=100),
         "type_id": Field(ref_id, required=True),
+        "currency": _CURRENCY,
         "cash_amount": Field(money),
         "inst_balance": Field(money),
         "inst_count": Field(count, max_value=600),
@@ -70,6 +79,7 @@ ITEM_SPECS = {
     "goals": {
         "name": Field(text, required=True, max_len=100),
         "category_id": Field(ref_id, nullable=True),
+        "currency": _CURRENCY,
         "target_amount": Field(money, nullable=True),
         "priority": Field(ratio, nullable=True),
         "manual_allocation": Field(money, nullable=True),
@@ -79,6 +89,12 @@ ITEM_SPECS = {
 }
 EXPENSE_DEFAULTS = {"cash_amount": 0, "inst_balance": 0, "inst_count": 0, "carried_in": 0,
                     "status": "unpaid", "deferred_amount": 0, "needs_amount": False}
+
+
+def base_currency_to_null(conn, user_id: int, values: dict) -> None:
+    """An item in the base currency stores NULL, so it follows the base currency."""
+    if values.get("currency") is not None and values["currency"] == settings.get_settings(conn, user_id)["currency"]:
+        values["currency"] = None
 
 
 def _kind(kind: str) -> str:
@@ -232,6 +248,18 @@ def update_budget(budget_id: int):
     return jsonify(dashboard_json(conn, uid(), budget_id, current_lang()))
 
 
+@bp.put("/budgets/<int:budget_id>/balances")
+def set_balance(budget_id: int):
+    """Savings / emergency money held in another currency; amount 0 removes it."""
+    values = parse(BALANCE, body(), partial=False)
+    conn, user_id = get_db(), uid()
+    if values["currency"] == settings.get_settings(conn, user_id)["currency"]:
+        raise invalid("api.err.balance_in_base_currency", "currency")
+    with transaction(conn):
+        budgets.set_balance(conn, user_id, budget_id, values["kind"], values["currency"], values["amount"])
+    return jsonify(dashboard_json(conn, user_id, budget_id, current_lang()))
+
+
 @bp.delete("/budgets/<int:budget_id>")
 def delete_budget(budget_id: int):
     """Any month can go, except one another month was copied from (its carry-overs live there)
@@ -260,6 +288,7 @@ def create_item(budget_id: int, kind: str):
     conn, user_id = get_db(), uid()
     budgets.get_budget(conn, user_id, budget_id)
     values = _apply_rules(kind, None, parse(ITEM_SPECS[kind], body(), partial=False))
+    base_currency_to_null(conn, user_id, values)
     with transaction(conn):
         _check_template(conn, user_id, kind, values)
         item = budgets.create_item(conn, user_id, kind, budget_id, values)
@@ -275,6 +304,7 @@ def update_item(budget_id: int, kind: str, item_id: int):
     conn, user_id = get_db(), uid()
     current = budgets.get_item(conn, user_id, kind, budget_id, item_id)
     values = _apply_rules(kind, current, parse(ITEM_SPECS[kind], body(), partial=True))
+    base_currency_to_null(conn, user_id, values)
     with transaction(conn):
         _check_template(conn, user_id, kind, values)
         item = budgets.update_item(conn, user_id, kind, budget_id, item_id, values)

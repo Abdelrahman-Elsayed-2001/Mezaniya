@@ -20,7 +20,10 @@
           <tr :class="{ needs: e.needs_amount, paid: e.status === 'paid', deferred: e.status === 'deferred' }">
             <td><div class="name-cell"><input :value="e.name" @change="updateItem('expenses', e, 'name', $event.target.value)"
                        :title="e.needs_amount ? t('expenses.needs_amount') : ''">
-                <button class="icon-btn note" type="button" :class="e.notes ? 'has-note' : ''" :title="e.notes || t('common.note_add')" @click="toggleNotes('expenses', e)">📝</button></div></td>
+                <button class="icon-btn note" type="button" :class="e.notes ? 'has-note' : ''" :title="e.notes || t('common.note_add')" @click="toggleNotes('expenses', e)">📝</button>
+                <select class="cur-select" title="{{ t('common.currency') }}" @change="updateItem('expenses', e, 'currency', $event.target.value)">
+                  <template x-for="c in d.currencies" :key="c.code"><option :value="c.code" :selected="c.code === (e.currency ?? d.currency.code)" x-text="c.code"></option></template>
+                </select></div></td>
             <td>
               <select @change="updateItem('expenses', e, 'type_id', Number($event.target.value))">
                 <template x-for="ty in d.expense_types" :key="ty.id">

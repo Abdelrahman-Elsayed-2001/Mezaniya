@@ -103,3 +103,36 @@ def update_item(conn: sqlite3.Connection, user_id: int, table: str, budget_id: i
 def delete_item(conn: sqlite3.Connection, user_id: int, table: str, budget_id: int, item_id: int) -> None:
     get_item(conn, user_id, table, budget_id, item_id)
     base.delete(conn, user_id, table, item_id)
+
+
+# ---------- balances kept in another currency (budget_balances)
+
+BALANCE_KINDS = ("savings", "emergency")
+
+
+def list_balances(conn: sqlite3.Connection, user_id: int, budget_id: int) -> list[dict]:
+    base.get(conn, user_id, "budgets", budget_id)
+    return base.list_rows(conn, user_id, "budget_balances", budget_id=budget_id)
+
+
+def set_balance(conn: sqlite3.Connection, user_id: int, budget_id: int, kind: str, currency: str,
+                amount: float) -> None:
+    """The month's `kind` money held in `currency`; 0 removes the row."""
+    if kind not in BALANCE_KINDS:
+        raise ValueError(kind)
+    base.get(conn, user_id, "budgets", budget_id)
+    row = conn.execute("SELECT id FROM budget_balances WHERE user_id = ? AND budget_id = ? AND kind = ? "
+                       "AND currency = ?", (user_id, budget_id, kind, currency)).fetchone()
+    if amount == 0:
+        if row:
+            base.delete(conn, user_id, "budget_balances", row["id"])
+    elif row:
+        base.update(conn, user_id, "budget_balances", row["id"], {"amount": amount})
+    else:
+        base.insert(conn, user_id, "budget_balances",
+                    {"budget_id": budget_id, "kind": kind, "currency": currency, "amount": amount})
+
+
+def copy_balances(conn: sqlite3.Connection, user_id: int, from_budget_id: int, to_budget_id: int) -> None:
+    for r in list_balances(conn, user_id, from_budget_id):
+        set_balance(conn, user_id, to_budget_id, r["kind"], r["currency"], r["amount"])

@@ -64,6 +64,7 @@ document.addEventListener("alpine:init", () => {
     newIncome: { source: "", amount: "", is_savings_withdrawal: false },
     newExpense: emptyExpense(),
     newGoal: { name: "", target_amount: "" },
+    newBalance: { savings: { currency: "", amount: "" }, emergency: { currency: "", amount: "" } },
     openNotes: {},
     hoverDay: null,
     showDailyTable: false,
@@ -299,6 +300,33 @@ document.addEventListener("alpine:init", () => {
     },
 
     // ---------- edits
+
+    // savings / emergency money held in other currencies
+    foreignBalances(kind) {
+      return (this.d.balances || []).filter((b) => b.kind === kind);
+    },
+
+    otherCurrencies(kind) {
+      const used = new Set(this.foreignBalances(kind).map((b) => b.currency));
+      return this.d.currencies.filter((c) => c.code !== this.d.currency.code && !used.has(c.code));
+    },
+
+    currencyName(code) {
+      const c = this.d.currencies.find((x) => x.code === code);
+      return c ? `${c.name} (${c.symbol})` : code;
+    },
+
+    async setForeignBalance(kind, currency, amount) {
+      const r = await this.request("PUT", this.budgetUrl("/balances"), { kind, currency, amount: this.num(amount) });
+      if (r) this.setDashboard(r);
+    },
+
+    async addForeignBalance(kind) {
+      const n = this.newBalance[kind];
+      if (!n.currency || n.amount === "") return;
+      await this.setForeignBalance(kind, n.currency, n.amount);
+      this.newBalance[kind] = { currency: "", amount: "" };
+    },
 
     async setBalance(field, value) {
       const r = await this.request("PATCH", this.budgetUrl(), { [field]: this.num(value) });

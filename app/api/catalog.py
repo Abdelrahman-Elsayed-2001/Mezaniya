@@ -9,6 +9,7 @@ from app.db.repo import base, settings, templates, types
 from app.i18n import current_lang, t
 
 from . import bp, uid
+from .budgets import base_currency_to_null
 from .errors import invalid
 from .validation import Field, body, boolean, choice, count, money, number, optional_text, parse, ratio, ref_id, text
 
@@ -42,6 +43,7 @@ TEMPLATE = {
     "name": Field(text, required=True, max_len=100),
     "type_id": Field(ref_id, nullable=True),
     "amount": Field(money, nullable=True),          # empty = variable price
+    "currency": Field(choice, nullable=True, choices=tuple(currency.CURRENCIES)),   # null = base currency
     "is_savings_withdrawal": Field(boolean),
     "active": Field(boolean),
     "notes": Field(optional_text, nullable=True, max_len=1000),
@@ -171,7 +173,9 @@ def list_templates():
 def create_template():
     values = parse(TEMPLATE, body(), partial=False)
     _check_template(values)
-    return jsonify(templates.create_template(get_db(), uid(), values)), 201
+    conn = get_db()
+    base_currency_to_null(conn, uid(), values)
+    return jsonify(templates.create_template(conn, uid(), values)), 201
 
 
 @bp.patch("/templates/<int:template_id>")
@@ -180,6 +184,7 @@ def update_template(template_id: int):
     conn = get_db()
     current = base.get(conn, uid(), "recurring_templates", template_id)
     _check_template({**current, **values})
+    base_currency_to_null(conn, uid(), values)
     return jsonify(templates.update_template(conn, uid(), template_id, values))
 
 

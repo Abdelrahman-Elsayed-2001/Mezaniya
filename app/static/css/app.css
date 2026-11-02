@@ -721,3 +721,8 @@ details[open].card summary { margin-bottom: 12px; }
   background: var(--bg);
   color: var(--text);
 }
+
+/* an item's currency (in the name cell) and balances in other currencies */
+.grid select.cur-select { min-width: 0; width: auto; flex: none; padding-inline: 4px; font-size: 0.85rem; }
+.kv tr.add-balance select { max-width: 100%; font-size: 0.88rem; color: var(--muted); }
+.kv tr.foreign-balance th { font-size: 0.92rem; }

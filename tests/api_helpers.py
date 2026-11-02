@@ -29,6 +29,9 @@ class Api:
     def patch(self, url, body=None):
         return self.client.patch(url, json=body if body is not None else {}, headers=H)
 
+    def put(self, url, body=None):
+        return self.client.put(url, json=body if body is not None else {}, headers=H)
+
     def delete(self, url):
         return self.client.delete(url, headers=H)
 

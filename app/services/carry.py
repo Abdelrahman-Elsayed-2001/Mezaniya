@@ -46,12 +46,16 @@ def sync_expense(conn: sqlite3.Connection, user_id: int, expense_id: int, *, del
     if not linked:
         if amount > 0:
             base.insert(conn, user_id, "expenses", {
-                "budget_id": nxt["id"], **base.name_values(row), "type_id": row["type_id"], "carried_in": amount,
+                "budget_id": nxt["id"], **base.name_values(row), "type_id": row["type_id"],
+                "currency": row["currency"], "carried_in": amount,
                 "prev_expense_id": expense_id,
                 "notes": tr("rollover.carry_note", lang, label=label(month["year"], month["month"]))})
         return
 
     target = linked[0]
+    if _is_carry_only(target) and target["currency"] != row["currency"]:
+        # a row that only carries this one follows its currency
+        target = base.update(conn, user_id, "expenses", target["id"], {"currency": row["currency"]})
     if target["carried_in"] == amount:
         return
     if amount == 0 and _is_carry_only(target):
