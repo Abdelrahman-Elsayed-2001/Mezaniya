@@ -49,7 +49,7 @@ TABLES: dict[str, Table] = {t.name: t for t in (
     _t("recurring_templates",
        "kind name type_id amount is_savings_withdrawal active notes sort_order",
        refs={"type_id": "expense_types"}, bools=("is_savings_withdrawal", "active")),
-    _t("budgets", "year month emergency_current emergency_min savings_current source_budget_id",
+    _t("budgets", "year month emergency_current emergency_min savings_current source_budget_id notes",
        refs={"source_budget_id": "budgets"}, order_by="year, month"),
     _t("incomes",
        "budget_id source amount is_savings_withdrawal template_id needs_amount notes sort_order",

@@ -71,12 +71,22 @@ class IncompatibleDatabase(RuntimeError):
     pass
 
 
+# Bumped whenever 0001_initial.sql changes in a way older databases can't follow while in beta
+# (the schema is edited in place, not migrated). 0001 stamps it with PRAGMA user_version.
+#   1 = beta 0.1.0 (never stamped, reads as 0), 2 = beta 0.2.0 (never stamped either),
+#   3 = beta 0.3.0: monthly notes, ...
+SCHEMA_GENERATION = 3
+
+
 def check_compatible(conn: sqlite3.Connection) -> None:
-    """Databases made by beta 0.1.0 (one column per setting) can't be opened by 0.2.0: while
-    in beta the schema is edited in place, not migrated. Fail with a clear message instead of
-    errors on the first request."""
-    cols = {row[1] for row in conn.execute("PRAGMA table_info(user_settings)")}
-    if cols and "key" not in cols:
+    """A database made by an older beta can't be opened: fail with a clear message instead of
+    errors on the first request. An empty database (nothing but schema_version) is fine."""
+    tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    if not tables - {"schema_version"}:
+        return
+    generation = conn.execute("PRAGMA user_version").fetchone()[0]
+    if generation != SCHEMA_GENERATION:
         raise IncompatibleDatabase(
-            "This database was made by Mezaniya beta 0.1.0, which beta 0.2.0 can't open. "
-            "Move or delete the data folder (mezaniya.db) and start again.")
+            f"This database was made by an older beta of Mezaniya (schema {generation}), which this "
+            f"version (schema {SCHEMA_GENERATION}) can't open. Move or delete the data folder "
+            "(mezaniya.db) and start again.")

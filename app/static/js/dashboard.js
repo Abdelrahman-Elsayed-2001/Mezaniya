@@ -305,6 +305,13 @@ document.addEventListener("alpine:init", () => {
       if (r) this.setDashboard(r);
     },
 
+    async setMonthNotes(value) {
+      const notes = value.trim() || null;
+      if (notes === (this.d.budget.notes ?? null)) return;
+      const r = await this.request("PATCH", this.budgetUrl(), { notes });
+      if (r) this.setDashboard(r);
+    },
+
     updateItem(kind, item, field, value) {
       if (item[field] === value) return;
       return this.write("PATCH", this.budgetUrl(`/${kind}/${item.id}`), { [field]: value });

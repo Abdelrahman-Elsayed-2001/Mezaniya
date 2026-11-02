@@ -63,3 +63,21 @@ def test_beta_010_database_is_refused(tmp_path):
     with pytest.raises(IncompatibleDatabase):
         check_compatible(c)
     c.close()
+
+
+def test_beta_020_database_is_refused(tmp_path):
+    # 0.2.0 never stamped user_version: real tables but generation 0
+    c = connect(tmp_path / "old.db")
+    c.execute("CREATE TABLE budgets (id INTEGER PRIMARY KEY, year INTEGER, month INTEGER)")
+    with pytest.raises(IncompatibleDatabase):
+        check_compatible(c)
+    c.close()
+
+
+def test_new_database_is_stamped(tmp_path):
+    from app.db.connection import SCHEMA_GENERATION, migrate
+    c = connect(tmp_path / "new.db")
+    migrate(c)
+    assert c.execute("PRAGMA user_version").fetchone()[0] == SCHEMA_GENERATION
+    check_compatible(c)
+    c.close()

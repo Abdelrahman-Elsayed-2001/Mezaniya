@@ -2,6 +2,10 @@
 -- (x_id, user_id) → parent(id, user_id) make cross-user references impossible.
 -- Money is REAL (converted to Decimal through str() in the repository).
 --
+-- Schema generation, checked at startup (connection.SCHEMA_GENERATION): bump both together
+-- when an edit here means older beta databases can't be opened.
+PRAGMA user_version = 3;
+--
 -- Note: ON DELETE SET NULL can't be used on composite keys (it would null user_id too),
 -- so "set null on delete" is done with BEFORE DELETE triggers instead.
 
@@ -47,7 +51,7 @@ INSERT INTO default_settings (key, default_value, type) VALUES
   ('currency', '', 'text'),             -- set from the user's language when the account is created
   ('theme', 'auto', 'text'),
   -- the dashboards' layout (app/dashboard.py); a test keeps it equal to default_dashboards()
-  ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["incomes","summary"],["expenses"],["by_type","payments","suggestions"],["warnings"],["emergency","savings","progress"],["goals"],["daily"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details"]}', 'json');
+  ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["incomes","summary"],["expenses"],["by_type","payments","suggestions"],["warnings"],["emergency","savings","progress"],["goals"],["daily","notes"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details","notes"]}', 'json');
 
 -- Built-in colour themes: five base colours each; app/themes.py derives the rest. Names are
 -- strings.json "theme.<id>". A user's choice is user_settings key 'theme' ('auto' = follow
@@ -127,6 +131,7 @@ CREATE TABLE budgets (
   -- the month this one was copied from (rollover). Months can be created in any order;
   -- carry-overs are kept in sync only along this link.
   source_budget_id INTEGER,
+  notes TEXT,                           -- the month's general notes; not copied to the next month
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE (user_id, year, month),
   UNIQUE (id, user_id),

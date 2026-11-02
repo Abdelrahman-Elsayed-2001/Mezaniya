@@ -52,6 +52,18 @@ def test_budget_balances_patch(api):
     assert api.patch(f"/api/budgets/{b}", {"savings_current": -5}).status_code == 422
 
 
+def test_month_notes(api):
+    b = api.budget_id()
+    d = api.patch(f"/api/budgets/{b}", {"notes": "  دفعت الإيجار متأخر  "}).get_json()
+    assert d["budget"]["notes"] == "دفعت الإيجار متأخر"
+    assert api.patch(f"/api/budgets/{b}", {"notes": "x" * 5001}).status_code == 422
+    assert api.patch(f"/api/budgets/{b}", {"notes": None}).get_json()["budget"]["notes"] is None
+    # a month's notes stay with that month
+    api.patch(f"/api/budgets/{b}", {"notes": "only here"})
+    nxt = api.post("/api/budgets", {"year": 2040, "month": 1, "copy_from_previous": True}).get_json()
+    assert nxt["budget"]["notes"] is None
+
+
 def test_delete_month_rules(api):
     first = api.budget_id()
     r = api.delete(f"/api/budgets/{first}")

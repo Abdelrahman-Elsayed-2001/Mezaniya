@@ -39,6 +39,7 @@ ROLLOVER_PREVIEW = {
 ROLLOVER_OPTIONS = ("carry_unpaid_ids", "add_return_to_savings", "drop_completed_goals")
 _NOTES = Field(optional_text, nullable=True, max_len=1000)
 _SORT = Field(count)
+BUDGET_EDIT = {**BALANCES, "notes": Field(optional_text, nullable=True, max_len=5000)}
 
 ITEM_SPECS = {
     "incomes": {
@@ -225,7 +226,7 @@ def get_dashboard(budget_id: int):
 
 @bp.patch("/budgets/<int:budget_id>")
 def update_budget(budget_id: int):
-    values = parse(BALANCES, body(), partial=True)
+    values = parse(BUDGET_EDIT, body(), partial=True)
     conn = get_db()
     budgets.update_budget(conn, uid(), budget_id, values)
     return jsonify(dashboard_json(conn, uid(), budget_id, current_lang()))

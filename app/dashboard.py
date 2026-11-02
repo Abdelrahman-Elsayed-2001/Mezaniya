@@ -31,6 +31,7 @@ WIDGETS: dict[str, str] = {
     "progress": "charts.progress_title",
     "daily": "charts.daily_title",
     "details": "details.title",
+    "notes": "month_notes.title",
 }
 
 DEFAULT_LAYOUT: tuple[tuple[str, ...], ...] = (
@@ -40,7 +41,7 @@ DEFAULT_LAYOUT: tuple[tuple[str, ...], ...] = (
     ("warnings",),
     ("emergency", "savings", "progress"),
     ("goals",),
-    ("daily",),
+    ("daily", "notes"),
     ("details",),
 )
 

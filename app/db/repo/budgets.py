@@ -53,10 +53,13 @@ def next_budget(conn: sqlite3.Connection, user_id: int, year: int, month: int) -
     return base.row_to_dict(base.TABLES["budgets"], row) if row else None
 
 
+EDITABLE_FIELDS = BALANCE_FIELDS | {"notes"}
+
+
 def update_budget(conn: sqlite3.Connection, user_id: int, budget_id: int, values: dict) -> dict:
-    unknown = set(values) - BALANCE_FIELDS
+    unknown = set(values) - EDITABLE_FIELDS
     if unknown:
-        raise ValueError(f"only balances can be changed, got {sorted(unknown)}")
+        raise ValueError(f"only balances and notes can be changed, got {sorted(unknown)}")
     return base.update(conn, user_id, "budgets", budget_id, values)
 
 

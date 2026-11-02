@@ -1,0 +1,7 @@
+{# dashboard widget "notes": the month's general notes, rendered inside the dashboard's x-data #}
+<article class="card">
+  <h2>{{ t('month_notes.title') }}</h2>
+  <textarea class="month-notes" rows="6" maxlength="5000" placeholder="{{ t('month_notes.placeholder') }}"
+            :value="d.budget.notes ?? ''" @change="setMonthNotes($event.target.value)"></textarea>
+  <p class="muted small">{{ t('month_notes.hint') }}</p>
+</article>

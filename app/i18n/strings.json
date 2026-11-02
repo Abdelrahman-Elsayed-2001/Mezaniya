@@ -361,6 +361,12 @@
     "goals_monthly_pool": {"ar": "المتاح للأهداف شهريًا", "en": "Available for goals each month"}
   },
 
+  "month_notes": {
+    "title": {"ar": "ملاحظات الشهر", "en": "Notes for the month"},
+    "placeholder": {"ar": "اكتب أي ملاحظات عن هذا الشهر…", "en": "Anything worth remembering about this month…"},
+    "hint": {"ar": "لا تُنسخ إلى الشهر التالي.", "en": "Not copied to the next month."}
+  },
+
   "wizard": {
     "title": {"ar": "شهر جديد", "en": "New month"},
     "title_with": {"ar": "شهر جديد: {label}", "en": "New month: {label}"},

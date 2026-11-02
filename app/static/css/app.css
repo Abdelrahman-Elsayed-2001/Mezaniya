@@ -708,3 +708,16 @@ details[open].card summary { margin-bottom: 12px; }
 .widget-list li > span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .widget-picker summary { cursor: pointer; }
 .widget-picker summary h3 { display: inline; }
+
+/* month notes widget */
+.month-notes {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+}
