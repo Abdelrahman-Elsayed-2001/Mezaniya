@@ -56,6 +56,7 @@ TABLES: dict[str, Table] = {t.name: t for t in (
        refs={"source_budget_id": "budgets"}, order_by="year, month"),
     _t("budget_balances", "budget_id kind currency amount", refs={"budget_id": "budgets"},
        order_by="kind, currency"),
+    _t("exchange_rates", "base currency from_ym rate source updated_at", order_by="currency, from_ym"),
     _t("incomes",
        "budget_id name_key source amount currency is_savings_withdrawal template_id needs_amount notes sort_order",
        refs={"budget_id": "budgets", "template_id": "recurring_templates"},

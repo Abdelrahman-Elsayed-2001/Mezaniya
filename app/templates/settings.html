@@ -195,6 +195,50 @@
       </div>
     </section>
 
+    <!-- ================= exchange rates ================= -->
+    <section class="card settings-card" x-show="tab === 'rates'" x-cloak>
+      <h2>{{ t('settings.rates_title') }}</h2>
+      <p class="muted small">{{ t('settings.rates_hint') }}</p>
+      <form class="rate-form" @submit.prevent="saveRate()" novalidate>
+        <label class="field"><span>{{ t('common.currency') }}</span>
+          <select x-model="newRate.currency" required>
+            <option value="">—</option>
+            <template x-for="c in rateCurrencies()" :key="c.code">
+              <option :value="c.code" x-text="c.name + ' (' + c.code + ')'"></option>
+            </template>
+          </select></label>
+        <label class="field"><span>{{ t('settings.rates_from') }}</span>
+          <input type="month" x-model="newRate.from" required></label>
+        <label class="field"><span>{{ t('settings.rates_to') }}</span>
+          <input type="month" x-model="newRate.to">
+          <small class="hint">{{ t('settings.rates_to_hint') }}</small></label>
+        <label class="field"><span x-text="t('settings.rates_per', {code: newRate.currency || '…', base: rates.base})"></span>
+          <input class="num" type="number" step="any" min="0" inputmode="decimal" x-model="newRate.rate" required></label>
+        <div class="form-actions"><button class="btn btn-primary btn-small" type="submit" :disabled="busy">{{ t('common.save') }}</button></div>
+      </form>
+
+      <p class="muted" x-show="!rates.rates.length">{{ t('settings.rates_empty') }}</p>
+      <div class="table-wrap" x-show="rates.rates.length">
+        <table class="grid">
+          <thead><tr><th>{{ t('common.currency') }}</th><th>{{ t('settings.rates_from') }}</th><th>{{ t('settings.rates_until') }}</th>
+            <th x-text="t('settings.rates_rate_in', {base: rates.base})"></th><th>{{ t('settings.rates_source') }}</th><th></th></tr></thead>
+          <tbody>
+            <template x-for="r in rates.rates" :key="r.id">
+              <tr>
+                <td x-text="currencyLabel(r.currency)"></td>
+                <td x-text="ymText(r.from_ym)"></td>
+                <td x-text="rateUntil(r)"></td>
+                <td class="num" x-text="r.rate"></td>
+                <td><span class="chip" :class="r.source === 'manual' ? 'chip-manual' : ''"
+                          x-text="t('settings.rates_source_' + r.source)"></span></td>
+                <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeRate(r)">✕</button></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- ================= appearance ================= -->
     <section class="card settings-card" x-show="tab === 'appearance'" x-cloak>
       <h2>{{ t('settings.appearance_title') }}</h2>

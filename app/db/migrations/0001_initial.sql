@@ -185,6 +185,25 @@ CREATE TABLE budget_balances (
   FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE
 );
 
+-- Exchange rates, per user: 1 `currency` = `rate` of `base` (the base currency when the row
+-- was written; rows for another base are simply not used). A rate holds from its month
+-- (from_ym = year * 100 + month) until the next row of the same currency, so periods can't
+-- overlap or leave holes. 'manual' rows are the user's and always win: fetching online
+-- (source 'online') never writes over one or into a period one covers (app/db/repo/rates.py).
+CREATE TABLE exchange_rates (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  base TEXT NOT NULL REFERENCES currencies(code),
+  currency TEXT NOT NULL REFERENCES currencies(code),
+  from_ym INTEGER NOT NULL CHECK (from_ym BETWEEN 200001 AND 220012 AND from_ym % 100 BETWEEN 1 AND 12),
+  rate REAL NOT NULL CHECK (rate > 0),
+  source TEXT NOT NULL CHECK (source IN ('manual','online')),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHECK (currency <> base),
+  UNIQUE (user_id, base, currency, from_ym),
+  UNIQUE (id, user_id)
+);
+
 CREATE TABLE incomes (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
