@@ -293,6 +293,24 @@ document.addEventListener("alpine:init", () => {
       this.notify(tr("settings.saved"));
     },
 
+    async setFetchRates(on) {
+      const s = await this.request("PATCH", "/api/settings", { fetch_rates: on });
+      if (!s) {
+        this.settings = { ...this.settings };          // put the checkbox back
+        return;
+      }
+      this.settings = { ...this.settings, fetch_rates: s.fetch_rates };
+      if (on) await this.fetchRatesNow();
+      else this.notify(tr("settings.saved"));
+    },
+
+    async fetchRatesNow() {
+      const r = await this.request("POST", "/api/rates/fetch");
+      if (!r) return;
+      this.rates = r;
+      this.notify(r.fetched ? tr("settings.rates_fetched", { n: r.fetched }) : tr("settings.rates_fetch_none"));
+    },
+
     async testRates() {
       const r = await this.request("POST", "/api/rates/test");
       if (r) this.rateTest = r;
