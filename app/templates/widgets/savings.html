@@ -4,6 +4,7 @@
   <table class="kv">
     <tr><th>{{ t('savings.current') }}</th><td colspan="2"><input class="num" type="number" step="0.01" min="0" :value="d.budget.savings_current"
            @change="setBalance('savings_current', $event.target.value)"></td></tr>
+    {% with kind = 'savings' %}{% include '_foreign_balances.html' %}{% endwith %}
     <tr class="sub"><th>{{ t('savings.from_expenses') }}</th><td x-text="money(d.savings.from_expenses)"></td><td></td></tr>
     <tr class="sub"><th>{{ t('savings.withdrawal') }}</th><td x-text="money(d.savings.withdrawal)"></td><td></td></tr>
     <tr class="total"><th>{{ t('savings.total') }}</th><td :class="d.savings.total < 0 ? 'neg' : ''" x-text="money(d.savings.total)"></td><td></td></tr>

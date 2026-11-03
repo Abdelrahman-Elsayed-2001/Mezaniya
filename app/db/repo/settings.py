@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from app.db.connection import transaction
-from app import dashboard, themes
+from app import currency as currency_catalog, dashboard, themes
 from app.engine import Settings
 
 from .base import Conflict, NotFound
@@ -20,7 +20,7 @@ from .base import Conflict, NotFound
 
 @dataclass(frozen=True)
 class Spec:
-    type: str                    # 'rate' | 'number' | 'text' | 'json', as in default_settings.type
+    type: str                    # 'rate' | 'number' | 'text' | 'json' | 'bool', as in default_settings.type
     min: float | None = None
     max: float | None = None
     max_len: int = 200
@@ -41,7 +41,8 @@ SPECS: dict[str, Spec] = {
     "saving_rate_em_complete": _RATE,
     "emergency_ref_months": Spec("number", min=0, on_create=True),
     "emergency_ref_factor": Spec("number", min=0, on_create=True),
-    "currency": Spec("text", max_len=10),
+    "currency": Spec("text", max_len=3),           # a code from the currencies table
+    "fetch_rates": Spec("bool"),                     # fetch exchange rates online (app/services/fx_online.py)
     # a theme id, 'auto' or 'custom'; the custom colours live in value2 (theme_colors)
     "theme": Spec("text", max_len=40, value2="theme_colors"),
     # every board and the widgets on it, as one JSON value (app/dashboard.py)
@@ -73,6 +74,10 @@ def _encode(key: str, value) -> str:
                 (spec.max is not None and x > Decimal(str(spec.max))):
             raise Conflict(f"user_settings: {key} out of range", "integrity")
         return str(x)
+    if spec.type == "bool":
+        if not isinstance(value, bool):
+            raise Conflict(f"user_settings: {key} must be true or false", "integrity")
+        return "1" if value else "0"
     if spec.type == "json":
         try:
             return json.dumps(spec.check(value), ensure_ascii=False, separators=(",", ":"))
@@ -90,6 +95,9 @@ def _check_value(conn: sqlite3.Connection, key: str, value: str) -> None:
     if key == "theme" and value not in themes.SPECIAL and \
             conn.execute("SELECT 1 FROM themes WHERE id = ?", (value,)).fetchone() is None:
         raise Conflict(f"user_settings: unknown theme {value!r}", "integrity")
+    if key == "currency" and value not in currency_catalog.CURRENCIES and \
+            conn.execute("SELECT 1 FROM currencies WHERE code = ?", (value,)).fetchone() is None:
+        raise Conflict(f"user_settings: unknown currency {value!r}", "integrity")
 
 
 def _encode_value2(name: str, value) -> str | None:
@@ -116,6 +124,8 @@ def _decode(key: str, text: str):
     spec = SPECS[key]
     if spec.type in ("rate", "number"):
         return float(text)
+    if spec.type == "bool":
+        return text == "1"
     if spec.type == "json":
         try:
             value = json.loads(text)
@@ -141,6 +151,8 @@ def create_settings(conn: sqlite3.Connection, user_id: int, currency: str) -> No
     defaults = dict(conn.execute(
         f"SELECT key, default_value FROM default_settings WHERE key IN ({marks})", keys).fetchall())
     _write(conn, user_id, {**defaults, "currency": _encode("currency", currency)})
+    from . import currencies                    # the base currency is always in the user's list
+    currencies.ensure(conn, user_id, currency)
 
 
 def get_settings(conn: sqlite3.Connection, user_id: int) -> dict:
@@ -172,6 +184,9 @@ def update_settings(conn: sqlite3.Connection, user_id: int, values: dict) -> dic
         for k, v in plain.items():
             _check_value(conn, k, v)
         with transaction(conn):
+            if "currency" in values:                # the base currency is always in the user's list
+                from . import currencies
+                currencies.ensure(conn, user_id, values["currency"])
             _write(conn, user_id, plain)
             if extra:
                 current = get_settings(conn, user_id)

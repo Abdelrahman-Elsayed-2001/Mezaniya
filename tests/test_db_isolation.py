@@ -94,9 +94,9 @@ def test_same_names_and_months_are_allowed_per_user(world):
 
 def test_settings_are_independent(world):
     c, alice, bob = world["conn"], world["alice"], world["bob"]
-    settings.update_settings(c, alice, {"max_debt_rate": 0.5, "currency": "ج.م"})
+    settings.update_settings(c, alice, {"max_debt_rate": 0.5, "currency": "EGP"})
     s = settings.get_settings(c, bob)
-    assert (s["max_debt_rate"], s["currency"]) == (0.33, "ر.س")
+    assert (s["max_debt_rate"], s["currency"]) == (0.33, "SAR")
 
 
 def test_sort_order_is_per_user_and_month(world):

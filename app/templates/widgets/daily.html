@@ -34,7 +34,7 @@
         </div>
         <div class="col-tip" x-show="hoverDay !== null && d.charts.daily.by_day[hoverDay] > 0"
              :style="tipStyle()">
-          <strong x-text="money(d.charts.daily.by_day[hoverDay] ?? 0) + ' ' + d.settings.currency"></strong>
+          <strong x-text="money(d.charts.daily.by_day[hoverDay] ?? 0) + ' ' + d.currency.symbol"></strong>
           <span class="muted" x-text="t('charts.daily_day', {day: hoverDay + 1})"></span>
         </div>
       </div>

@@ -2,6 +2,10 @@
 -- (x_id, user_id) → parent(id, user_id) make cross-user references impossible.
 -- Money is REAL (converted to Decimal through str() in the repository).
 --
+-- Schema generation, checked at startup (connection.SCHEMA_GENERATION): bump both together
+-- when an edit here means older beta databases can't be opened.
+PRAGMA user_version = 4;
+--
 -- Note: ON DELETE SET NULL can't be used on composite keys (it would null user_id too),
 -- so "set null on delete" is done with BEFORE DELETE triggers instead.
 
@@ -23,7 +27,7 @@ CREATE TABLE users (
 CREATE TABLE default_settings (
   key TEXT PRIMARY KEY,
   default_value TEXT NOT NULL,
-  type TEXT NOT NULL CHECK (type IN ('rate','number','text','json'))
+  type TEXT NOT NULL CHECK (type IN ('rate','number','text','json','bool'))
 );
 
 CREATE TABLE user_settings (
@@ -32,6 +36,33 @@ CREATE TABLE user_settings (
   value TEXT NOT NULL,
   value2 TEXT,                          -- customisation details (JSON), e.g. a custom theme's colours
   PRIMARY KEY (user_id, key)
+);
+
+-- Currencies in use by any user (the catalog is app/currency.CURRENCIES; rows are added on demand).
+-- Symbols and names are strings.json "currency.<code>.symbol" / ".name". The user's base
+-- currency is the setting 'currency'; an item's `currency` column is NULL in the base currency
+-- (so most rows never name one) or the code of another currency its amounts are kept in.
+CREATE TABLE currencies (
+  code TEXT PRIMARY KEY CHECK (length(code) = 3 AND code GLOB '[A-Z][A-Z][A-Z]'),
+  decimals INTEGER NOT NULL CHECK (decimals BETWEEN 0 AND 3),
+  sort_order INTEGER NOT NULL
+);
+
+-- Only the default base currency to start with: any other code (app/currency.CURRENCIES, or one
+-- a user names) is inserted the first time a user adds it (app/db/repo/currencies.add).
+INSERT INTO currencies (code, decimals, sort_order) VALUES ('SAR', 2, 1);
+
+-- The currencies each user works with (Settings → Currencies): the base currency plus any
+-- other they add. Items, balances and rates may only use a currency in this list. A code that
+-- isn't built in is added to `currencies` (decimals 2) the first time someone adds it; its
+-- name and symbol are the user's own (NULL for built-ins, which are named in strings.json).
+CREATE TABLE user_currencies (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  code TEXT NOT NULL REFERENCES currencies(code),
+  name TEXT CHECK (name IS NULL OR length(name) BETWEEN 1 AND 40),
+  symbol TEXT CHECK (symbol IS NULL OR length(symbol) BETWEEN 1 AND 6),
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, code)
 );
 
 INSERT INTO default_settings (key, default_value, type) VALUES
@@ -44,10 +75,11 @@ INSERT INTO default_settings (key, default_value, type) VALUES
   ('saving_rate_em_complete', '0.5', 'rate'),
   ('emergency_ref_months', '3', 'number'),
   ('emergency_ref_factor', '1.25', 'number'),
-  ('currency', '', 'text'),             -- set from the user's language when the account is created
+  ('currency', 'SAR', 'text'),          -- the base currency: a code from currencies
   ('theme', 'auto', 'text'),
+  ('fetch_rates', '0', 'bool'),         -- fetch exchange rates online (off until the user turns it on)
   -- the dashboards' layout (app/dashboard.py); a test keeps it equal to default_dashboards()
-  ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["summary","suggestions","warnings"],["incomes","emergency","savings"],["expenses"],["goals"],["payments","by_type","progress"],["daily"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details"]}', 'json');
+  ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["incomes","summary"],["expenses"],["by_type","payments","suggestions"],["warnings"],["emergency","savings","progress"],["goals"],["daily","notes"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details","notes"]}', 'json');
 
 -- Built-in colour themes: five base colours each; app/themes.py derives the rest. Names are
 -- strings.json "theme.<id>". A user's choice is user_settings key 'theme' ('auto' = follow
@@ -100,17 +132,24 @@ CREATE TABLE goal_categories (
   UNIQUE (id, user_id)
 );
 
+-- Demo names: rows the demo creates (recurring items and month items) carry name_key
+-- ('rent' → strings.json "demo.rent") with the name NULL, so they read in the viewer's language,
+-- and copying them into a new month keeps them that way. Once the user renames one, the name is
+-- theirs and reads the same in every language. Rows the user adds have a name only.
 CREATE TABLE recurring_templates (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   kind TEXT NOT NULL CHECK (kind IN ('income','expense')),
-  name TEXT NOT NULL,
+  name_key TEXT,                        -- see "Demo names" above
+  name TEXT,
   type_id INTEGER,
   amount REAL CHECK (amount IS NULL OR amount >= 0),     -- NULL = variable price
+  currency TEXT REFERENCES currencies(code),             -- NULL = the base currency (see "Currencies")
   is_savings_withdrawal INTEGER NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1,
   notes TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (id, user_id),
   CHECK ((kind = 'expense') = (type_id IS NOT NULL)),
   FOREIGN KEY (type_id, user_id) REFERENCES expense_types(id, user_id)
@@ -127,23 +166,61 @@ CREATE TABLE budgets (
   -- the month this one was copied from (rollover). Months can be created in any order;
   -- carry-overs are kept in sync only along this link.
   source_budget_id INTEGER,
+  notes TEXT,                           -- the month's general notes; not copied to the next month
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE (user_id, year, month),
   UNIQUE (id, user_id),
   FOREIGN KEY (source_budget_id, user_id) REFERENCES budgets(id, user_id)
 );
 
+-- Savings / emergency money kept in another currency (e.g. EGP cash while the base is SAR),
+-- one row per month, kind and currency; budgets.savings_current / emergency_current stay the
+-- part in the base currency. A new month copies these rows as they are.
+CREATE TABLE budget_balances (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  budget_id INTEGER NOT NULL,
+  kind TEXT NOT NULL CHECK (kind IN ('savings','emergency')),
+  currency TEXT NOT NULL REFERENCES currencies(code),
+  amount REAL NOT NULL DEFAULT 0 CHECK (amount >= 0),
+  UNIQUE (budget_id, kind, currency),
+  UNIQUE (id, user_id),
+  FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE
+);
+
+-- Exchange rates, per user: 1 `currency` = `rate` of `base` (the base currency when the row
+-- was written; rows for another base are simply not used). A rate holds from its month
+-- (from_ym = year * 100 + month) until the next row of the same currency, so periods can't
+-- overlap or leave holes. 'manual' rows are the user's and always win: fetching online
+-- (source 'online') never writes over one or into a period one covers (app/db/repo/rates.py).
+CREATE TABLE exchange_rates (
+  id INTEGER PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  base TEXT NOT NULL REFERENCES currencies(code),
+  currency TEXT NOT NULL REFERENCES currencies(code),
+  from_ym INTEGER NOT NULL CHECK (from_ym BETWEEN 200001 AND 220012 AND from_ym % 100 BETWEEN 1 AND 12),
+  rate REAL NOT NULL CHECK (rate > 0),
+  source TEXT NOT NULL CHECK (source IN ('manual','online')),
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHECK (currency <> base),
+  UNIQUE (user_id, base, currency, from_ym),
+  UNIQUE (id, user_id)
+);
+
 CREATE TABLE incomes (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   budget_id INTEGER NOT NULL,
-  source TEXT NOT NULL,
+  name_key TEXT,
+  source TEXT,
   amount REAL NOT NULL DEFAULT 0 CHECK (amount >= 0),
+  currency TEXT REFERENCES currencies(code),
   is_savings_withdrawal INTEGER NOT NULL DEFAULT 0,
   template_id INTEGER,
   needs_amount INTEGER NOT NULL DEFAULT 0,
   notes TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (source IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (id, user_id),
   FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE,
   FOREIGN KEY (template_id, user_id) REFERENCES recurring_templates(id, user_id)
@@ -153,8 +230,10 @@ CREATE TABLE expenses (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   budget_id INTEGER NOT NULL,
-  name TEXT NOT NULL,
+  name_key TEXT,
+  name TEXT,
   type_id INTEGER NOT NULL,
+  currency TEXT REFERENCES currencies(code),            -- every amount of the row is in it
   cash_amount REAL NOT NULL DEFAULT 0 CHECK (cash_amount >= 0),
   inst_balance REAL NOT NULL DEFAULT 0 CHECK (inst_balance >= 0),        -- remaining installment balance
   inst_count INTEGER NOT NULL DEFAULT 0 CHECK (inst_count >= 0),          -- remaining payments
@@ -168,6 +247,7 @@ CREATE TABLE expenses (
   prev_expense_id INTEGER,
   needs_amount INTEGER NOT NULL DEFAULT 0,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (id, user_id),
   FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE,
   FOREIGN KEY (type_id, user_id) REFERENCES expense_types(id, user_id),
@@ -179,13 +259,16 @@ CREATE TABLE goals (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   budget_id INTEGER NOT NULL,
-  name TEXT NOT NULL,
+  name_key TEXT,
+  name TEXT,
   category_id INTEGER,
+  currency TEXT REFERENCES currencies(code),            -- target and manual amount are in it
   target_amount REAL CHECK (target_amount IS NULL OR target_amount >= 0),
   priority REAL CHECK (priority IS NULL OR priority >= 0),               -- NULL = auto (≠ 0)
   manual_allocation REAL CHECK (manual_allocation IS NULL OR manual_allocation >= 0),
   notes TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
+  CHECK (name IS NOT NULL OR name_key IS NOT NULL),
   UNIQUE (id, user_id),
   CHECK (priority IS NULL OR manual_allocation IS NULL),
   FOREIGN KEY (budget_id, user_id) REFERENCES budgets(id, user_id) ON DELETE CASCADE,

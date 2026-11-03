@@ -11,7 +11,7 @@ document.addEventListener("alpine:init", () => {
     { key: "saving_rate_em_complete", hint: "settings.of_net" },
   ];
   const ROLES = ["essential", "luxury", "debt", "savings", "emergency", "other"];
-  const TABS = ["criteria", "types", "categories", "templates", "appearance", "account"];
+  const TABS = ["criteria", "types", "categories", "templates", "rates", "appearance", "account"];
   const COLOR_KEYS = ["text", "background", "primary", "secondary", "accent"];
 
   Alpine.data("settingsPage", () => ({
@@ -28,6 +28,12 @@ document.addEventListener("alpine:init", () => {
     newType: { name: "", role: "other" },
     newCategory: "",
     newTemplate: { kind: "expense", name: "", type_id: "", amount: "", is_savings_withdrawal: false },
+    rates: { base: "", rates: [], currencies: [] },
+    newRate: { from_currency: "", to_currency: "", from: "", to: "", rate: "" },
+    cur: { base: "", currencies: [], builtin: [], in_use: [] },
+    newCurrency: { code: "", name: "", symbol: "" },
+    picker: { open: false, q: "" },
+    rateTest: null,
     colorKeys: COLOR_KEYS,
     themes: [],
     custom: { text: "#1f2933", background: "#f4f6f8", primary: "#0f766e", secondary: "#cde2fb", accent: "#2a78d6" },
@@ -39,7 +45,7 @@ document.addEventListener("alpine:init", () => {
       const fromHash = location.hash.slice(1);
       if (TABS.includes(fromHash)) this.tab = fromHash;
       await Promise.all([this.loadSettings(), this.loadTypes(), this.loadCategories(), this.loadTemplates(),
-                         this.loadThemes()]);
+                         this.loadThemes(), this.loadRates(), this.loadCurrencies()]);
       this.savedCss = this.themeStyle().textContent;
     },
 
@@ -58,7 +64,6 @@ document.addEventListener("alpine:init", () => {
         ...Object.fromEntries(RATE_FIELDS.map((f) => [f.key, Math.round(s[f.key] * 1000) / 10])),
         emergency_ref_months: s.emergency_ref_months,
         emergency_ref_factor: s.emergency_ref_factor,
-        currency: s.currency,
       };
       if (s.theme_colors) this.custom = { ...s.theme_colors };
     },
@@ -109,7 +114,6 @@ document.addEventListener("alpine:init", () => {
         ...Object.fromEntries(RATE_FIELDS.map((f) => [f.key, Math.round(Number(this.form[f.key]) * 10000) / 1000000])),
         emergency_ref_months: Number(this.form.emergency_ref_months),
         emergency_ref_factor: Number(this.form.emergency_ref_factor),
-        currency: this.form.currency,
       };
       const r = await this.request("PATCH", "/api/settings", body);
       if (!r) return;
@@ -219,6 +223,170 @@ document.addEventListener("alpine:init", () => {
       if (!r) return;
       this.newTemplate = { ...n, name: "", amount: "", is_savings_withdrawal: false };
       await this.loadTemplates();
+    },
+
+    // ---------- exchange rates
+
+    async loadRates() {
+      const r = await this.request("GET", "/api/rates");
+      if (r) this.rates = r;
+    },
+
+    currencyLabel(code) {
+      const c = this.cur.currencies.find((x) => x.code === code);
+      return c ? `${c.name} (\u2068${c.symbol}\u2069)` : code;      // the symbol isolated: "CN¥" stays as is in Arabic
+    },
+
+    // a rate without trailing noise: up to 6 significant digits after the point
+    fmtRate(x) {
+      if (!x) return "—";
+      return Number(x).toLocaleString("en-US", { maximumSignificantDigits: 7, useGrouping: false });
+    },
+
+    ymText(ym) {
+      return `${String(ym % 100).padStart(2, "0")}/${Math.floor(ym / 100)}`;
+    },
+
+    // a rate holds until the month before the next row of the same currency
+    rateUntil(row) {
+      const next = this.rates.rates.find((r) => r.currency === row.currency && r.from_ym > row.from_ym);
+      if (!next) return tr("settings.rates_open");
+      let y = Math.floor(next.from_ym / 100), m = next.from_ym % 100 - 1;
+      if (m === 0) { y -= 1; m = 12; }
+      return this.ymText(y * 100 + m);
+    },
+
+    // the rate form's pair: one side is the base currency, the other one of the user's others
+    resetPair() {
+      const other = this.cur.currencies.find((c) => c.code !== this.cur.base);
+      this.newRate.from_currency = other ? other.code : this.cur.base;
+      this.newRate.to_currency = this.cur.base;
+    },
+
+    pairChanged(side) {
+      const n = this.newRate, other = side === "from_currency" ? "to_currency" : "from_currency";
+      if (n[side] === this.cur.base) {
+        if (n[other] === this.cur.base) {
+          const pick = this.cur.currencies.find((c) => c.code !== this.cur.base);
+          if (pick) n[other] = pick.code;
+        }
+      } else {
+        n[other] = this.cur.base;
+      }
+    },
+
+    async saveRate() {
+      const n = this.newRate;
+      if (!n.from_currency || !n.to_currency || !n.from || !n.rate) return this.notify(tr("settings.rates_err_missing"));
+      const [fy, fm] = n.from.split("-").map(Number);
+      const body = { from_currency: n.from_currency, to_currency: n.to_currency, from_year: fy, from_month: fm,
+                     rate: Number(n.rate) };
+      if (n.to) {
+        const [ty, tm] = n.to.split("-").map(Number);
+        body.to_year = ty;
+        body.to_month = tm;
+      }
+      const r = await this.request("PUT", "/api/rates", body);
+      if (!r) return;
+      this.rates = r;
+      this.newRate = { ...n, from: "", to: "", rate: "" };
+      this.notify(tr("settings.saved"));
+    },
+
+    async setFetchRates(on) {
+      const s = await this.request("PATCH", "/api/settings", { fetch_rates: on });
+      if (!s) {
+        this.settings = { ...this.settings };          // put the checkbox back
+        return;
+      }
+      this.settings = { ...this.settings, fetch_rates: s.fetch_rates };
+      if (on) await this.fetchRatesNow();
+      else this.notify(tr("settings.saved"));
+    },
+
+    async fetchRatesNow() {
+      const r = await this.request("POST", "/api/rates/fetch");
+      if (!r) return;
+      this.rates = r;
+      this.notify(r.fetched ? tr("settings.rates_fetched", { n: r.fetched }) : tr("settings.rates_fetch_none"));
+    },
+
+    async testRates() {
+      const r = await this.request("POST", "/api/rates/test");
+      if (r) this.rateTest = r;
+    },
+
+    // ---------- currencies
+
+    async loadCurrencies() {
+      const r = await this.request("GET", "/api/currencies");
+      if (!r) return;
+      this.cur = r;
+      if (!this.newRate.from_currency || !r.currencies.some((c) => c.code === this.newRate.from_currency)) this.resetPair();
+    },
+
+    openCurrencyPicker() {
+      this.picker = { open: true, q: "" };
+      this.$nextTick(() => this.$refs.curSearch && this.$refs.curSearch.focus());
+    },
+
+    // ISO currencies not in the list yet, matching the search (code, Arabic or English name), by name
+    pickerResults() {
+      const words = this.picker.q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+      const q = words.join(" ");
+      // best first: the exact code, then a name that starts with the search, then the rest by name
+      const rank = (c) => (c.code.toLowerCase() === q ? 0 : c.search.split(" ").slice(1).some((w) => w.startsWith(words[0] || "")) ? 1 : 2);
+      return this.cur.builtin
+        .filter((c) => words.every((w) => c.search.includes(w)))
+        .map((c) => [rank(c), c])
+        .sort((a, b) => a[0] - b[0] || a[1].name.localeCompare(b[1].name, document.documentElement.lang))
+        .map(([, c]) => c);
+    },
+
+    pickedFirst() {
+      const first = this.pickerResults()[0];
+      if (first) this.addCurrency(first.code);
+    },
+
+    async addCurrency(code, extra = {}) {
+      const r = await this.request("POST", "/api/currencies", { code, ...extra });
+      if (!r) return false;
+      this.cur = r;
+      if (this.newRate.from_currency === this.cur.base) this.resetPair();
+      await this.loadRates();
+      this.notify(tr("settings.currencies_added", { code: code.toUpperCase() }));
+      return true;
+    },
+
+    async addCustomCurrency() {
+      const n = this.newCurrency;
+      if (await this.addCurrency(n.code, { name: n.name, symbol: n.symbol })) {
+        this.newCurrency = { code: "", name: "", symbol: "" };
+      }
+    },
+
+    async removeCurrency(code) {
+      if (!confirm(tr("settings.currencies_confirm_remove", { code }))) return;
+      const r = await this.request("DELETE", `/api/currencies/${code}`);
+      if (!r) return;
+      this.cur = r;
+      this.resetPair();
+      await this.loadRates();
+    },
+
+    async setBaseCurrency(code) {
+      const s = await this.request("PATCH", "/api/settings", { currency: code });
+      if (!s) { this.cur = { ...this.cur }; return; }
+      this.settings = s;
+      await Promise.all([this.loadCurrencies(), this.loadRates(), this.loadTemplates()]);
+      this.resetPair();
+      this.notify(tr("settings.saved"));
+    },
+
+    async removeRate(row) {
+      if (!confirm(tr("settings.rates_confirm_delete", { from: this.ymText(row.from_ym) }))) return;
+      const r = await this.request("DELETE", `/api/rates/${row.id}`);
+      if (r) this.rates = r;
     },
 
     // ---------- account

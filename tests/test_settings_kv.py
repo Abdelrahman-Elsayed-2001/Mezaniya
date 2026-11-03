@@ -38,7 +38,7 @@ def test_reset_removes_the_row(conn, alice):
 
 def test_values_are_validated(conn, alice):
     for bad in ({"good_rate": "abc"}, {"good_rate": True}, {"good_rate": float("nan")},
-                {"currency": 5}, {"currency": "x" * 11}):
+                {"currency": 5}, {"currency": "x" * 11}, {"currency": "XYZ"}, {"currency": "sar"}):
         with pytest.raises(Conflict):
             settings.update_settings(conn, alice, bad)
     assert settings.get_settings(conn, alice)["good_rate"] == 0.1
@@ -62,4 +62,22 @@ def test_beta_010_database_is_refused(tmp_path):
     c.execute("CREATE TABLE user_settings (user_id INTEGER PRIMARY KEY, good_rate REAL, currency TEXT)")
     with pytest.raises(IncompatibleDatabase):
         check_compatible(c)
+    c.close()
+
+
+def test_beta_020_database_is_refused(tmp_path):
+    # 0.2.0 never stamped user_version: real tables but generation 0
+    c = connect(tmp_path / "old.db")
+    c.execute("CREATE TABLE budgets (id INTEGER PRIMARY KEY, year INTEGER, month INTEGER)")
+    with pytest.raises(IncompatibleDatabase):
+        check_compatible(c)
+    c.close()
+
+
+def test_new_database_is_stamped(tmp_path):
+    from app.db.connection import SCHEMA_GENERATION, migrate
+    c = connect(tmp_path / "new.db")
+    migrate(c)
+    assert c.execute("PRAGMA user_version").fetchone()[0] == SCHEMA_GENERATION
+    check_compatible(c)
     c.close()

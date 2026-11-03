@@ -64,6 +64,7 @@ document.addEventListener("alpine:init", () => {
     newIncome: { source: "", amount: "", is_savings_withdrawal: false },
     newExpense: emptyExpense(),
     newGoal: { name: "", target_amount: "" },
+    newBalance: { savings: { currency: "", amount: "" }, emergency: { currency: "", amount: "" } },
     openNotes: {},
     hoverDay: null,
     showDailyTable: false,
@@ -300,8 +301,42 @@ document.addEventListener("alpine:init", () => {
 
     // ---------- edits
 
+    // savings / emergency money held in other currencies
+    foreignBalances(kind) {
+      return (this.d.balances || []).filter((b) => b.kind === kind);
+    },
+
+    otherCurrencies(kind) {
+      const used = new Set(this.foreignBalances(kind).map((b) => b.currency));
+      return this.d.currencies.filter((c) => c.code !== this.d.currency.code && !used.has(c.code));
+    },
+
+    currencyName(code) {
+      const c = this.d.currencies.find((x) => x.code === code);
+      return c ? `${c.name} (\u2068${c.symbol}\u2069)` : code;
+    },
+
+    async setForeignBalance(kind, currency, amount) {
+      const r = await this.request("PUT", this.budgetUrl("/balances"), { kind, currency, amount: this.num(amount) });
+      if (r) this.setDashboard(r);
+    },
+
+    async addForeignBalance(kind) {
+      const n = this.newBalance[kind];
+      if (!n.currency || n.amount === "") return;
+      await this.setForeignBalance(kind, n.currency, n.amount);
+      this.newBalance[kind] = { currency: "", amount: "" };
+    },
+
     async setBalance(field, value) {
       const r = await this.request("PATCH", this.budgetUrl(), { [field]: this.num(value) });
+      if (r) this.setDashboard(r);
+    },
+
+    async setMonthNotes(value) {
+      const notes = value.trim() || null;
+      if (notes === (this.d.budget.notes ?? null)) return;
+      const r = await this.request("PATCH", this.budgetUrl(), { notes });
       if (r) this.setDashboard(r);
     },
 
@@ -513,6 +548,25 @@ document.addEventListener("alpine:init", () => {
       if (r > 0.88) return "inset-inline-end:0";
       const shift = document.dir === "rtl" ? "50%" : "-50%";
       return `inset-inline-start:${r * 100}%;transform:translateX(${shift})`;
+    },
+
+    // ---------- other currencies
+
+    // tooltip for an item's currency list: the rate it uses this month
+    fxTitle(row) {
+      if (!row.fx) return tr("common.currency");
+      if (row.fx.missing) return tr("fx.no_rate", { code: row.currency });
+      const from = `${String(row.fx.from_ym % 100).padStart(2, "0")}/${Math.floor(row.fx.from_ym / 100)}`;
+      const title = tr("fx.rate_title", { code: row.currency, rate: row.fx.rate, base: this.d.currency.symbol, from,
+                                          source: tr("settings.rates_source_" + row.fx.source) });
+      return row.fx.estimated ? `${title} — ${tr("fx.estimated")}` : title;
+    },
+
+    // "≈ 770 SAR" (in the base currency) under an amount kept in another currency
+    fxLine(row, col) {
+      if (!row.fx) return "";
+      if (row.fx.missing) return tr("fx.no_rate_short");
+      return `≈ ${this.money(row.fx[col + "_base"] ?? 0)} ${this.d.currency.symbol}`;
     },
 
     compact(x) {

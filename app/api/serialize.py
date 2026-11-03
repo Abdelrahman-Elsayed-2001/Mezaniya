@@ -11,12 +11,13 @@ from datetime import date
 from decimal import Decimal
 from enum import Enum
 
-from app.db.repo import base, budgets, settings, types
-from app.db.repo.loader import load_budget_input
+from app.db.repo import base, budgets, currencies, settings, types
+from app.db.repo.loader import load_budget_input, month_conversion
 from app.engine import compute, validate
 from app.engine.calc import Dashboard
 from app.engine.rules import Warning
 from app.i18n import plural, t
+from app.services import fx_online
 
 _ISSUE_FIELD = re.compile(r"^(incomes|expenses|goals)\[(\d+)\](?:\.(\w+))?$")
 
@@ -89,23 +90,35 @@ def months_text(line, lang: str) -> str:
 
 def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang: str) -> dict:
     budget = budgets.get_budget(conn, user_id, budget_id)
+    if not conn.in_transaction:
+        fx_online.refresh_month(conn, user_id, budget)      # only when the user turned fetching on
     user_settings = settings.get_settings(conn, user_id)
-    currency = user_settings["currency"]
-    inp = load_budget_input(conn, user_id, budget_id)
+    base_info = currencies.info(conn, user_id, user_settings["currency"], lang)
+    currency = base_info["symbol"]
+    conv = month_conversion(conn, user_id, budget)
+    inp = load_budget_input(conn, user_id, budget_id, conv)
+
+    def fx(row: dict, *amount_cols: str) -> dict:
+        """An item in another currency: the rate it uses this month and its amounts in the base currency."""
+        info = conv.info(row.get("currency"))
+        if info is None:
+            return {"fx": None}
+        return {"fx": {**info, **{f"{c}_base": plain(conv.convert(row[c], row["currency"])) for c in amount_cols}}}
     d: Dashboard = compute(inp)
 
     expense_rows = base.list_rows(conn, user_id, "expenses", budget_id=budget_id)
     type_rows = types.list_expense_types(conn, user_id)
     type_by_id = {row["id"]: row for row in type_rows}
     expenses = [
-        {**row, "type_name": type_by_id[row["type_id"]]["name"], "role": line.role.value,
+        {**row, **fx(row, "cash_amount", "inst_balance", "carried_in", "deferred_amount"), "type_name": type_by_id[row["type_id"]]["name"],
+         "role": line.role.value,
          **plain(_without(dataclasses.asdict(line), "expense", "role"))}
         for row, line in zip(expense_rows, d.expenses)
     ]
     goal_rows = base.list_rows(conn, user_id, "goals", budget_id=budget_id)
     category_names = {c["id"]: c["name"] for c in types.list_goal_categories(conn, user_id)}
     goals = [
-        {**row, "category_name": category_names.get(row["category_id"]),
+        {**row, **fx(row, "target_amount", "manual_allocation"), "category_name": category_names.get(row["category_id"]),
          **plain({"valid": line.valid, "mode": line.mode, "effective_priority": line.priority,
                   "requested": line.requested, "allocated": line.allocated, "remaining": line.remaining,
                   "progress": line.progress, "monthly": line.monthly, "months": line.months}),
@@ -118,9 +131,13 @@ def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang:
     return {
         "budget": {**budget, "days_in_month": d.suggestions.days_in_month},
         "settings": user_settings,
+        "currency": base_info,
+        "currencies": currencies.options(conn, user_id, lang),
+        "balances": [{**r, **fx(r, "amount")} for r in budgets.list_balances(conn, user_id, budget_id)],
+        "missing_rates": conv.missing,
         "expense_types": type_rows,
         "goal_categories": types.list_goal_categories(conn, user_id),
-        "incomes": base.list_rows(conn, user_id, "incomes", budget_id=budget_id),
+        "incomes": [{**r, **fx(r, "amount")} for r in base.list_rows(conn, user_id, "incomes", budget_id=budget_id)],
         "expenses": expenses,
         "goals": goals,
         "goals_total": {**plain(_without(dataclasses.asdict(total), "status_key")),

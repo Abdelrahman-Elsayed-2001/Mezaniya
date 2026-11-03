@@ -52,6 +52,18 @@ def test_budget_balances_patch(api):
     assert api.patch(f"/api/budgets/{b}", {"savings_current": -5}).status_code == 422
 
 
+def test_month_notes(api):
+    b = api.budget_id()
+    d = api.patch(f"/api/budgets/{b}", {"notes": "  دفعت الإيجار متأخر  "}).get_json()
+    assert d["budget"]["notes"] == "دفعت الإيجار متأخر"
+    assert api.patch(f"/api/budgets/{b}", {"notes": "x" * 5001}).status_code == 422
+    assert api.patch(f"/api/budgets/{b}", {"notes": None}).get_json()["budget"]["notes"] is None
+    # a month's notes stay with that month
+    api.patch(f"/api/budgets/{b}", {"notes": "only here"})
+    nxt = api.post("/api/budgets", {"year": 2040, "month": 1, "copy_from_previous": True}).get_json()
+    assert nxt["budget"]["notes"] is None
+
+
 def test_delete_month_rules(api):
     first = api.budget_id()
     r = api.delete(f"/api/budgets/{first}")
@@ -248,8 +260,10 @@ def test_goal_category(api):
 def test_settings(api):
     s = api.get("/api/settings").get_json()
     assert s["emergency_ref_factor"] == 1.25
-    s = api.patch("/api/settings", {"emergency_ref_factor": 1.5, "currency": "ج.م"}).get_json()
-    assert (s["emergency_ref_factor"], s["currency"]) == (1.5, "ج.م")
+    assert api.patch("/api/settings", {"currency": "EGP"}).status_code == 422         # not in the user's list yet
+    api.post("/api/currencies", {"code": "EGP"})
+    s = api.patch("/api/settings", {"emergency_ref_factor": 1.5, "currency": "EGP"}).get_json()
+    assert (s["emergency_ref_factor"], s["currency"]) == (1.5, "EGP")
     assert api.patch("/api/settings", {"good_rate": 0.5}).status_code == 422          # > excellent 0.2
     assert api.patch("/api/settings", {"max_debt_rate": 1.2}).status_code == 422
     assert api.patch("/api/settings", {"user_id": 2}).status_code == 422

@@ -139,7 +139,7 @@ def test_preview_lists_unpaid_and_carry_option(api):
     preview = api.post("/api/budgets/rollover-preview").get_json()
     year, month = next_period(m1["year"], m1["month"])
     assert preview["target"] == {"year": year, "month": month, "label": label(year, month)}
-    assert preview["unpaid"] == [{"id": gift["id"], "name": "هدية", "due": 200}]
+    assert preview["unpaid"] == [{"id": gift["id"], "name": "هدية", "due": 200, "currency": None}]
     assert preview["expenses"] == []
 
     with_carry = api.post("/api/budgets/rollover-preview", {"carry_unpaid_ids": [gift["id"]]}).get_json()

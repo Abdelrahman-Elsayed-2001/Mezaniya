@@ -19,7 +19,7 @@ from decimal import Decimal
 
 from app.db.connection import transaction
 from app.db.repo import base, budgets, templates
-from app.db.repo.loader import load_budget_input
+from app.db.repo.loader import expense_amounts, foreign_balances, load_budget_input, month_conversion
 from app.engine import compute
 from app.i18n import t as tr
 
@@ -40,6 +40,8 @@ class PlannedIncome:
     needs_amount: bool
     template_id: int | None
     notes: str | None
+    name_key: str | None = None       # set when the name is a translation (see base.name_values)
+    currency: str | None = None       # None = the base currency
 
 
 @dataclass
@@ -56,6 +58,8 @@ class PlannedExpense:
     template_id: int | None = None
     prev_expense_id: int | None = None
     notes: str | None = None
+    name_key: str | None = None
+    currency: str | None = None
 
 
 @dataclass
@@ -67,6 +71,8 @@ class PlannedGoal:
     manual_allocation: float | None
     notes: str | None
     completed: bool
+    name_key: str | None = None
+    currency: str | None = None
 
 
 @dataclass
@@ -124,17 +130,27 @@ def _source_for(conn, user_id: int, year: int, month: int) -> dict:
     return latest
 
 
+def _key(row: dict) -> str | None:
+    """name_key of a row whose shown name is a translation, else None (its name is the user's)."""
+    return row["name_key"] if row.get("name_key") and not row.get("custom_name", True) else None
+
+
 def plan_rollover(conn: sqlite3.Connection, user_id: int, year: int, month: int,
                   carry_unpaid_ids=(), lang: str | None = None) -> RolloverPlan:
     src = _source_for(conn, user_id, year, month)
     carry_note = tr("rollover.carry_note", lang, label=label(src["year"], src["month"]))
-    d = compute(load_budget_input(conn, user_id, src["id"]))
+    conv = month_conversion(conn, user_id, src)
+    d = compute(load_budget_input(conn, user_id, src["id"], conv))
+    foreign = foreign_balances(conn, user_id, src["id"], conv)   # copied as they are; not part of the base balances
     rows = base.list_rows(conn, user_id, "expenses", budget_id=src["id"])
     active = [t for t in templates.list_templates(conn, user_id) if t["active"]]
     expense_templates = {t["id"]: t for t in active if t["kind"] == "expense"}
 
-    unpaid = [{"id": r["id"], "name": r["name"], "due": _f(line.due)}
-              for r, line in zip(rows, d.expenses) if r["status"] == "unpaid" and line.due > 0]
+    # amounts written into rows are in each row's own currency, so these use the row (not the
+    # engine's line, which is in the base currency)
+    own = {r["id"]: expense_amounts(r) for r in rows}
+    unpaid = [{"id": r["id"], "name": r["name"], "due": _f(own[r["id"]].due), "currency": r["currency"]}
+              for r in rows if r["status"] == "unpaid" and own[r["id"]].due > 0]
     carry_unpaid_ids = set(carry_unpaid_ids)
     unknown = carry_unpaid_ids - {u["id"] for u in unpaid}
     if unknown:
@@ -143,12 +159,14 @@ def plan_rollover(conn: sqlite3.Connection, user_id: int, year: int, month: int,
     def template_line(t: dict, prev_id: int | None) -> PlannedExpense:
         return PlannedExpense("template", t["name"], t["type_id"], cash_amount=t["amount"] or 0,
                               needs_amount=t["amount"] is None, template_id=t["id"],
-                              prev_expense_id=prev_id, notes=t["notes"])
+                              prev_expense_id=prev_id, notes=t["notes"], name_key=_key(t),
+                              currency=t["currency"])
 
     plan = RolloverPlan(
         source=src, year=year, month=month,
-        balances={"emergency_current": _f(d.emergency.after), "emergency_min": src["emergency_min"],
-                  "savings_current": _f(max(Decimal(0), d.savings.total))},
+        balances={"emergency_current": _f(max(Decimal(0), d.emergency.after - foreign["emergency"])),
+                  "emergency_min": src["emergency_min"],
+                  "savings_current": _f(max(Decimal(0), d.savings.total - foreign["savings"]))},
         return_to_savings=_f(d.suggestions.return_to_savings),
         unpaid=unpaid,
     )
@@ -165,23 +183,26 @@ def plan_rollover(conn: sqlite3.Connection, user_id: int, year: int, month: int,
             out = PlannedExpense("installment", r["name"], r["type_id"],
                                  inst_balance=_f(balance - balance / count), inst_count=count - 1,
                                  inst_original_count=r["inst_original_count"], prev_expense_id=r["id"],
-                                 notes=r["notes"])
-        carry = line.due if r["id"] in carry_unpaid_ids else line.deferred
+                                 notes=r["notes"], name_key=_key(r), currency=r["currency"])
+        carry = own[r["id"]].due if r["id"] in carry_unpaid_ids else own[r["id"]].deferred
         if carry > 0:
             if out is None:
-                out = PlannedExpense("carry", r["name"], r["type_id"], prev_expense_id=r["id"], notes=carry_note)
+                out = PlannedExpense("carry", r["name"], r["type_id"], prev_expense_id=r["id"], notes=carry_note,
+                                      name_key=_key(r), currency=r["currency"])
             out.carried_in = _f(carry)
         if out is not None:
             plan.expenses.append(out)
     plan.expenses += [template_line(t, None) for tid, t in expense_templates.items() if tid not in used_templates]
 
     plan.incomes = [PlannedIncome(t["name"], t["amount"] or 0, t["is_savings_withdrawal"], t["amount"] is None,
-                                  t["id"], t["notes"])
+                                  t["id"], t["notes"], name_key=_key(t),
+                                  currency=t["currency"])
                     for t in active if t["kind"] == "income"]
 
     goal_rows = base.list_rows(conn, user_id, "goals", budget_id=src["id"])
     plan.goals = [PlannedGoal(g["name"], g["category_id"], g["target_amount"], g["priority"],
-                              g["manual_allocation"], g["notes"], completed=line.valid and line.remaining == 0)
+                              g["manual_allocation"], g["notes"], completed=line.valid and line.remaining == 0,
+                              name_key=_key(g), currency=g["currency"])
                   for g, line in zip(goal_rows, d.goals.lines)]
     return plan
 
@@ -200,18 +221,26 @@ def create_from_previous(conn: sqlite3.Connection, user_id: int, year: int, mont
             opening["savings_current"] = round(opening["savings_current"] + plan.return_to_savings, 2)
         opening.update(balances or {})
         budget = budgets.create_budget(conn, user_id, year, month, source_budget_id=plan.source["id"], **opening)
+        budgets.copy_balances(conn, user_id, plan.source["id"], budget["id"])
 
         for i in plan.incomes:
-            budgets.create_item(conn, user_id, "incomes", budget["id"], asdict(i))
+            values = asdict(i)
+            if values["name_key"]:
+                values["source"] = None
+            budgets.create_item(conn, user_id, "incomes", budget["id"], values)
         for e in plan.expenses:
             values = asdict(e)
             del values["origin"]
+            if values["name_key"]:
+                values["name"] = None
             budgets.create_item(conn, user_id, "expenses", budget["id"], values)
         for g in plan.goals:
             if drop_completed_goals and g.completed:
                 continue
             values = asdict(g)
             del values["completed"]
+            if values["name_key"]:
+                values["name"] = None
             budgets.create_item(conn, user_id, "goals", budget["id"], values)
     return budget
 
@@ -231,12 +260,13 @@ def apply_templates(conn: sqlite3.Connection, user_id: int, budget_id: int) -> i
                 continue
             if t["kind"] == "income":
                 budgets.create_item(conn, user_id, "incomes", budget_id, {
-                    "source": t["name"], "amount": t["amount"] or 0, "needs_amount": t["amount"] is None,
-                    "is_savings_withdrawal": t["is_savings_withdrawal"], "template_id": t["id"], "notes": t["notes"]})
+                    **base.name_values(t, "name", "source"), "amount": t["amount"] or 0, "needs_amount": t["amount"] is None,
+                    "is_savings_withdrawal": t["is_savings_withdrawal"], "template_id": t["id"], "notes": t["notes"],
+                    "currency": t["currency"]})
             else:
                 budgets.create_item(conn, user_id, "expenses", budget_id, {
-                    "name": t["name"], "type_id": t["type_id"], "cash_amount": t["amount"] or 0,
+                    **base.name_values(t), "type_id": t["type_id"], "cash_amount": t["amount"] or 0,
                     "needs_amount": t["amount"] is None, "template_id": t["id"], "notes": t["notes"],
-                    "prev_expense_id": prev_rows.get(t["id"])})
+                    "prev_expense_id": prev_rows.get(t["id"]), "currency": t["currency"]})
             added += 1
     return added

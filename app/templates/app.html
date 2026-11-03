@@ -25,6 +25,10 @@
   </header>
 
   <main class="page" x-show="d">
+    <div class="alert alert-warn" x-show="d && d.missing_rates.length" role="status">
+      <span x-text="d && t('fx.missing', {codes: d.missing_rates.join(', ')})"></span>
+      <a href="/settings#rates">{{ t('fx.enter_rate') }}</a>
+    </div>
     <!-- ================= boards (app/dashboard.py) ================= -->
     <nav class="tabs board-tabs" role="tablist" x-show="boards().length > 1 || editing">
       <template x-for="(b, bi) in boards()" :key="b.id">
@@ -170,7 +174,7 @@
                   <template x-for="u in wizard.plan.unpaid" :key="u.id">
                     <li><label class="check">
                       <input type="checkbox" :checked="wizard.carry.includes(u.id)" @change="toggleCarry(u.id)">
-                      <span x-text="u.name"></span><span class="muted" x-text="money(u.due)"></span>
+                      <span x-text="u.name"></span><span class="muted" x-text="money(u.due) + (u.currency ? ' ' + u.currency : '')"></span>
                     </label></li>
                   </template>
                 </ul>

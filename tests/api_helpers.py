@@ -12,12 +12,15 @@ def make_app(tmp_path, **overrides):
 class Api:
     """Test client wrapper: JSON + CSRF header on every call."""
 
-    def __init__(self, app, username=None, password="secret1"):
+    def __init__(self, app, username=None, password="secret1", currencies=()):
         self.client = app.test_client()
         self.username = username
         if username:
             r = self.post("/auth/register", {"username": username, "password": password,
                                              "password_confirm": password})
+            assert r.status_code == 201, r.get_json()
+        for code in currencies:                   # other currencies the user works with
+            r = self.post("/api/currencies", {"code": code})
             assert r.status_code == 201, r.get_json()
 
     def get(self, url):
@@ -28,6 +31,9 @@ class Api:
 
     def patch(self, url, body=None):
         return self.client.patch(url, json=body if body is not None else {}, headers=H)
+
+    def put(self, url, body=None):
+        return self.client.put(url, json=body if body is not None else {}, headers=H)
 
     def delete(self, url):
         return self.client.delete(url, headers=H)
