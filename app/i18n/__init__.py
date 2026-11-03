@@ -227,9 +227,14 @@ def has(key: str) -> bool:
     return key in _load()[1][DEFAULT_LANGUAGE]
 
 
+def plural_rule(lang: str) -> str:
+    """The language's plural rule, a key of PLURAL_RULES (api.js implements the same ones)."""
+    return _load()[0][normalize(lang)]["plural"]
+
+
 def plural_form(lang: str, n: int) -> str:
     """CLDR plural category of `n` under the language's rule."""
-    return PLURAL_RULES[_load()[0][normalize(lang)]["plural"]](abs(int(n)))
+    return PLURAL_RULES[plural_rule(lang)](abs(int(n)))
 
 
 def fill(template: str, params: dict) -> str:
@@ -292,13 +297,15 @@ def init_app(app) -> None:
             "t": lambda key, **params: t(key, lang, **params),
             "lang": lang,
             "dir": direction(lang),
-            "other_lang": next(code for code in languages() if code != lang),
-            "i18n_payload": {"lang": lang, "dir": direction(lang),
+            "lang_name": language_name(lang),
+            # the language switch: a button with two languages, a menu with more
+            "other_languages": [{"code": code, "name": language_name(code)} for code in languages() if code != lang],
+            "i18n_payload": {"lang": lang, "dir": direction(lang), "plural": plural_rule(lang),
                              "strings": catalog(lang, prefixes=WEB_PREFIXES)},
         }
 
 
 # sections the browser needs (manager / cli / log stay server-side)
-WEB_PREFIXES = ("app.", "lang.", "common.", "count.", "auth.", "nav.", "dashboard.", "status.", "summary.",
+WEB_PREFIXES = ("app.", "common.", "count.", "auth.", "nav.", "dashboard.", "status.", "summary.",
                 "suggestions.", "warnings.", "incomes.", "emergency.", "savings.", "expenses.", "goals.",
                 "payments.", "charts.", "details.", "wizard.", "settings.", "role.")

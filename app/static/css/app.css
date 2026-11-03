@@ -82,6 +82,25 @@ a { color: var(--primary-ink); }
 /* ---------- auth pages */
 .auth-top { display: flex; justify-content: flex-end; margin: -12px -8px 8px 0; }
 .lang-switch { text-decoration: none; }
+.lang-menu { position: relative; display: inline-block; }
+.lang-menu summary { list-style: none; cursor: pointer; }
+.lang-menu summary::-webkit-details-marker { display: none; }
+.lang-menu ul {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 4px);
+  z-index: 50;
+  min-width: 140px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 0.12);
+}
+.lang-menu a { display: block; padding: 6px 10px; border-radius: 6px; color: inherit; text-decoration: none; }
+.lang-menu a:hover { background: var(--border); }
 .auth-wrap {
   min-height: 100vh;
   display: grid;

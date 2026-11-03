@@ -1,2 +1,16 @@
-<a class="btn btn-small btn-ghost lang-switch" href="{{ url_for('i18n.set_language', code=other_lang, next=request.full_path.rstrip('?')) }}"
-   lang="{{ other_lang }}">{{ t('lang.switch_to') }}</a>
+{# two languages: one button to the other; more: a menu (no script, works on every page) #}
+{% set back = request.full_path.rstrip('?') %}
+{% if other_languages|length == 1 %}
+{% set other = other_languages[0] %}
+<a class="btn btn-small btn-ghost lang-switch" href="{{ url_for('i18n.set_language', code=other.code, next=back) }}"
+   lang="{{ other.code }}">{{ other.name }}</a>
+{% elif other_languages %}
+<details class="lang-menu">
+  <summary class="btn btn-small btn-ghost">🌐 {{ lang_name }}</summary>
+  <ul>
+    {% for other in other_languages %}
+    <li><a href="{{ url_for('i18n.set_language', code=other.code, next=back) }}" lang="{{ other.code }}">{{ other.name }}</a></li>
+    {% endfor %}
+  </ul>
+</details>
+{% endif %}

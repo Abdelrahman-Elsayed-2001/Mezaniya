@@ -179,8 +179,10 @@ class ManagerApp(tk.Tk):
 
     # ------------------------------------------------------------------ layout
 
-    def switch_language(self):
-        self.lang = next(code for code in i18n.languages() if code != self.lang)
+    def switch_language(self, code: str):
+        if code == self.lang:
+            return
+        self.lang = code
         os.environ["MEZANIYA_LANGUAGE"] = self.lang
         admin.write_env_value(ENV_FILE, "MEZANIYA_LANGUAGE", self.lang)
         self.ui = Layout(self.lang)
@@ -188,6 +190,21 @@ class ManagerApp(tk.Tk):
         self._build()
         self._show_state(self.state)
         self.refresh_users()
+
+    def _language_switch(self, parent):
+        """Two languages: a button to the other one. More: a list of them all."""
+        codes = i18n.languages()
+        others = [code for code in codes if code != self.lang]
+        if len(others) == 1:
+            return ttk.Button(parent, text=i18n.language_name(others[0]),
+                              command=lambda: self.switch_language(others[0]))
+        if not others:
+            return None
+        names = [i18n.language_name(code) for code in codes]
+        box = ttk.Combobox(parent, values=names, state="readonly", width=max(len(n) for n in names) + 2)
+        box.set(i18n.language_name(self.lang))
+        box.bind("<<ComboboxSelected>>", lambda _e: self.switch_language(codes[box.current()]))
+        return box
 
     def _build(self):
         ui, t = self.ui, self.t
@@ -210,13 +227,14 @@ class ManagerApp(tk.Tk):
         self.address.pack(side=ui.start, padx=16)
         self.address.bind("<Button-1>", lambda _e: self.open_browser())
 
-        self.btn_lang = ttk.Button(top, text=t("lang.switch_to"), command=self.switch_language)
+        self.btn_lang = self._language_switch(top)
         self.btn_start = ttk.Button(top, text=t("manager.start"), command=self.start_server)
         self.btn_stop = ttk.Button(top, text=t("manager.stop"), command=self.stop_server)
         self.btn_restart = ttk.Button(top, text=t("manager.restart"), command=self.restart_server)
         self.btn_open = ttk.Button(top, text=t("manager.open"), command=self.open_browser)
         for b in (self.btn_lang, self.btn_open, self.btn_restart, self.btn_stop, self.btn_start):
-            b.pack(side=ui.end, padx=3)
+            if b is not None:
+                b.pack(side=ui.end, padx=3)
 
         port_row = ttk.Frame(srv)
         port_row.pack(fill="x", pady=(10, 0))

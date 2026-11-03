@@ -13,10 +13,6 @@
     }
   },
 
-  "lang": {
-    "switch_to": "English"
-  },
-
   "common": {
     "save": "حفظ",
     "cancel": "إلغاء",

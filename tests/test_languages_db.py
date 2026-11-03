@@ -134,3 +134,71 @@ def test_real_language_files_load_into_the_database(tmp_path):
         assert db_texts == {code: entries for code, (_, entries) in i18n._files().items()}
     finally:
         i18n.use_database(None)
+
+
+# ---------- the language switch
+
+def _add_french(path, enabled=True):
+    with store.open_db(path) as conn:
+        conn.execute("INSERT INTO language_info (id, name, dir, plural_rule, reference_id, sort_order, enabled) "
+                     "VALUES ('fr', 'Français', 'ltr', 'fr', 'en', 3, ?)", (int(enabled),))
+        store.set_custom(conn, "fr", "app.title", "Mon budget")
+
+
+def test_two_languages_show_one_button(tmp_path):
+    try:
+        client = make_app(tmp_path).test_client()
+        page = client.get("/login").get_data(as_text=True)
+        assert 'class="btn btn-small btn-ghost lang-switch"' in page and ">English</a>" in page
+        assert "lang-menu" not in page
+        assert '"plural": "ar"' in page
+        client.set_cookie(i18n.COOKIE, "en")
+        english = client.get("/login").get_data(as_text=True)
+        assert ">العربية</a>" in english and '"plural": "en"' in english
+    finally:
+        i18n.use_database(None)
+
+
+def test_more_languages_show_a_menu(tmp_path, monkeypatch):
+    monkeypatch.setattr(i18n, "CHECK_SECONDS", 0)
+    try:
+        client = make_app(tmp_path).test_client()
+        _add_french(tmp_path / "languages.db")
+        client.set_cookie(i18n.COOKIE, "fr")
+        page = client.get("/login").get_data(as_text=True)
+        assert '<html lang="fr" dir="ltr">' in page
+        assert "<details class=\"lang-menu\">" in page and "🌐 Français" in page
+        assert 'lang="ar">العربية</a>' in page and 'lang="en">English</a>' in page
+        assert "Mon budget" in page and '"plural": "fr"' in page
+    finally:
+        i18n.use_database(None)
+
+
+def test_disabled_language_is_not_offered(tmp_path, monkeypatch):
+    monkeypatch.setattr(i18n, "CHECK_SECONDS", 0)
+    try:
+        client = make_app(tmp_path).test_client()
+        _add_french(tmp_path / "languages.db", enabled=False)
+        client.set_cookie(i18n.COOKIE, "fr")
+        page = client.get("/login").get_data(as_text=True)
+        assert "lang-menu" not in page and "Français" not in page and ">English</a>" in page
+    finally:
+        i18n.use_database(None)
+
+
+def test_browser_plural_rules_match_the_server():
+    import shutil
+    import subprocess
+    from app.config import BASE_DIR
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node is not installed")
+    source = (BASE_DIR / "app" / "static" / "js" / "api.js").read_text(encoding="utf-8")
+    rules = source[source.index("const PLURAL_RULES"):source.index("function pluralForm")]
+    numbers = list(range(0, 230)) + [1001, 1011, 1021, 1102]
+    script = rules + f"console.log(JSON.stringify(Object.fromEntries(Object.entries(PLURAL_RULES).map("\
+        f"([k, f]) => [k, {numbers}.map(f)]))));"
+    out = json.loads(subprocess.run([node, "-e", script], capture_output=True, text=True, check=True).stdout)
+    assert set(out) == set(i18n.PLURAL_RULES)
+    for name, rule in i18n.PLURAL_RULES.items():
+        assert out[name] == [rule(n) for n in numbers], name
