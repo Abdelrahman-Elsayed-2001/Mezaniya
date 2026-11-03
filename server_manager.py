@@ -40,6 +40,54 @@ FIREWALL_CMD = ('New-NetFirewallRule -DisplayName "Mezaniya {port}" -Direction I
                 '-LocalPort {port} -Action Allow -Profile Private')
 
 
+# Windows virtual-key codes of C, V, X, A: with an Arabic keyboard layout Ctrl+V arrives as Ctrl+<Arabic
+# letter>, which Tk's own copy/paste bindings don't recognise
+CLIPBOARD_KEYS = {67: "<<Copy>>", 86: "<<Paste>>", 88: "<<Cut>>", 65: "<<SelectAll>>"}
+EDIT_CLASSES = ("Entry", "TEntry", "Text", "TCombobox")
+
+
+def _select_all(widget) -> None:
+    if isinstance(widget, tk.Text):
+        widget.tag_add("sel", "1.0", "end-1c")
+    else:
+        widget.select_range(0, "end")
+        widget.icursor("end")
+
+
+def _edit_event(widget, event: str) -> None:
+    if event == "<<SelectAll>>":
+        _select_all(widget)
+        return
+    widget.event_generate(event)
+    if isinstance(widget, tk.Text) and "dir" in widget.tag_names():
+        widget.tag_add("dir", "1.0", "end")
+
+
+def install_edit_shortcuts(root: tk.Misc, labels: dict[str, str]) -> None:
+    """Ctrl+C/V/X/A whatever the keyboard layout, and a right-click menu, in every text field."""
+    def shortcut(event):
+        if event.keysym.lower() in ("c", "v", "x", "a") or event.keycode not in CLIPBOARD_KEYS:
+            if event.keysym.lower() == "a":
+                _select_all(event.widget)
+                return "break"
+            return None
+        _edit_event(event.widget, CLIPBOARD_KEYS[event.keycode])
+        return "break"
+
+    def menu(event):
+        widget = event.widget
+        widget.focus_set()
+        popup = tk.Menu(widget, tearoff=False)
+        for event_name, label in (("<<Cut>>", labels["cut"]), ("<<Copy>>", labels["copy"]),
+                                  ("<<Paste>>", labels["paste"]), ("<<SelectAll>>", labels["select_all"])):
+            popup.add_command(label=label, command=lambda e=event_name: _edit_event(widget, e))
+        popup.tk_popup(event.x_root, event.y_root)
+
+    for cls in EDIT_CLASSES:
+        root.bind_class(cls, "<Control-KeyPress>", shortcut, add="+")
+        root.bind_class(cls, "<Button-3>", menu, add="+")
+
+
 # Tk draws every line left-to-right, so in Arabic a line with Latin text or {placeholders} comes out
 # in the wrong order. Wrapping each line in RIGHT-TO-LEFT EMBEDDING … POP DIRECTIONAL FORMATTING makes
 # Windows lay it out right-to-left. The marks are display-only: plain() takes them off what is typed.
@@ -234,7 +282,8 @@ class TextDialog(Dialog):
         box = tk.Text(parent, width=60, height=height, wrap="word", font=FONT, relief="solid", borderwidth=1,
                       background="#f3f4f6" if read_only else "white")
         box.tag_configure("dir", justify="right" if rtl else "left")
-        box.insert("1.0", directed(value, rtl), "dir")
+        # marks only where nobody types: Tk loses them around the cursor while editing
+        box.insert("1.0", directed(value, rtl) if read_only else value, "dir")
         box.bind("<KeyRelease>", lambda _e: box.tag_add("dir", "1.0", "end"))
         if read_only:
             box.configure(state="disabled")
@@ -270,7 +319,7 @@ class TextDialog(Dialog):
             for i, form in enumerate(langs.PLURAL_FORMS[self.target["plural"]]):
                 label = ttk.Label(grid, text=t(f"manager.plural_form_{form}"), font=FONT)
                 entry = ttk.Entry(grid, width=44, justify="right" if rtl else "left", font=FONT)
-                entry.insert(0, directed(value.get(form, ""), rtl))
+                entry.insert(0, value.get(form, ""))
                 label.grid(row=i, column=1 if self.ui.rtl else 0, sticky=self.ui.anchor, padx=6, pady=2)
                 entry.grid(row=i, column=0 if self.ui.rtl else 1, sticky="we", pady=2)
                 self.forms[form] = entry
@@ -333,6 +382,7 @@ class ManagerApp(tk.Tk):
 
         self._build()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+        install_edit_shortcuts(self, self.edit_labels)        # labels filled (per language) by _build
         self.after(100, self._drain_tasks)
         self._poll_state()
         self._poll_users()
@@ -378,6 +428,8 @@ class ManagerApp(tk.Tk):
         if self.root_frame is not None:
             self.root_frame.destroy()
         self.title(f"{t('manager.title')} · v{__version__}{' ' + STAGE if STAGE else ''}")
+        self.edit_labels = getattr(self, "edit_labels", {})
+        self.edit_labels.update({k: t(f"manager.{k}") for k in ("cut", "copy", "paste", "select_all")})
         self.root_frame = ttk.Frame(self, padding=(12, 8, 12, 12))
         self.root_frame.pack(fill="both", expand=True)
         notebook = ttk.Notebook(self.root_frame)

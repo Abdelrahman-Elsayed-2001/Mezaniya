@@ -1347,6 +1347,10 @@
   },
 
   "manager": {
+    "cut": "Cut",
+    "copy": "Copy",
+    "paste": "Paste",
+    "select_all": "Select all",
     "tab_server": "Server & users",
     "tab_languages": "Languages & texts",
     "languages": "Languages",

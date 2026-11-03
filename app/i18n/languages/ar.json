@@ -1347,6 +1347,10 @@
   },
 
   "manager": {
+    "cut": "قص",
+    "copy": "نسخ",
+    "paste": "لصق",
+    "select_all": "تحديد الكل",
     "tab_server": "الخادم والمستخدمون",
     "tab_languages": "اللغات والنصوص",
     "languages": "اللغات",
