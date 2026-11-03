@@ -3,7 +3,7 @@
 <div x-data="dashboard" x-cloak>
   <header class="topbar">
     <div class="topbar-start">
-      <h1 class="brand">{{ t('app.title') }}</h1>
+      <h1 class="brand"><img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="">{{ t('app.title') }}</h1>
       <label class="month-picker">
         <span class="sr-only">{{ t('nav.month') }}</span>
         <select @change="load(Number($event.target.value))" :disabled="busy">

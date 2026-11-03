@@ -119,10 +119,16 @@ a { color: var(--primary-ink); }
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
   margin: 0 0 4px;
   font-size: 1.5rem;
   font-weight: 700;
 }
+
+/* the "م" mark sits on the start side of the name (right in RTL, left in LTR) */
+.brand-logo { width: 1.6em; height: 1.6em; flex: none; }
 
 .subtitle {
   margin: 0 0 24px;
