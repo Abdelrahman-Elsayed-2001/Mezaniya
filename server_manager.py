@@ -15,6 +15,7 @@ from __future__ import annotations
 import os
 import queue
 import re
+import sqlite3
 import threading
 import tkinter as tk
 import webbrowser
@@ -24,9 +25,9 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 from app import i18n
 from app.version import STAGE, __version__
 from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem
-from app.db.connection import IncompatibleDatabase, connect, migrate
+from app.db.connection import connect, migrate
 from app.i18n import store as language_store
-from app.services import admin, backup, demo
+from app.services import admin, backup, data_files, demo
 from app.services import languages as langs
 from app.services.server_control import ServerControl, ServerState
 
@@ -1075,6 +1076,81 @@ class ManagerApp(tk.Tk):
         self.destroy()
 
 
+class IncompatibleWindow(tk.Toplevel):
+    """A data file this version can't open: delete it, rename it, or (when app.db.upgrades has fix
+    scripts for its format) upgrade it. `done` is False when the user closes without a choice."""
+
+    def __init__(self, root, problem: data_files.Problem, lang: str):
+        super().__init__(root)
+        self.problem, self.lang, self.ui, self.done = problem, lang, Layout(lang), False
+        self.title(self.t("manager.incompatible_title"))
+        self.resizable(False, False)
+        frame = ttk.Frame(self, padding=18)
+        frame.pack(fill="both", expand=True)
+        intro = "manager.incompatible_data" if problem.kind == data_files.DATA else "manager.incompatible_languages"
+        lines = [self.t(intro, path=problem.path, found=problem.found, expected=problem.expected),
+                 self.t("manager.incompatible_choose")]
+        if problem.upgradable:
+            lines.append(self.t("manager.incompatible_upgradable"))
+        ttk.Label(frame, text="\n\n".join(lines), wraplength=460, justify=self.ui.justify, anchor=self.ui.anchor,
+                  font=FONT).pack(fill="x", pady=(0, 14))
+        actions = [("manager.incompatible_rename", self.rename), ("manager.incompatible_delete", self.delete)]
+        if problem.upgradable:
+            actions.insert(0, ("manager.incompatible_upgrade", self.upgrade))
+        for key, command in actions:
+            ttk.Button(frame, text=self.t(key), command=command).pack(fill="x", pady=3)
+        ttk.Button(frame, text=self.t("manager.incompatible_quit"), command=self.destroy).pack(fill="x", pady=(12, 0))
+        self.protocol("WM_DELETE_WINDOW", self.destroy)
+        self.bind("<Escape>", lambda _e: self.destroy())
+        self.lift()
+        self.focus_force()
+
+    def t(self, key: str, **params) -> str:
+        return self.ui.text(i18n.t(key, self.lang, **params))
+
+    def _run(self, action, message_key: str | None = None):
+        try:
+            result = action(self.problem)
+        except (OSError, sqlite3.Error, ValueError) as e:
+            messagebox.showerror(self.t("manager.cannot"), str(e), parent=self)
+            return
+        if message_key:
+            messagebox.showinfo(self.t("manager.done"), self.t(message_key, path=result), parent=self)
+        self.done = True
+        self.destroy()
+
+    def delete(self):
+        if messagebox.askyesno(self.t("manager.incompatible_title"),
+                               self.t("manager.incompatible_confirm_delete", path=self.problem.path),
+                               icon="warning", default="no", parent=self):
+            self._run(data_files.delete)
+
+    def rename(self):
+        self._run(data_files.set_aside, "manager.incompatible_renamed")
+
+    def upgrade(self):
+        self._run(data_files.upgrade, "manager.incompatible_upgraded")
+
+
+def resolve_incompatible() -> bool:
+    """Before anything opens mezaniya.db or languages.db: ask about each one this version can't
+    open. False = the user closed without a choice (the manager doesn't start)."""
+    problems = data_files.problems(Config.DB_PATH, Config.languages_db_path())
+    if not problems:
+        return True
+    root = tk.Tk()
+    root.withdraw()
+    try:
+        for problem in problems:
+            window = IncompatibleWindow(root, problem, i18n.default_language())
+            root.wait_window(window)
+            if not window.done:
+                return False
+        return True
+    finally:
+        root.destroy()
+
+
 def main():
     problem = data_dir_problem(Config.DATA_DIR)
     if problem:
@@ -1085,18 +1161,10 @@ def main():
                              directed(i18n.t("manager.data_dir_unwritable", path=Config.DATA_DIR, error=problem), rtl))
         root.destroy()
         return
-    i18n.use_database(Config.languages_db_path())
-    try:
-        app = ManagerApp()
-    except IncompatibleDatabase as e:
-        rtl = i18n.direction(i18n.default_language()) == "rtl"
-        if tk._default_root is not None:
-            tk._default_root.withdraw()
-        messagebox.showerror(directed(i18n.t("manager.incompatible_title"), rtl),
-                             directed(i18n.t("manager.incompatible", found=e.generation, expected=e.expected), rtl)
-                             + "\n\n" + str(e))
+    if not resolve_incompatible():
         return
-    app.mainloop()
+    i18n.use_database(Config.languages_db_path())
+    ManagerApp().mainloop()
 
 
 if __name__ == "__main__":
