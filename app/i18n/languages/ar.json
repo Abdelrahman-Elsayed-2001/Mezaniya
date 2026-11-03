@@ -1347,6 +1347,12 @@
   },
 
   "manager": {
+    "export_csv": "تصدير CSV",
+    "import_csv": "استيراد CSV",
+    "csv_exported": "حُفظ {rows} سطرًا في:\n{path}\n\nترجم عمود «{code}» ثم احفظ الملف بصيغة CSV UTF-8 واستورده.",
+    "csv_imported": "حُفظ {saved} نصًا، وبقي {unchanged} دون تغيير.",
+    "csv_refused": "لم يُحفظ {n} نصًا:",
+    "csv_more": "و{n} غيرها.",
     "cut": "قص",
     "copy": "نسخ",
     "paste": "لصق",
@@ -1413,6 +1419,8 @@
     "plural_form_many": "كثير (11 إلى 99)",
     "plural_form_other": "غير ذلك",
     "lang_err": {
+      "csv_read": "تعذّرت قراءة الملف. احفظه من Excel بصيغة «CSV UTF-8».",
+      "csv_column": "لا يوجد في الملف عمود «key» وعمود باسم {code}.",
       "unknown": "لا توجد لغة بالرمز {code}.",
       "unknown_key": "لا يوجد نص بالمفتاح {text}.",
       "code": "يجب أن يكون رمز اللغة حرفين أو ثلاثة أحرف إنجليزية، مثل fr.",
@@ -1502,6 +1510,11 @@
   },
 
   "cli": {
+    "yes_words": "نعم ن",
+    "restore_languages_ask": "تحتوي هذه النسخة أيضًا على اللغات والنصوص. هل تريد استرجاعها؟ [y/N] ",
+    "restored_languages": "واسترجعت اللغات والنصوص إلى: {path}",
+    "restore_languages_skipped": "لم تُسترجع اللغات والنصوص (أضف --languages لاسترجاعها).",
+    "help_restore_languages": "استرجاع اللغات والنصوص من النسخة أيضًا (يُسأل عنها إن لم يُحدَّد)",
     "description": "أوامر إدارة ميزانيتي",
     "help_lang": "لغة الرسائل (ar أو en)",
     "help_list_users": "عرض المستخدمين",

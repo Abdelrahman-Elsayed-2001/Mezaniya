@@ -1347,6 +1347,12 @@
   },
 
   "manager": {
+    "export_csv": "Export CSV",
+    "import_csv": "Import CSV",
+    "csv_exported": "Saved {rows} rows to:\n{path}\n\nTranslate the “{code}” column, save as CSV UTF-8 and import it.",
+    "csv_imported": "Saved {saved} texts; {unchanged} were unchanged.",
+    "csv_refused": "{n} texts were not saved:",
+    "csv_more": "…and {n} more.",
     "cut": "Cut",
     "copy": "Copy",
     "paste": "Paste",
@@ -1413,6 +1419,8 @@
     "plural_form_many": "many",
     "plural_form_other": "other",
     "lang_err": {
+      "csv_read": "The file couldn't be read. Save it from Excel as “CSV UTF-8”.",
+      "csv_column": "The file needs a “key” column and a column named {code}.",
       "unknown": "There's no language with the code {code}.",
       "unknown_key": "There's no text with the key {text}.",
       "code": "The language code must be two or three English letters, like fr.",
@@ -1502,6 +1510,11 @@
   },
 
   "cli": {
+    "yes_words": "yes y",
+    "restore_languages_ask": "This backup also has the languages and texts. Restore them too? [y/N] ",
+    "restored_languages": "Languages and texts restored to: {path}",
+    "restore_languages_skipped": "Languages and texts were not restored (add --languages to restore them).",
+    "help_restore_languages": "also restore the languages and texts from the backup (asked if not given)",
     "description": "Mezaniya admin commands",
     "help_lang": "Message language (ar or en)",
     "help_list_users": "List users",

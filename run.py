@@ -32,7 +32,8 @@ def main() -> None:
     scheduler = None
     if Config.BACKUP_INTERVAL_HOURS > 0:
         scheduler = BackupScheduler(Config.DB_PATH, Config.BACKUP_DIR, Config.BACKUP_KEEP,
-                                    Config.BACKUP_INTERVAL_HOURS).start()
+                                    Config.BACKUP_INTERVAL_HOURS,
+                                    languages_path=Config.languages_db_path()).start()
 
     log.info(t("log.started", port=Config.PORT))
     if Config.HOST in ("0.0.0.0", "::"):

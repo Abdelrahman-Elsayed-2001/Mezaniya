@@ -19,7 +19,7 @@ import threading
 import tkinter as tk
 import webbrowser
 from pathlib import Path
-from tkinter import messagebox, simpledialog, ttk
+from tkinter import filedialog, messagebox, simpledialog, ttk
 
 from app import i18n
 from app.version import STAGE, __version__
@@ -588,6 +588,8 @@ class ManagerApp(tk.Tk):
         info.pack(fill="x", pady=(6, 0))
         self.texts_count = ttk.Label(info, text="")
         self.texts_count.pack(side=ui.start)
+        ttk.Button(info, text=t("manager.import_csv"), command=self.import_csv).pack(side=ui.end, padx=3)
+        ttk.Button(info, text=t("manager.export_csv"), command=self.export_csv).pack(side=ui.end, padx=3)
         ttk.Label(info, text=t("manager.texts_hint"), foreground="#7b8794").pack(side=ui.start, padx=10)
         self.text_tree = self._tree(texts, ["key", "reference", "value"],
                                     {"key": 230, "reference": 330, "value": 330}, "value", 10)
@@ -733,6 +735,44 @@ class ManagerApp(tk.Tk):
             return
         langs.delete_language(self.lconn, lang["code"])
         self.languages_changed()
+
+    def export_csv(self):
+        target = self._lang(self.text_target)
+        path = filedialog.asksaveasfilename(parent=self, defaultextension=".csv", initialfile=f"mezaniya-{target['code']}.csv",
+                                            filetypes=[("CSV", "*.csv")])
+        if not path:
+            return
+        try:
+            rows = langs.export_csv(self.lconn, path, target["code"], self.text_reference)
+        except OSError as e:
+            messagebox.showerror(self.t("manager.cannot"), str(e), parent=self)
+            return
+        messagebox.showinfo(self.t("manager.done"),
+                            self.t("manager.csv_exported", rows=rows, path=path, code=target["code"]), parent=self)
+
+    def import_csv(self):
+        target = self._lang(self.text_target)
+        path = filedialog.askopenfilename(parent=self, filetypes=[("CSV", "*.csv"), ("*", "*")])
+        if not path:
+            return
+        try:
+            result = langs.import_csv(self.lconn, path, target["code"])
+        except admin.AdminError as e:
+            messagebox.showerror(self.t("manager.cannot"), self.ui.text(e.message(self.lang)), parent=self)
+            return
+        except OSError as e:
+            messagebox.showerror(self.t("manager.cannot"), str(e), parent=self)
+            return
+        message = self.t("manager.csv_imported", saved=result["saved"], unchanged=result["unchanged"])
+        errors = result["errors"]
+        if errors:
+            shown = [f"{key}: {e.message(self.lang)}" for key, e in errors[:12]]
+            if len(errors) > 12:
+                shown.append(i18n.t("manager.csv_more", self.lang, n=len(errors) - 12))
+            message += "\n\n" + self.t("manager.csv_refused", n=len(errors)) + "\n" + "\n".join(shown)
+        i18n.reload()
+        self.refresh_languages()
+        (messagebox.showwarning if errors else messagebox.showinfo)(self.t("manager.done"), message, parent=self)
 
     def edit_text(self):
         selection = self.text_tree.selection()
@@ -1014,7 +1054,8 @@ class ManagerApp(tk.Tk):
         def done(path: Path):
             self.refresh_users()
             messagebox.showinfo(self.t("manager.done"), self.t("manager.backup_done", path=path), parent=self)
-        self.run_bg(lambda: backup.backup_now(Config.DB_PATH, Config.BACKUP_DIR, Config.BACKUP_KEEP), done)
+        self.run_bg(lambda: backup.backup_now(Config.DB_PATH, Config.BACKUP_DIR, Config.BACKUP_KEEP,
+                                                   languages_path=Config.languages_db_path()), done)
 
     def open_backups(self):
         Config.BACKUP_DIR.mkdir(parents=True, exist_ok=True)

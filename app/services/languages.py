@@ -5,9 +5,12 @@ admin.AdminError with a manager.lang_err.* key, like the manager's other actions
 """
 from __future__ import annotations
 
+import csv
+import io
 import json
 import re
 import sqlite3
+from pathlib import Path
 
 from app import i18n
 from app.db.connection import transaction
@@ -208,3 +211,97 @@ def delete_language(conn: sqlite3.Connection, code: str) -> None:
         conn.execute("DELETE FROM language_text WHERE language_id = ?", (code,))
         conn.execute("DELETE FROM language_info WHERE id = ?", (code,))
         store.bump(conn)
+
+
+# ---------- CSV (to translate in Excel or another tool, then bring back)
+
+CSV_KEY, CSV_FORM = "key", "form"
+
+
+def export_csv(conn: sqlite3.Connection, path: str | Path, target: str, reference: str | None) -> int:
+    """Write key, form, <reference>, <target>: one row per text, one per plural form.
+    UTF-8 with a BOM so Excel shows Arabic. Returns the number of rows."""
+    lang = get_language(conn, target)
+    ref = get_language(conn, reference) if reference and reference != target else None
+    ref_texts = i18n.catalog(ref["code"]) if ref else {}
+    own = texts(conn, target)
+    header = [CSV_KEY, CSV_FORM] + ([ref["code"]] if ref else []) + [lang["code"]]
+    count = 0
+    with open(path, "w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        for key, plural in keys(conn):
+            value = own[key]["value"] if key in own else None
+            reference_value = ref_texts.get(key)
+            forms = PLURAL_FORMS[lang["plural"]] if plural else ("",)
+            for form in forms:
+                def cell(v):
+                    if plural:
+                        return v.get(form, "") if isinstance(v, dict) else ""
+                    return v or ""
+                writer.writerow([key, form] + ([cell(reference_value)] if ref else []) + [cell(value)])
+                count += 1
+    return count
+
+
+def _read_rows(path: str | Path) -> list[list[str]]:
+    raw = Path(path).read_bytes()
+    for encoding in ("utf-8-sig", "cp1256"):           # Excel's "CSV UTF-8", or plain "CSV" on Arabic Windows
+        try:
+            text = raw.decode(encoding)
+            break
+        except UnicodeDecodeError:
+            continue
+    else:
+        raise AdminError("manager.lang_err.csv_read")
+    first = text.split("\n", 1)[0]
+    delimiter = max((",", ";", "\t"), key=first.count)
+    return list(csv.reader(io.StringIO(text), delimiter=delimiter))
+
+
+def import_csv(conn: sqlite3.Connection, path: str | Path, target: str) -> dict:
+    """Save the target column's texts. Empty cells are skipped (nothing is cleared); each text is
+    checked as in the editor. Returns saved / unchanged counts and the refused keys with their
+    AdminError (message(lang) words it)."""
+    lang = get_language(conn, target)
+    rows = _read_rows(path)
+    if not rows:
+        raise AdminError("manager.lang_err.csv_column", code=target)
+    header = [h.strip().lower() for h in rows[0]]
+    if CSV_KEY not in header or lang["code"] not in header:
+        raise AdminError("manager.lang_err.csv_column", code=lang["code"])
+    k, col = header.index(CSV_KEY), header.index(lang["code"])
+    f = header.index(CSV_FORM) if CSV_FORM in header else None
+    known = dict(keys(conn))
+    own = texts(conn, target)
+    wanted: dict[str, object] = {}
+    errors: list[tuple[str, str]] = []
+    for row in rows[1:]:
+        if len(row) <= max(k, col):
+            continue
+        key, value = row[k].strip(), row[col].replace("\r\n", "\n").strip()
+        if not key or not value:
+            continue
+        if key not in known:
+            errors.append((key, AdminError("manager.lang_err.unknown_key", text=key)))
+            continue
+        if known[key]:
+            form = row[f].strip() if f is not None and len(row) > f else ""
+            if form in PLURAL_FORMS[lang["plural"]]:
+                wanted.setdefault(key, {})[form] = value
+        else:
+            wanted[key] = value
+    saved = unchanged = 0
+    for key, value in wanted.items():
+        current = own[key]["value"] if key in own else None
+        if known[key] and isinstance(current, dict):
+            value = {**current, **value}                 # forms left empty keep what they had
+        if value == current:
+            unchanged += 1
+            continue
+        try:
+            save_text(conn, target, key, value)
+            saved += 1
+        except AdminError as e:
+            errors.append((key, e))
+    return {"saved": saved, "unchanged": unchanged, "errors": errors}
