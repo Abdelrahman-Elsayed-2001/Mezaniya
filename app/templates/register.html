@@ -4,7 +4,7 @@
 <main class="auth-wrap">
   <form class="auth-card" data-endpoint="/auth/register" data-success="/" novalidate>
     <div class="auth-top">{% include "_lang_switch.html" %}</div>
-    <h1 class="brand">{{ t('auth.register.title') }}</h1>
+    <h1 class="brand"><img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="">{{ t('auth.register.title') }}</h1>
     <p class="subtitle">{{ t('auth.register.subtitle') }}</p>
     <div class="alert alert-error" role="alert" hidden></div>
     <div class="field">

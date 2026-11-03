@@ -4,7 +4,7 @@
 <div x-data="settingsPage" x-cloak>
   <header class="topbar">
     <div class="topbar-start">
-      <h1 class="brand">{{ t('common.settings') }}</h1>
+      <h1 class="brand"><img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="">{{ t('common.settings') }}</h1>
       <a class="btn btn-small btn-ghost" href="/">{{ t('settings.back') }}</a>
     </div>
     <nav>
