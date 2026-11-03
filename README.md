@@ -206,7 +206,7 @@ New-NetFirewallRule -DisplayName "Mezaniya" -Direction Inbound -Protocol TCP -Lo
 - **`app/templates/` + `app/static/`:** الواجهة (Alpine.js مضمّن في المشروع، فلا حاجة إلى الإنترنت).
 ### بناء المثبّت والنسخة المحمولة
 
-يحتاج [Inno Setup 6](https://jrsoftware.org/isdl.php) (للمثبّت فقط)، ثم:
+يحتاج [Inno Setup](https://jrsoftware.org/isdl.php) الإصدار 6 أو أحدث (للمثبّت فقط)، ثم:
 ```bash
 .venv\Scripts\python.exe -m pip install -r requirements-build.txt
 .venv\Scripts\python.exe build_installer.py

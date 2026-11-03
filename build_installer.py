@@ -11,7 +11,7 @@ The portable zip is the same dist\\Mezaniya plus packaging\\portable.txt: that f
 programs keep their data in a data\\ folder beside them (app/config.py) instead of %LOCALAPPDATA%.
 
 Needs: the app's requirements and PyInstaller in this Python (pip install -r requirements-build.txt),
-and Inno Setup 6 (ISCC.exe on PATH, in its default folder, or set INNO_SETUP to its path).
+and Inno Setup 6 or newer (found on PATH, in its usual folders or the registry; or set INNO_SETUP to ISCC.exe).
 The version comes from app/version.py: 0.4.0 + STAGE "beta" → Mezaniya-Setup-v0.4.0-beta.exe.
 """
 from __future__ import annotations
@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -45,16 +46,46 @@ DIST = ROOT / "dist" / "Mezaniya"
 OUTPUT = ROOT / "Output"
 
 
+def registry_inno_dirs() -> list[Path]:
+    """Install folders of every Inno Setup version in the Windows uninstall list (any location)."""
+    if os.name != "nt":
+        return []
+    import winreg
+    uninstall = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+    found = []
+    for hive, path in ((winreg.HKEY_LOCAL_MACHINE, uninstall),
+                       (winreg.HKEY_LOCAL_MACHINE, uninstall.replace("SOFTWARE", r"SOFTWARE\WOW6432Node")),
+                       (winreg.HKEY_CURRENT_USER, uninstall)):
+        try:
+            with winreg.OpenKey(hive, path) as key:
+                names = [winreg.EnumKey(key, i) for i in range(winreg.QueryInfoKey(key)[0])]
+                for name in names:
+                    if re.fullmatch(r"Inno Setup \d+_is1", name):
+                        with winreg.OpenKey(key, name) as app:
+                            found.append(Path(winreg.QueryValueEx(app, "InstallLocation")[0]))
+        except OSError:
+            continue
+    return found
+
+
+def inno_version(folder: Path) -> int:
+    match = re.search(r"Inno Setup (\d+)", folder.name)
+    return int(match.group(1)) if match else 0
+
+
 def find_iscc() -> Path:
-    candidates = [os.environ.get("INNO_SETUP"), shutil.which("ISCC")]
-    for base in ("ProgramFiles(x86)", "ProgramFiles", "LOCALAPPDATA"):
+    """INNO_SETUP, then PATH, then the newest version in the default folders or the registry."""
+    folders = registry_inno_dirs()
+    for base in ("ProgramW6432", "ProgramFiles", "ProgramFiles(x86)", "LOCALAPPDATA"):
         if os.environ.get(base):
-            sub = "Programs/Inno Setup 6" if base == "LOCALAPPDATA" else "Inno Setup 6"
-            candidates.append(str(Path(os.environ[base]) / sub / "ISCC.exe"))
+            parent = Path(os.environ[base]) / ("Programs" if base == "LOCALAPPDATA" else "")
+            folders += parent.glob("Inno Setup*")
+    newest_first = sorted(folders, key=inno_version, reverse=True)
+    candidates = [os.environ.get("INNO_SETUP"), shutil.which("ISCC"), *(f / "ISCC.exe" for f in newest_first)]
     for c in candidates:
         if c and Path(c).is_file():
             return Path(c)
-    sys.exit("Inno Setup 6 not found: install it from https://jrsoftware.org/isdl.php "
+    sys.exit("Inno Setup not found: install it from https://jrsoftware.org/isdl.php "
              "or set INNO_SETUP to the full path of ISCC.exe.")
 
 
