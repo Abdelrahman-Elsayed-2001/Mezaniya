@@ -18,7 +18,7 @@ USED_IN = ("incomes", "expenses", "goals", "recurring_templates", "budget_balanc
 
 
 class CurrencyError(ValueError):
-    """`key` is a the language files key under api.err."""
+    """`key` is a language-file key under api.err."""
     def __init__(self, key: str, **params):
         super().__init__(key)
         self.key, self.params = key, params
