@@ -24,7 +24,10 @@ def _json(conn, user_id: int) -> dict:
     mine = currencies.options(conn, user_id, lang)
     have = {c["code"] for c in mine}
     return {"base": settings.get_settings(conn, user_id)["currency"], "currencies": mine,
-            "builtin": [c for c in currency.options(lang) if c["code"] not in have],
+            # every ISO currency not in the list yet, with both languages' names to search by
+            "builtin": [{**c, "search": " ".join((c["code"], currency.name(c["code"], "ar"),
+                                                   currency.name(c["code"], "en"))).lower()}
+                        for c in currency.options(lang) if c["code"] not in have],
             "in_use": [c["code"] for c in mine if currencies.used(conn, user_id, c["code"])]}
 
 

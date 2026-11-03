@@ -313,7 +313,7 @@ document.addEventListener("alpine:init", () => {
 
     currencyName(code) {
       const c = this.d.currencies.find((x) => x.code === code);
-      return c ? `${c.name} (${c.symbol})` : code;
+      return c ? `${c.name} (\u2068${c.symbol}\u2069)` : code;
     },
 
     async setForeignBalance(kind, currency, amount) {

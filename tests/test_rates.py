@@ -49,6 +49,8 @@ def test_manual_rates_win_over_online(tmp_path):
     c = connect(tmp_path / "r.db")
     migrate(c)
     uid = admin.create_user(c, "bob", "secret1", "ar", date(2026, 1, 1))
+    from app.db.repo import currencies
+    currencies.ensure(c, uid, "EGP")
     assert rates.set_online(c, uid, "SAR", "EGP", 202601, 0.081)
     assert rates.set_online(c, uid, "SAR", "EGP", 202602, 0.079)
     rates.set_manual(c, uid, "SAR", "EGP", 202603, 0.08, to_ym=202604)
@@ -82,21 +84,24 @@ def test_the_users_own_currency_list(api):
     assert "EUR" in [c["code"] for c in cur["builtin"]] and "EGP" not in [c["code"] for c in cur["builtin"]]
     assert api.post("/api/currencies", {"code": "EGP"}).status_code == 422                  # already there
     assert api.post("/api/currencies", {"code": "CN1"}).status_code == 422                  # not 3 letters
-    assert api.post("/api/currencies", {"code": "CNY"}).status_code == 422                  # needs a name
-    cur = api.post("/api/currencies", {"code": "cny", "name": "يوان", "symbol": "¥"}).get_json()
-    cny = next(c for c in cur["currencies"] if c["code"] == "CNY")
-    assert (cny["name"], cny["symbol"], cny["builtin"]) == ("يوان", "¥", False)
+    assert len(cur["builtin"]) > 150                                                       # all of ISO 4217
+    assert api.post("/api/currencies", {"code": "BTC"}).status_code == 422                  # not ISO: needs a name
+    cur = api.post("/api/currencies", {"code": "btc", "name": "بيتكوين", "symbol": "₿"}).get_json()
+    btc = next(c for c in cur["currencies"] if c["code"] == "BTC")
+    assert (btc["name"], btc["symbol"], btc["builtin"]) == ("بيتكوين", "₿", False)
+    api.post("/api/currencies", {"code": "CNY"})                                            # ISO: named for you
+    assert next(c for c in api.get("/api/currencies").get_json()["currencies"] if c["code"] == "CNY")["name"] == "يوان صيني"
     # a new currency works like any other: an item, a rate, and it can't be removed while used
     b = api.budget_id()
-    item = api.post(f"/api/budgets/{b}/incomes", {"source": "x", "amount": 100, "currency": "CNY"}).get_json()["item"]
-    assert api.put("/api/rates", {"from_currency": "CNY", "to_currency": "SAR", "from_year": 2026, "from_month": 1,
+    item = api.post(f"/api/budgets/{b}/incomes", {"source": "x", "amount": 100, "currency": "BTC"}).get_json()["item"]
+    assert api.put("/api/rates", {"from_currency": "BTC", "to_currency": "SAR", "from_year": 2026, "from_month": 1,
                                   "rate": 0.52}).status_code == 200
-    assert api.delete("/api/currencies/CNY").status_code == 422                             # in use
+    assert api.delete("/api/currencies/BTC").status_code == 422                             # in use
     assert api.delete("/api/currencies/SAR").status_code == 422                             # the base
     api.delete(f"/api/budgets/{b}/incomes/{item['id']}")
-    cur = api.delete("/api/currencies/CNY").get_json()
-    assert "CNY" not in [c["code"] for c in cur["currencies"]]
-    assert all(r["currency"] != "CNY" for r in api.get("/api/rates").get_json()["rates"])  # its rates went too
+    cur = api.delete("/api/currencies/BTC").get_json()
+    assert "BTC" not in [c["code"] for c in cur["currencies"]]
+    assert all(r["currency"] != "BTC" for r in api.get("/api/rates").get_json()["rates"])  # its rates went too
     # items may only use the user's currencies
     r = api.post(f"/api/budgets/{b}/incomes", {"source": "y", "amount": 1, "currency": "EUR"})
     assert r.status_code == 422

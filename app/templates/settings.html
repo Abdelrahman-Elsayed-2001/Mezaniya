@@ -195,7 +195,7 @@
       <div class="cur-list">
         <template x-for="c in cur.currencies" :key="c.code">
           <span class="cur-chip" :class="c.code === cur.base ? 'is-base' : ''">
-            <strong x-text="c.code"></strong> <span x-text="c.name + ' (' + c.symbol + ')'"></span>
+            <strong x-text="c.code"></strong> <span><span x-text="c.name"></span> (<bdi x-text="c.symbol"></bdi>)</span>
             <span class="chip chip-manual" x-show="c.code === cur.base">{{ t('settings.currencies_base') }}</span>
             <span class="chip" x-show="c.code !== cur.base && cur.in_use.includes(c.code)">{{ t('settings.currencies_in_use') }}</span>
             <button class="icon-btn" type="button" title="{{ t('common.delete') }}" x-show="c.code !== cur.base"
@@ -203,32 +203,11 @@
           </span>
         </template>
       </div>
-      <form class="inline-form cur-add" @submit.prevent="addCurrency()" novalidate>
-        <label class="field"><span>{{ t('settings.currencies_add') }}</span>
-          <select x-model="newCurrency.pick">
-            <option value="">{{ t('settings.currencies_pick') }}</option>
-            <template x-for="c in cur.builtin" :key="c.code">
-              <option :value="c.code" x-text="c.name + ' (' + c.code + ')'"></option>
-            </template>
-            <option value="other">{{ t('settings.currencies_other') }}</option>
-          </select></label>
-        <template x-if="newCurrency.pick === 'other'">
-          <div class="cur-other">
-            <label class="field"><span>{{ t('field.code') }}</span>
-              <input x-model="newCurrency.code" maxlength="3" placeholder="CNY" class="code-input">
-              <small class="hint">{{ t('settings.currencies_code_hint') }}</small></label>
-            <label class="field"><span>{{ t('settings.currencies_name') }}</span>
-              <input x-model="newCurrency.name" maxlength="40"></label>
-            <label class="field"><span>{{ t('settings.currencies_symbol') }}</span>
-              <input x-model="newCurrency.symbol" maxlength="6" class="code-input"></label>
-          </div>
-        </template>
-        <div class="form-actions"><button class="btn btn-small" type="submit" :disabled="busy || !newCurrency.pick">{{ t('common.add') }}</button></div>
-      </form>
+      <button class="btn btn-small" type="button" @click="openCurrencyPicker()">+ {{ t('settings.currencies_add') }}</button>
       <label class="field base-field"><span>{{ t('settings.currency') }}</span>
         <select @change="setBaseCurrency($event.target.value)">
           <template x-for="c in cur.currencies" :key="c.code">
-            <option :value="c.code" :selected="c.code === cur.base" x-text="c.name + ' (' + c.symbol + ')'"></option>
+            <option :value="c.code" :selected="c.code === cur.base" x-text="currencyLabel(c.code)"></option>
           </template>
         </select>
         <small class="hint">{{ t('settings.currency_hint') }}</small></label>
@@ -311,6 +290,44 @@
         </table>
       </div>
     </section>
+
+    <!-- add-a-currency window: every ISO currency, searchable by code or name in either language -->
+    <div class="modal-backdrop" x-show="picker.open" x-cloak x-transition.opacity @keydown.escape.window="picker.open = false">
+      <div class="modal cur-picker" role="dialog" aria-modal="true" aria-labelledby="cur-picker-title" @click.outside="picker.open = false">
+        <div class="modal-head">
+          <h2 id="cur-picker-title">{{ t('settings.currencies_add') }}</h2>
+          <button class="icon-btn" type="button" title="{{ t('common.close') }}" @click="picker.open = false">✕</button>
+        </div>
+        <div class="modal-search">
+          <input type="search" x-ref="curSearch" x-model="picker.q" placeholder="{{ t('settings.currencies_search') }}"
+                 @keydown.enter.prevent="pickedFirst()">
+        </div>
+        <div class="modal-body">
+          <ul class="cur-options">
+            <template x-for="c in pickerResults()" :key="c.code">
+              <li><button type="button" @click="addCurrency(c.code)" :disabled="busy">
+                <strong x-text="c.code"></strong><span x-text="c.name"></span><bdi class="muted" x-text="c.symbol"></bdi>
+              </button></li>
+            </template>
+          </ul>
+          <p class="muted" x-show="!pickerResults().length">{{ t('settings.currencies_no_match') }}</p>
+          <details class="cur-custom" :open="!pickerResults().length">
+            <summary>{{ t('settings.currencies_other') }}</summary>
+            <p class="muted small">{{ t('settings.currencies_other_hint') }}</p>
+            <form class="cur-other" @submit.prevent="addCustomCurrency()" novalidate>
+              <label class="field"><span>{{ t('field.code') }}</span>
+                <input x-model="newCurrency.code" maxlength="3" placeholder="BTC" class="code-input">
+                <small class="hint">{{ t('settings.currencies_code_hint') }}</small></label>
+              <label class="field"><span>{{ t('settings.currencies_name') }}</span>
+                <input x-model="newCurrency.name" maxlength="40"></label>
+              <label class="field"><span>{{ t('settings.currencies_symbol') }}</span>
+                <input x-model="newCurrency.symbol" maxlength="6" class="code-input"></label>
+              <div class="form-actions"><button class="btn btn-small btn-primary" type="submit" :disabled="busy">{{ t('common.add') }}</button></div>
+            </form>
+          </details>
+        </div>
+      </div>
+    </div>
 
     <!-- ================= appearance ================= -->
     <section class="card settings-card" x-show="tab === 'appearance'" x-cloak>

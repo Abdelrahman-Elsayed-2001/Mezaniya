@@ -63,7 +63,8 @@ def add(conn: sqlite3.Connection, user_id: int, code: str, name: str | None = No
         raise CurrencyError("currency_exists", code=code)
     if conn.execute("SELECT 1 FROM currencies WHERE code = ?", (code,)).fetchone() is None:
         order = conn.execute("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM currencies").fetchone()[0]
-        conn.execute("INSERT INTO currencies (code, decimals, sort_order) VALUES (?, 2, ?)", (code, order))
+        conn.execute("INSERT INTO currencies (code, decimals, sort_order) VALUES (?, ?, ?)",
+                     (code, catalog.CURRENCIES.get(code, 2), order))
     order = conn.execute("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM user_currencies WHERE user_id = ?",
                          (user_id,)).fetchone()[0]
     conn.execute("INSERT INTO user_currencies (user_id, code, name, symbol, sort_order) VALUES (?, ?, ?, ?, ?)",

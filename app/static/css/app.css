@@ -739,10 +739,20 @@ details[open].card summary { margin-bottom: 12px; }
 .cur-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
 .cur-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 8px; }
 .cur-chip.is-base { border-color: var(--primary); }
-.cur-add, .cur-other { display: flex; flex-wrap: wrap; align-items: end; gap: 0 12px; }
-.settings-card .cur-add .field, .settings-card .base-field { display: block; max-width: 300px; width: 100%; }
-.settings-card .cur-add .form-actions { margin-bottom: 16px; }
+.cur-other { display: flex; flex-wrap: wrap; align-items: end; gap: 0 12px; }
+.settings-card .base-field { margin-top: 16px; display: block; max-width: 300px; width: 100%; }
 .code-input { max-width: 90px; text-transform: uppercase; }
 .settings-card h2.section-gap { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
 .ltr-num { direction: ltr; unicode-bidi: isolate; }
 .rate-test { margin-bottom: 16px; }
+.cur-picker { max-width: 560px; height: min(640px, calc(100vh - 32px)); }
+.modal-search { padding: 12px 18px 8px; }
+.modal-search input { width: 100%; padding: 9px 12px; font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px; }
+.cur-options { list-style: none; margin: 0; padding: 0; }
+.cur-options button { width: 100%; display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center;
+  padding: 8px 6px; font: inherit; color: var(--text); text-align: start; background: none; border: 0;
+  border-bottom: 1px solid var(--border); cursor: pointer; }
+.cur-options button:hover, .cur-options button:focus-visible { background: var(--bg); }
+.cur-custom { margin-top: 14px; }
+.cur-custom summary { cursor: pointer; font-weight: 600; }

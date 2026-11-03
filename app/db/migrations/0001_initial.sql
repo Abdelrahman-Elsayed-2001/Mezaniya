@@ -38,7 +38,7 @@ CREATE TABLE user_settings (
   PRIMARY KEY (user_id, key)
 );
 
--- Currencies a user can pick (app/currency.py holds the same list; a test keeps them equal).
+-- Currencies in use by any user (the catalog is app/currency.CURRENCIES; rows are added on demand).
 -- Symbols and names are strings.json "currency.<code>.symbol" / ".name". The user's base
 -- currency is the setting 'currency'; an item's `currency` column is NULL in the base currency
 -- (so most rows never name one) or the code of another currency its amounts are kept in.
@@ -48,20 +48,9 @@ CREATE TABLE currencies (
   sort_order INTEGER NOT NULL
 );
 
-INSERT INTO currencies (code, decimals, sort_order) VALUES
-  ('SAR', 2, 1),
-  ('EGP', 2, 2),
-  ('AED', 2, 3),
-  ('KWD', 3, 4),
-  ('QAR', 2, 5),
-  ('BHD', 3, 6),
-  ('OMR', 3, 7),
-  ('JOD', 3, 8),
-  ('USD', 2, 9),
-  ('EUR', 2, 10),
-  ('GBP', 2, 11),
-  ('TRY', 2, 12),
-  ('MAD', 2, 13);
+-- Only the default base currency to start with: any other code (app/currency.CURRENCIES, or one
+-- a user names) is inserted the first time a user adds it (app/db/repo/currencies.add).
+INSERT INTO currencies (code, decimals, sort_order) VALUES ('SAR', 2, 1);
 
 -- The currencies each user works with (Settings → Currencies): the base currency plus any
 -- other they add. Items, balances and rates may only use a currency in this list. A code that

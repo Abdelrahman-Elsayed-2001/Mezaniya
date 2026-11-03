@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 from app.db.connection import transaction
-from app import dashboard, themes
+from app import currency as currency_catalog, dashboard, themes
 from app.engine import Settings
 
 from .base import Conflict, NotFound
@@ -95,7 +95,7 @@ def _check_value(conn: sqlite3.Connection, key: str, value: str) -> None:
     if key == "theme" and value not in themes.SPECIAL and \
             conn.execute("SELECT 1 FROM themes WHERE id = ?", (value,)).fetchone() is None:
         raise Conflict(f"user_settings: unknown theme {value!r}", "integrity")
-    if key == "currency" and \
+    if key == "currency" and value not in currency_catalog.CURRENCIES and \
             conn.execute("SELECT 1 FROM currencies WHERE code = ?", (value,)).fetchone() is None:
         raise Conflict(f"user_settings: unknown currency {value!r}", "integrity")
 
@@ -184,6 +184,9 @@ def update_settings(conn: sqlite3.Connection, user_id: int, values: dict) -> dic
         for k, v in plain.items():
             _check_value(conn, k, v)
         with transaction(conn):
+            if "currency" in values:                # the base currency is always in the user's list
+                from . import currencies
+                currencies.ensure(conn, user_id, values["currency"])
             _write(conn, user_id, plain)
             if extra:
                 current = get_settings(conn, user_id)

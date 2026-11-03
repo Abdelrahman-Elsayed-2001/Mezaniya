@@ -8,7 +8,8 @@ def test_table_matches_the_python_list(tmp_path):
     c = connect(tmp_path / "c.db")
     migrate(c)
     rows = c.execute("SELECT code, decimals FROM currencies ORDER BY sort_order").fetchall()
-    assert [(r[0], r[1]) for r in rows] == list(currency.CURRENCIES.items())
+    assert [(r[0], r[1]) for r in rows] == [(currency.DEFAULT, currency.CURRENCIES[currency.DEFAULT])]
+    assert len(currency.CURRENCIES) > 150                            # ISO 4217 in use today
     assert c.execute("SELECT default_value FROM default_settings WHERE key = 'currency'").fetchone()[0] \
         == currency.DEFAULT
     c.close()
