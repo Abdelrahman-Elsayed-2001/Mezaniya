@@ -8,7 +8,7 @@ the programs for the portable build.
 
 Start / stop / restart the server, see who is connected and log them out, create users
 (including the demo user), change passwords, delete a user with all their data, back up,
-and change the port. Texts come from app/i18n/languages/*.json; the layout mirrors for Arabic.
+and change the port. The second tab adds languages and edits any text (in languages.db). Texts come from app/i18n/languages/*.json; the layout mirrors for Arabic.
 """
 from __future__ import annotations
 
@@ -24,7 +24,9 @@ from app import i18n
 from app.version import STAGE, __version__
 from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem
 from app.db.connection import connect, migrate
+from app.i18n import store as language_store
 from app.services import admin, backup, demo
+from app.services import languages as langs
 from app.services.server_control import ServerControl, ServerState
 
 FONT = ("Segoe UI", 10)
@@ -143,6 +145,144 @@ class PasswordDialog(Dialog):
         return admin.set_password(self.conn, self.user["id"], self.password.get(), self.temporary.get())
 
 
+def lang_label(lang: dict) -> str:
+    return f"{lang['name']} ({lang['code']})"
+
+
+class LanguageDialog(Dialog):
+    """Add a language, or change one's details (a built-in one: only its reference language)."""
+
+    def __init__(self, parent, conn, lang: dict | None = None):
+        self.conn, self.lang_row = conn, lang
+        self.others = [x for x in langs.languages(conn) if not lang or x["code"] != lang["code"]]
+        super().__init__(parent, "manager.edit_language" if lang else "manager.add_language")
+
+    def combo(self, parent, label_key: str, labels: list[str], current: int) -> ttk.Combobox:
+        ttk.Label(parent, text=self.t(label_key), anchor=self.ui.anchor, font=FONT).pack(fill="x")
+        box = ttk.Combobox(parent, values=labels, state="readonly", width=44, font=FONT)
+        box.current(current)
+        box.pack(fill="x", pady=(2, 10))
+        return box
+
+    def body(self, frame):
+        codes = [x["code"] for x in self.others]
+        lang = self.lang_row or {"code": "", "name": "", "dir": "ltr", "plural": "en", "system": False,
+                                 "reference": "en" if "en" in codes else i18n.DEFAULT_LANGUAGE}
+        self.code = self.field(frame, "manager.lang_code")
+        self.code.insert(0, lang["code"])
+        self.name = self.field(frame, "manager.lang_name")
+        self.name.insert(0, lang["name"])
+        self.dirs = ["rtl", "ltr"]
+        self.dir = self.combo(frame, "manager.lang_dir", [self.t(f"manager.dir_{d}") for d in self.dirs],
+                              self.dirs.index(lang["dir"]))
+        self.rules = list(langs.PLURAL_FORMS)
+        self.plural = self.combo(frame, "manager.lang_plural", [self.t(f"manager.plural_{r}") for r in self.rules],
+                                 self.rules.index(lang["plural"]))
+        self.refs = [None] + [x["code"] for x in self.others]
+        labels = [self.t("manager.no_reference")] + [lang_label(x) for x in self.others]
+        self.reference = self.combo(frame, "manager.lang_reference", labels,
+                                    self.refs.index(lang["reference"]) if lang["reference"] in self.refs else 0)
+        if self.lang_row:
+            self.code.configure(state="disabled")
+        if lang["system"]:
+            for widget in (self.name, self.dir, self.plural):
+                widget.configure(state="disabled")
+            ttk.Label(frame, text=self.t("manager.lang_from_file"), foreground="#52606d", wraplength=380,
+                      justify=self.ui.justify, anchor=self.ui.anchor).pack(fill="x")
+
+    def focus_first(self):
+        (self.name if self.lang_row else self.code).focus_set()
+
+    def apply(self):
+        args = (self.name.get(), self.dirs[self.dir.current()], self.rules[self.plural.current()],
+                self.refs[self.reference.current()])
+        if self.lang_row:
+            langs.update_language(self.conn, self.lang_row["code"], *args)
+            return self.lang_row["code"]
+        return langs.add_language(self.conn, self.code.get(), *args)
+
+
+class TextDialog(Dialog):
+    """Edit one text of one language: the reference text above, the translation (or plural forms) below."""
+
+    def __init__(self, parent, conn, target: dict, reference: dict | None, row: dict):
+        self.conn, self.target, self.reference, self.row = conn, target, reference, row
+        super().__init__(parent, "manager.edit_text")
+
+    def text_box(self, parent, value: str, height: int, read_only: bool, rtl: bool) -> tk.Text:
+        box = tk.Text(parent, width=60, height=height, wrap="word", font=FONT, relief="solid", borderwidth=1,
+                      background="#f3f4f6" if read_only else "white")
+        box.tag_configure("dir", justify="right" if rtl else "left")
+        box.insert("1.0", value, "dir")
+        box.bind("<KeyRelease>", lambda _e: box.tag_add("dir", "1.0", "end"))
+        if read_only:
+            box.configure(state="disabled")
+        else:
+            box.bind("<Return>", lambda _e: (self._ok(), "break")[1])
+            box.bind("<Shift-Return>", lambda _e: (box.insert("insert", "\n"), "break")[1])
+        box.pack(fill="x", pady=(2, 10))
+        return box
+
+    def caption(self, parent, text: str, **kw):
+        ttk.Label(parent, text=text, anchor=self.ui.anchor, justify=self.ui.justify, wraplength=520,
+                  font=kw.pop("font", FONT), **kw).pack(fill="x")
+
+    def body(self, frame):
+        row, t = self.row, self.t
+        ttk.Label(frame, text=row["key"], font=("Consolas", 10), foreground="#52606d").pack(anchor=self.ui.anchor)
+        if self.reference:
+            self.caption(frame, t("manager.reference_text", name=self.reference["name"]), font=FONT_BOLD)
+            self.text_box(frame, langs.as_line(row["reference"]) if row["plural"] else (row["reference"] or ""),
+                          3, True, self.reference["dir"] == "rtl")
+        if row["edited"] and row["original"] is not None:
+            self.caption(frame, t("manager.original_text"), font=FONT_BOLD)
+            self.text_box(frame, langs.as_line(row["original"]) if row["plural"] else row["original"],
+                          2, True, self.target["dir"] == "rtl")
+        self.caption(frame, t("manager.translation", name=self.target["name"]), font=FONT_BOLD)
+        rtl = self.target["dir"] == "rtl"
+        if row["plural"]:
+            self.caption(frame, t("manager.plural_hint"), foreground="#52606d")
+            value = row["value"] or {}
+            self.forms = {}
+            grid = ttk.Frame(frame)
+            grid.pack(fill="x", pady=(4, 10))
+            for i, form in enumerate(langs.PLURAL_FORMS[self.target["plural"]]):
+                label = ttk.Label(grid, text=t(f"manager.plural_form_{form}"), font=FONT)
+                entry = ttk.Entry(grid, width=44, justify="right" if rtl else "left", font=FONT)
+                entry.insert(0, value.get(form, ""))
+                label.grid(row=i, column=1 if self.ui.rtl else 0, sticky=self.ui.anchor, padx=6, pady=2)
+                entry.grid(row=i, column=0 if self.ui.rtl else 1, sticky="we", pady=2)
+                self.forms[form] = entry
+            grid.columnconfigure(0 if self.ui.rtl else 1, weight=1)
+        else:
+            self.box = self.text_box(frame, row["value"] or "", 4, False, rtl)
+            names = langs.placeholders(row["reference"])
+            if names:
+                self.caption(frame, t("manager.placeholders_hint",
+                                      names="  ".join("{" + n + "}" for n in sorted(names))), foreground="#b54708")
+        self.caption(frame, t("manager.empty_hint"), foreground="#7b8794")
+        if row["edited"] and row["original"] is not None:
+            ttk.Button(frame, text=t("manager.restore_original"), command=self.restore).pack(anchor=self.ui.anchor,
+                                                                                            pady=(8, 0))
+
+    def focus_first(self):
+        (next(iter(self.forms.values())) if self.row["plural"] else self.box).focus_set()
+
+    def value(self):
+        if self.row["plural"]:
+            return {form: entry.get() for form, entry in self.forms.items()}
+        return self.box.get("1.0", "end-1c")
+
+    def apply(self):
+        langs.save_text(self.conn, self.target["code"], self.row["key"], self.value())
+        return True
+
+    def restore(self):
+        langs.save_text(self.conn, self.target["code"], self.row["key"], None)
+        self.result = True
+        self.destroy()
+
+
 class ManagerApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -166,6 +306,9 @@ class ManagerApp(tk.Tk):
         self.root_frame: ttk.Frame | None = None
         self.conn = connect(Config.DB_PATH)
         migrate(self.conn)
+        self.lconn = language_store.open_db(Config.languages_db_path())
+        self.text_target: str | None = None
+        self.text_reference: str | None = None
 
         self._build()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -185,9 +328,12 @@ class ManagerApp(tk.Tk):
         self.lang = code
         os.environ["MEZANIYA_LANGUAGE"] = self.lang
         admin.write_env_value(ENV_FILE, "MEZANIYA_LANGUAGE", self.lang)
+        self.rebuild()
+
+    def rebuild(self, tab: int = 0):
         self.ui = Layout(self.lang)
         self._log_size = -1
-        self._build()
+        self._build(tab)
         self._show_state(self.state)
         self.refresh_users()
 
@@ -206,13 +352,21 @@ class ManagerApp(tk.Tk):
         box.bind("<<ComboboxSelected>>", lambda _e: self.switch_language(codes[box.current()]))
         return box
 
-    def _build(self):
+    def _build(self, tab: int = 0):
         ui, t = self.ui, self.t
         if self.root_frame is not None:
             self.root_frame.destroy()
         self.title(f"{t('manager.title')} · v{__version__}{' ' + STAGE if STAGE else ''}")
-        root = self.root_frame = ttk.Frame(self, padding=12)
-        root.pack(fill="both", expand=True)
+        self.root_frame = ttk.Frame(self, padding=(12, 8, 12, 12))
+        self.root_frame.pack(fill="both", expand=True)
+        notebook = ttk.Notebook(self.root_frame)
+        notebook.pack(fill="both", expand=True)
+        root = ttk.Frame(notebook, padding=(0, 10, 0, 0))
+        languages_tab = ttk.Frame(notebook, padding=(0, 10, 0, 0))
+        notebook.add(root, text=f"  {t('manager.tab_server')}  ")
+        notebook.add(languages_tab, text=f"  {t('manager.tab_languages')}  ")
+        self._build_languages(languages_tab)
+        notebook.select(tab)
 
         # server
         srv = ttk.LabelFrame(root, text=f" {t('manager.server')} ", padding=10, labelanchor="n" + ui.anchor)
@@ -300,6 +454,226 @@ class ManagerApp(tk.Tk):
         self.log = tk.Text(lg, height=8, wrap="none", font=("Consolas", 9), state="disabled",
                            background="#0f1419", foreground="#d6dde4", relief="flat")
         self.log.pack(fill="both", expand=True)
+
+    def _tree(self, parent, cols: list[str], widths: dict[str, int], stretch: str, height: int) -> ttk.Treeview:
+        """A Treeview whose columns run from the reading side, with a scrollbar."""
+        ui = self.ui
+        if ui.rtl:
+            cols = list(reversed(cols))
+        frame = ttk.Frame(parent)
+        frame.pack(fill="both", expand=True, pady=(8, 0))
+        tree = ttk.Treeview(frame, columns=cols, show="headings", selectmode="browse", height=height)
+        for c in cols:
+            tree.heading(c, text=self.t(f"manager.col_{c}"), anchor=ui.anchor)
+            tree.column(c, width=widths[c], anchor=ui.anchor, stretch=c == stretch)
+        scroll = ttk.Scrollbar(frame, orient="vertical", command=tree.yview)
+        tree.configure(yscrollcommand=scroll.set)
+        scroll.pack(side=ui.end, fill="y")
+        tree.pack(side=ui.start, fill="both", expand=True)
+        tree.columns_order = cols
+        return tree
+
+    def _build_languages(self, tab):
+        ui, t = self.ui, self.t
+        box = ttk.LabelFrame(tab, text=f" {t('manager.languages')} ", padding=10, labelanchor="n" + ui.anchor)
+        box.pack(fill="x")
+        bar = ttk.Frame(box)
+        bar.pack(fill="x")
+        for key, command in (("manager.add_language", self.add_language),
+                             ("manager.edit_language", self.edit_language),
+                             ("manager.enable_language", lambda: self.toggle_language(True)),
+                             ("manager.disable_language", lambda: self.toggle_language(False)),
+                             ("manager.delete_language", self.delete_language)):
+            ttk.Button(bar, text=t(key), command=command).pack(side=ui.start, padx=3)
+        self.lang_tree = self._tree(
+            box, ["code", "name", "dir", "lang_state", "kind", "progress", "reference"],
+            {"code": 70, "name": 150, "dir": 160, "lang_state": 90, "kind": 90, "progress": 190, "reference": 150},
+            "name", 4)
+        self.lang_tree.bind("<Double-1>", lambda _e: self.edit_language())
+
+        texts = ttk.LabelFrame(tab, text=f" {t('manager.texts')} ", padding=10, labelanchor="n" + ui.anchor)
+        texts.pack(fill="both", expand=True, pady=(10, 0))
+        filters = ttk.Frame(texts)
+        filters.pack(fill="x")
+        ttk.Label(filters, text=t("manager.target_label")).pack(side=ui.start)
+        self.target_box = ttk.Combobox(filters, state="readonly", width=16)
+        self.target_box.pack(side=ui.start, padx=(4, 14))
+        ttk.Label(filters, text=t("manager.reference_label")).pack(side=ui.start)
+        self.reference_box = ttk.Combobox(filters, state="readonly", width=16)
+        self.reference_box.pack(side=ui.start, padx=(4, 14))
+        ttk.Label(filters, text=t("manager.search_label")).pack(side=ui.start)
+        self.search_var = tk.StringVar()
+        ttk.Entry(filters, textvariable=self.search_var, width=18).pack(side=ui.start, padx=4)
+        self.untranslated_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(filters, text=t("manager.untranslated_only"), variable=self.untranslated_var,
+                        command=self.refresh_texts).pack(side=ui.start, padx=10)
+        self.target_box.bind("<<ComboboxSelected>>", lambda _e: self._pick_target())
+        self.reference_box.bind("<<ComboboxSelected>>", lambda _e: self._pick_reference())
+        self._search_job = None
+        self.search_var.trace_add("write", lambda *_: self._search_later())
+
+        info = ttk.Frame(texts)
+        info.pack(fill="x", pady=(6, 0))
+        self.texts_count = ttk.Label(info, text="")
+        self.texts_count.pack(side=ui.start)
+        ttk.Label(info, text=t("manager.texts_hint"), foreground="#7b8794").pack(side=ui.start, padx=10)
+        self.text_tree = self._tree(texts, ["key", "reference", "value"],
+                                    {"key": 230, "reference": 330, "value": 330}, "value", 10)
+        self.text_tree.heading("value", text=t("manager.translation", name="…"))
+        self.text_tree.tag_configure("missing", foreground="#b54708")
+        self.text_tree.tag_configure("edited", foreground="#1d4ed8")
+        self.text_tree.bind("<Double-1>", lambda _e: self.edit_text())
+        self.refresh_languages()
+
+    # ------------------------------------------------------------------ languages
+
+    def _language_rows(self) -> list[dict]:
+        self.language_rows = langs.languages(self.lconn)
+        return self.language_rows
+
+    def _lang(self, code: str | None) -> dict | None:
+        return next((x for x in self.language_rows if x["code"] == code), None)
+
+    def refresh_languages(self):
+        t, dash = self.t, self.t("common.dash")
+        rows = self._language_rows()
+        selected = self.lang_tree.selection()
+        self.lang_tree.delete(*self.lang_tree.get_children())
+        for x in rows:
+            ref = self._lang(x["reference"])
+            progress = t("manager.lang_progress", done=x["translated"], total=x["total"])
+            if x["edited"] and x["system"]:
+                progress += " · " + t("manager.lang_edited", n=x["edited"])
+            values = {"code": x["code"], "name": x["name"], "dir": t(f"manager.dir_{x['dir']}"),
+                      "lang_state": t("manager.lang_enabled" if x["enabled"] else "manager.lang_disabled"),
+                      "kind": t("manager.lang_system" if x["system"] else "manager.lang_added"),
+                      "progress": progress, "reference": ref["name"] if ref else dash}
+            self.lang_tree.insert("", "end", iid=x["code"], values=[values[c] for c in self.lang_tree.columns_order],
+                                  tags=() if x["enabled"] else ("missing",))
+        self.lang_tree.tag_configure("missing", foreground="#7b8794")
+        if selected and self.lang_tree.exists(selected[0]):
+            self.lang_tree.selection_set(selected[0])
+        codes = [x["code"] for x in rows]
+        if self.text_target not in codes:
+            self.text_target = next((c for c in codes if c != i18n.DEFAULT_LANGUAGE), codes[0])
+        if self.text_reference not in codes or self.text_reference == self.text_target:
+            target = self._lang(self.text_target)
+            self.text_reference = target["reference"] if target["reference"] in codes else \
+                next((c for c in codes if c != self.text_target), None)
+        labels = [lang_label(x) for x in rows]
+        self.target_box.configure(values=labels)
+        self.target_box.current(codes.index(self.text_target))
+        self.reference_box.configure(values=labels)
+        if self.text_reference in codes:
+            self.reference_box.current(codes.index(self.text_reference))
+        self.refresh_texts()
+
+    def _pick_target(self):
+        self.text_target = self.language_rows[self.target_box.current()]["code"]
+        target = self._lang(self.text_target)
+        if target["reference"]:
+            self.text_reference = target["reference"]
+        self.refresh_languages()
+
+    def _pick_reference(self):
+        self.text_reference = self.language_rows[self.reference_box.current()]["code"]
+        self.refresh_texts()
+
+    def _search_later(self):
+        if self._search_job:
+            self.after_cancel(self._search_job)
+        self._search_job = self.after(300, self.refresh_texts)
+
+    def refresh_texts(self):
+        self._search_job = None
+        target, reference = self._lang(self.text_target), self._lang(self.text_reference)
+        if target is None:
+            return
+        self.text_tree.heading("value", text=lang_label(target))
+        self.text_tree.heading("reference", text=lang_label(reference) if reference else self.t("manager.col_reference"))
+        rows = langs.rows(self.lconn, self.text_reference or i18n.DEFAULT_LANGUAGE, self.text_target,
+                          self.search_var.get(), self.untranslated_var.get())
+        self.text_rows = {r["key"]: r for r in rows}
+        tree = self.text_tree
+        tree.delete(*tree.get_children())
+        for r in rows:
+            values = {"key": r["key"], "reference": langs.as_line(r["reference"])[:300],
+                      "value": langs.as_line(r["value"])[:300]}
+            tag = "missing" if r["value"] is None else "edited" if r["edited"] else ""
+            tree.insert("", "end", iid=r["key"], values=[values[c] for c in tree.columns_order], tags=(tag,))
+        self.texts_count.configure(text=self.t("manager.texts_count", shown=len(rows), done=target["translated"],
+                                               total=target["total"]))
+
+    def selected_language(self) -> dict | None:
+        selection = self.lang_tree.selection()
+        if not selection:
+            messagebox.showinfo(self.t("manager.languages"), self.t("manager.pick_language"), parent=self)
+            return None
+        return self._lang(selection[0])
+
+    def languages_changed(self, target: str | None = None):
+        """Reload the texts everywhere (this window, and the running server within seconds)."""
+        i18n.reload()
+        if target:
+            self.text_target = target
+        if self.lang not in i18n.languages():
+            self.lang = i18n.default_language()
+        self.rebuild(tab=1)
+
+    def add_language(self):
+        dlg = LanguageDialog(self, self.lconn)
+        self.wait_window(dlg)
+        if dlg.result:
+            self.text_reference = None
+            self.languages_changed(dlg.result)
+            messagebox.showinfo(self.t("manager.done"),
+                                self.t("manager.language_added", name=self._lang(dlg.result)["name"]), parent=self)
+
+    def edit_language(self):
+        lang = self.selected_language()
+        if lang:
+            dlg = LanguageDialog(self, self.lconn, lang)
+            self.wait_window(dlg)
+            if dlg.result:
+                self.languages_changed()
+
+    def toggle_language(self, enabled: bool):
+        lang = self.selected_language()
+        if lang:
+            try:
+                langs.set_enabled(self.lconn, lang["code"], enabled)
+            except admin.AdminError as e:
+                messagebox.showerror(self.t("manager.cannot"), e.message(self.lang), parent=self)
+                return
+            self.languages_changed()
+
+    def delete_language(self):
+        lang = self.selected_language()
+        if not lang:
+            return
+        if lang["system"]:
+            messagebox.showerror(self.t("manager.cannot"), self.t("manager.lang_err.system"), parent=self)
+            return
+        if not messagebox.askyesno(self.t("manager.delete_language"),
+                                   self.t("manager.delete_language_confirm", name=lang["name"]),
+                                   icon="warning", parent=self):
+            return
+        langs.delete_language(self.lconn, lang["code"])
+        self.languages_changed()
+
+    def edit_text(self):
+        selection = self.text_tree.selection()
+        if not selection:
+            return
+        row = self.text_rows[selection[0]]
+        dlg = TextDialog(self, self.lconn, self._lang(self.text_target), self._lang(self.text_reference), row)
+        self.wait_window(dlg)
+        if dlg.result:
+            i18n.reload()
+            self.refresh_languages()
+            if self.text_tree.exists(row["key"]):
+                self.text_tree.selection_set(row["key"])
+                self.text_tree.see(row["key"])
 
     # ------------------------------------------------------------------ background work
 
@@ -583,6 +957,7 @@ class ManagerApp(tk.Tk):
             if answer:
                 self.control.stop(port=self.state.port or configured_port())
         self.conn.close()
+        self.lconn.close()
         self.destroy()
 
 

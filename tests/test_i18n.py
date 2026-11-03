@@ -202,3 +202,10 @@ def test_language_file_meta_is_checked(monkeypatch, tmp_path, reload_languages):
 ])
 def test_plural_rules(rule, cases):
     assert {n: i18n.PLURAL_RULES[rule](n) for n in cases} == cases
+
+
+def test_plural_texts_live_under_count():
+    """A section whose keys are all plural form names (one, other…) reads as plural forms, so
+    plural texts are kept under count.* and nothing else may look like them."""
+    plural = sorted(k for k, v in entries("ar").items() if isinstance(v, dict))
+    assert plural and all(k.startswith("count.") for k in plural)
