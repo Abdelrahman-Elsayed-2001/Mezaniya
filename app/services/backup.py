@@ -14,6 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 from app.db.connection import check_compatible
+from app.i18n import store as language_store
 from app.i18n import t
 
 log = logging.getLogger(__name__)
@@ -123,11 +124,14 @@ def restore(db_path: Path, backup_file: Path, backup_dir: Path, keep: int, with_
     for path in filter(None, (backup_file, languages_copy)):
         if not _healthy(path):
             raise ValueError(f"{path} is not a healthy database")
-    check = sqlite3.connect(backup_file)
-    try:
-        check_compatible(check)          # a backup from another beta would leave an app that can't start
-    finally:
-        check.close()
+    for path, check in ((backup_file, check_compatible), (languages_copy, language_store.check_compatible)):
+        if path is None:
+            continue
+        conn = sqlite3.connect(path)
+        try:
+            check(conn)                  # a file this version can't read would leave an app that can't start
+        finally:
+            conn.close()
     languages = Path(languages_path or default_languages_path(db_path))
     safety = backup_now(db_path, backup_dir, keep=0, languages_path=languages) if db_path.exists() else None
     _replace(db_path, backup_file)

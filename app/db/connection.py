@@ -68,9 +68,11 @@ def migrate(conn: sqlite3.Connection, migrations_dir: Path = MIGRATIONS_DIR) -> 
 
 
 class IncompatibleDatabase(RuntimeError):
-    def __init__(self, message: str, generation: int | None = None):
+    """`generation` is the file's PRAGMA user_version, `expected` what this version reads."""
+    def __init__(self, message: str, generation: int | None = None, expected: int | None = None):
         super().__init__(message)
         self.generation = generation
+        self.expected = SCHEMA_GENERATION if expected is None else expected
 
 
 # Bumped whenever 0001_initial.sql changes in a way older databases can't follow while in beta

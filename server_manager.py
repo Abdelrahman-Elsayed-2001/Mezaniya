@@ -24,7 +24,7 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 from app import i18n
 from app.version import STAGE, __version__
 from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem
-from app.db.connection import connect, migrate
+from app.db.connection import IncompatibleDatabase, connect, migrate
 from app.i18n import store as language_store
 from app.services import admin, backup, demo
 from app.services import languages as langs
@@ -1086,7 +1086,17 @@ def main():
         root.destroy()
         return
     i18n.use_database(Config.languages_db_path())
-    ManagerApp().mainloop()
+    try:
+        app = ManagerApp()
+    except IncompatibleDatabase as e:
+        rtl = i18n.direction(i18n.default_language()) == "rtl"
+        if tk._default_root is not None:
+            tk._default_root.withdraw()
+        messagebox.showerror(directed(i18n.t("manager.incompatible_title"), rtl),
+                             directed(i18n.t("manager.incompatible", found=e.generation, expected=e.expected), rtl)
+                             + "\n\n" + str(e))
+        return
+    app.mainloop()
 
 
 if __name__ == "__main__":

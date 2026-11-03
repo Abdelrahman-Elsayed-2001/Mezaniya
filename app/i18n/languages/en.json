@@ -1353,6 +1353,8 @@
     "csv_imported": "Saved {saved} texts; {unchanged} were unchanged.",
     "csv_refused": "{n} texts were not saved:",
     "csv_more": "…and {n} more.",
+    "incompatible_title": "Can't open the data",
+    "incompatible": "A data file was made by another version of Mezaniya (format {found}); this version reads format {expected}. Nothing was changed. Run the version that made it, or move the data folder aside.",
     "cut": "Cut",
     "copy": "Copy",
     "paste": "Paste",

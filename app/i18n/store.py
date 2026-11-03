@@ -8,6 +8,10 @@ its reference language and then the default language (see app.i18n).
 
 `revision` in language_meta grows with every change, so a running server notices edits made by
 the server manager and reloads.
+
+Format: PRAGMA user_version = GENERATION. Unlike mezaniya.db, an older languages.db is always
+brought up to date in open_db (the edits in custom_text must survive every update); only a file
+from a newer version, which this one can't know how to read, is refused.
 """
 from __future__ import annotations
 
@@ -17,7 +21,10 @@ import sqlite3
 from contextlib import closing
 from pathlib import Path
 
-from app.db.connection import connect, transaction
+from app.db.connection import IncompatibleDatabase, connect, transaction
+
+# 1 = 0.4.0. Bump when the tables change, and add the upgrade from the previous one to open_db.
+GENERATION = 1
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS language_info (
@@ -45,9 +52,31 @@ CREATE TABLE IF NOT EXISTS language_meta (
 """
 
 
+def generation(conn: sqlite3.Connection) -> int:
+    return conn.execute("PRAGMA user_version").fetchone()[0]
+
+
+def check_compatible(conn: sqlite3.Connection) -> None:
+    found = generation(conn)
+    if found > GENERATION:
+        raise IncompatibleDatabase(
+            f"This languages database was made by a newer version of Mezaniya (format {found}), which "
+            f"this version (format {GENERATION}) can't read.", found, expected=GENERATION)
+
+
 def open_db(path: str | Path) -> sqlite3.Connection:
+    """Open (creating or upgrading) languages.db. Raises IncompatibleDatabase for a newer format."""
     conn = connect(path)
-    conn.executescript(SCHEMA)
+    try:
+        check_compatible(conn)
+        found = generation(conn)          # 0 = new file (or one made before the format was stamped)
+        conn.executescript(SCHEMA)
+        # upgrades from older formats go here: if found < 2: …
+        if found < GENERATION:
+            conn.execute(f"PRAGMA user_version = {GENERATION}")
+    except Exception:
+        conn.close()
+        raise
     return conn
 
 

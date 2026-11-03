@@ -135,7 +135,7 @@ def cmd_restore(args) -> int:
         safety = backup.restore(Config.DB_PATH, source, Config.BACKUP_DIR, Config.BACKUP_KEEP,
                                 with_languages=with_languages, languages_path=Config.languages_db_path())
     except IncompatibleDatabase as e:
-        say("cli.restore_incompatible", error=True, found=e.generation, expected=SCHEMA_GENERATION)
+        say("cli.restore_incompatible", error=True, found=e.generation, expected=e.expected)
         return 1
     except ValueError:
         say("cli.restore_unhealthy", error=True)

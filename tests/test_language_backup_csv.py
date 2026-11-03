@@ -198,3 +198,36 @@ def test_not_a_spreadsheet(setup):
     with pytest.raises(AdminError) as e:
         langs.import_texts(conn, out, "en")
     assert e.value.key == "manager.lang_err.csv_read"
+
+
+def test_languages_db_format(tmp_path):
+    from app.db.connection import IncompatibleDatabase
+    path = tmp_path / "languages.db"
+    conn = store.open_db(path)
+    assert store.generation(conn) == store.GENERATION
+    conn.execute(f"PRAGMA user_version = {store.GENERATION + 1}")          # made by a newer version
+    conn.close()
+    with pytest.raises(IncompatibleDatabase) as e:
+        store.open_db(path)
+    assert (e.value.generation, e.value.expected) == (store.GENERATION + 1, store.GENERATION)
+    try:
+        i18n.use_database(path)                                              # the app still runs, on the files
+        assert i18n.t("nav.month", "en") == i18n._files()["en"][1]["nav.month"]
+    finally:
+        i18n.use_database(None)
+
+    unstamped = tmp_path / "old.db"                                          # before the format was stamped
+    raw = sqlite3.connect(unstamped)
+    raw.executescript(store.SCHEMA)
+    raw.close()
+    assert store.generation(store.open_db(unstamped)) == store.GENERATION
+
+
+def test_restore_refuses_languages_from_a_newer_version(setup):
+    tmp_path, conn = setup
+    snap = backup.backup_now(Config.DB_PATH, Config.BACKUP_DIR, keep=5)
+    companion = sqlite3.connect(backup.languages_backup(snap))
+    companion.execute(f"PRAGMA user_version = {store.GENERATION + 1}")
+    companion.close()
+    assert manage.main(["restore", str(snap), "--yes", "--languages"]) == 1
+    assert manage.main(["restore", str(snap), "--yes", "--no-languages"]) == 0
