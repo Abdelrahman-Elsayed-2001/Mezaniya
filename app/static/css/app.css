@@ -728,9 +728,21 @@ details[open].card summary { margin-bottom: 12px; }
 .kv tr.foreign-balance th { font-size: 0.92rem; }
 
 /* exchange rates (settings) */
-.rate-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0 12px; align-items: end; margin-bottom: 16px; }
+.rate-form { display: flex; flex-wrap: wrap; gap: 0 12px; align-items: end; margin-bottom: 4px; }
+.rate-form .field { flex: 1 1 120px; min-width: 0; }
+.rate-form .form-actions { flex: 0 0 auto; }
 .chip.chip-manual { background: var(--pos-bg); color: var(--pos); }
 .fx-line { display: block; font-size: 0.75rem; text-align: end; white-space: nowrap; }
 .grid select.cur-select.fx-missing { border-color: var(--warn-text); color: var(--warn-text); }
 .rate-fetch { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 8px 0 16px; }
 .rate-fetch p { flex-basis: 100%; margin: 0; }
+.cur-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.cur-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 8px; }
+.cur-chip.is-base { border-color: var(--primary); }
+.cur-add, .cur-other { display: flex; flex-wrap: wrap; align-items: end; gap: 0 12px; }
+.settings-card .cur-add .field, .settings-card .base-field { display: block; max-width: 300px; width: 100%; }
+.settings-card .cur-add .form-actions { margin-bottom: 16px; }
+.code-input { max-width: 90px; text-transform: uppercase; }
+.settings-card h2.section-gap { margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border); }
+.ltr-num { direction: ltr; unicode-bidi: isolate; }
+.rate-test { margin-bottom: 16px; }

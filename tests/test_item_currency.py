@@ -6,7 +6,7 @@ from tests.api_helpers import Api, make_app
 
 @pytest.fixture
 def api(tmp_path):
-    return Api(make_app(tmp_path), "alice")         # base currency SAR
+    return Api(make_app(tmp_path), "alice", currencies=("EGP", "USD"))         # base currency SAR
 
 
 def test_item_currency_and_base_is_stored_as_null(api):
@@ -65,7 +65,7 @@ def test_amounts_are_converted_at_the_months_rate(api):
     assert d["summary"]["income"] == 9000 and d["missing_rates"] == ["EGP"]
     assert d["incomes"][1]["fx"]["missing"] is True and d["incomes"][0]["fx"] is None
 
-    api.put("/api/rates", {"currency": "EGP", "from_year": month["year"], "from_month": month["month"], "rate": 0.08})
+    api.put("/api/rates", {"from_currency": "EGP", "to_currency": "SAR", "from_year": month["year"], "from_month": month["month"], "rate": 0.08})
     d = api.get(f"/api/budgets/{b}").get_json()
     assert d["summary"]["income"] == 9400 and d["missing_rates"] == []
     assert d["incomes"][1]["fx"]["amount_base"] == 400 and d["incomes"][1]["amount"] == 5000
@@ -73,7 +73,7 @@ def test_amounts_are_converted_at_the_months_rate(api):
 
     # the next month keeps the EGP balance apart (not folded into the SAR balance) and uses its own rate
     y, m = (month["year"] + 1, 1) if month["month"] == 12 else (month["year"], month["month"] + 1)
-    api.put("/api/rates", {"currency": "EGP", "from_year": y, "from_month": m, "rate": 0.07})
+    api.put("/api/rates", {"from_currency": "EGP", "to_currency": "SAR", "from_year": y, "from_month": m, "rate": 0.07})
     d2 = api.post("/api/budgets", {"year": y, "month": m, "copy_from_previous": True}).get_json()
     assert d2["budget"]["savings_current"] == pytest.approx(d["savings"]["total"] - 800)
     assert [(x["currency"], x["amount"]) for x in d2["balances"]] == [("EGP", 10000)]
@@ -83,7 +83,7 @@ def test_amounts_are_converted_at_the_months_rate(api):
 def test_carry_over_stays_in_the_items_currency(api):
     b = api.budget_id()
     month = api.get(f"/api/budgets/{b}").get_json()["budget"]
-    api.put("/api/rates", {"currency": "EGP", "from_year": month["year"], "from_month": month["month"], "rate": 0.08})
+    api.put("/api/rates", {"from_currency": "EGP", "to_currency": "SAR", "from_year": month["year"], "from_month": month["month"], "rate": 0.08})
     e = api.post(f"/api/budgets/{b}/expenses", {"name": "كهرباء مصر", "type_id": api.type_id("أساسي"),
                                                 "cash_amount": 1000, "currency": "EGP"}).get_json()["item"]
     api.post(f"/api/budgets/{b}/incomes", {"source": "راتب", "amount": 9000})

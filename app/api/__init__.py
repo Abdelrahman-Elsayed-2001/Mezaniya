@@ -22,4 +22,4 @@ def uid() -> int:
     return current_user()["id"]
 
 
-from . import budgets, catalog, rates  # noqa: E402,F401  (registers routes)
+from . import budgets, catalog, currencies, rates  # noqa: E402,F401  (registers routes)

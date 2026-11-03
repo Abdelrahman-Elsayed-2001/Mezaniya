@@ -20,7 +20,7 @@ import logging
 import sqlite3
 import time
 import urllib.request
-from datetime import date
+from datetime import date, timedelta
 
 from app.db.repo import base, rates, settings
 
@@ -42,23 +42,46 @@ def _get_json(url: str) -> dict:
         return json.loads(res.read().decode("utf-8"))
 
 
-def fetch_rate(base_currency: str, currency: str, day: date) -> float | None:
-    """1 `currency` in `base_currency` on `day`, or None when it can't be had."""
-    key = (base_currency, currency, day.isoformat())
-    if time.monotonic() - _failed.get(key, -RETRY_AFTER) < RETRY_AFTER:
-        return None
+def _fetch_day(base_currency: str, currency: str, day: date) -> tuple[float, str] | None:
+    """(rate, url) for 1 `currency` in `base_currency` on `day`, from the first source that answers."""
     cur, want = currency.lower(), base_currency.lower()
     for template in URLS:
         url = template.format(day=day.isoformat(), cur=cur)
         try:
             value = _get_json(url)[cur][want]
             if isinstance(value, (int, float)) and value > 0:
-                _failed.pop(key, None)
-                return float(value)
+                return float(value), url
         except Exception as e:  # noqa: BLE001 (network, HTTP, JSON: all mean "not now")
             log.info("rate fetch failed: %s (%s)", url, e)
+    return None
+
+
+def fetch_rate(base_currency: str, currency: str, day: date, back: int = 0) -> float | None:
+    """1 `currency` in `base_currency` on `day`, or None when it can't be had. With `back`, up to
+    that many earlier days are tried too (today's file appears some hours into the day)."""
+    key = (base_currency, currency, day.isoformat())
+    if time.monotonic() - _failed.get(key, -RETRY_AFTER) < RETRY_AFTER:
+        return None
+    for n in range(back + 1):
+        got = _fetch_day(base_currency, currency, day - timedelta(days=n))
+        if got:
+            _failed.pop(key, None)
+            return got[0]
     _failed[key] = time.monotonic()
     return None
+
+
+def probe(base_currency: str, currency: str, today: date | None = None) -> dict:
+    """The settings' "test" button: today's rate (or the latest of the last 3 days), fetched now
+    and not saved. Says which day and address answered, or that none did."""
+    today = today or date.today()
+    for n in range(3):
+        day = today - timedelta(days=n)
+        got = _fetch_day(base_currency, currency, day)
+        if got:
+            return {"currency": currency, "ok": True, "rate": got[0], "inverse": 1 / got[0],
+                    "day": day.isoformat(), "url": got[1]}
+    return {"currency": currency, "ok": False}
 
 
 def _day_for(year: int, month: int, today: date) -> date | None:
@@ -88,8 +111,7 @@ def _needs_fetch(conn, user_id: int, base_currency: str, currency: str, year: in
     return fetched_on <= day                            # an ended month: once, after it ended
 
 
-def refresh_month(conn: sqlite3.Connection, user_id: int, budget: dict, today: date | None = None,
-                  force: bool = False) -> int:
+def refresh_month(conn: sqlite3.Connection, user_id: int, budget: dict, today: date | None = None) -> int:
     """Fetch what this month is missing, if the user turned fetching on. Returns rates written."""
     user_settings = settings.get_settings(conn, user_id)
     if not user_settings.get("fetch_rates"):
@@ -107,7 +129,7 @@ def refresh_month(conn: sqlite3.Connection, user_id: int, budget: dict, today: d
         if not _needs_fetch(conn, user_id, base_currency, code, budget["year"], budget["month"],
                                           day, today):
             continue
-        value = fetch_rate(base_currency, code, day)
+        value = fetch_rate(base_currency, code, day, back=2 if day == today else 0)
         if value is not None and rates.set_online(conn, user_id, base_currency, code,
                                                   rates.ym(budget["year"], budget["month"]), round(value, 8)):
             written += 1

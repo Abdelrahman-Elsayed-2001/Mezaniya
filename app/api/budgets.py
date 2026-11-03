@@ -3,9 +3,8 @@ from __future__ import annotations
 
 from flask import jsonify
 
-from app import currency
 from app.db import get_db, transaction
-from app.db.repo import Conflict, base, budgets, settings
+from app.db.repo import Conflict, base, budgets, currencies, settings
 from app.db.repo.loader import load_budget_input
 from app.engine import validate
 from app.i18n import current_lang
@@ -14,7 +13,7 @@ from app.services import carry, rollover
 from . import bp, uid
 from .errors import error, invalid
 from .serialize import dashboard_json, issue_message, split_issue_field
-from .validation import (Field, body, boolean, choice, count, id_list, iso_date, money, optional_text, parse,
+from .validation import (Field, body, boolean, choice, count, currency_code, id_list, iso_date, money, optional_text, parse,
                          ratio, ref_id, text)
 
 BALANCES = {
@@ -40,10 +39,10 @@ ROLLOVER_PREVIEW = {
 ROLLOVER_OPTIONS = ("carry_unpaid_ids", "add_return_to_savings", "drop_completed_goals")
 _NOTES = Field(optional_text, nullable=True, max_len=1000)
 _SORT = Field(count)
-_CURRENCY = Field(choice, nullable=True, choices=tuple(currency.CURRENCIES))   # null = base currency
+_CURRENCY = Field(currency_code, nullable=True)   # one of the user's currencies; null = base currency
 BALANCE = {
     "kind": Field(choice, required=True, choices=budgets.BALANCE_KINDS),
-    "currency": Field(choice, required=True, choices=tuple(currency.CURRENCIES)),
+    "currency": Field(currency_code, required=True),
     "amount": Field(money, required=True),
 }
 BUDGET_EDIT = {**BALANCES, "notes": Field(optional_text, nullable=True, max_len=5000)}
@@ -91,8 +90,16 @@ EXPENSE_DEFAULTS = {"cash_amount": 0, "inst_balance": 0, "inst_count": 0, "carri
                     "status": "unpaid", "deferred_amount": 0, "needs_amount": False}
 
 
+def check_currency(conn, user_id: int, code: str | None, field: str = "currency") -> None:
+    """Only a currency from the user's list (Settings → Currencies) may be used."""
+    if code is not None and code not in currencies.codes(conn, user_id):
+        raise invalid("api.err.currency_not_in_list", field, code=code)
+
+
 def base_currency_to_null(conn, user_id: int, values: dict) -> None:
-    """An item in the base currency stores NULL, so it follows the base currency."""
+    """Checks the currency is the user's; an item in the base currency stores NULL, so it
+    follows the base currency."""
+    check_currency(conn, user_id, values.get("currency"))
     if values.get("currency") is not None and values["currency"] == settings.get_settings(conn, user_id)["currency"]:
         values["currency"] = None
 
@@ -253,6 +260,7 @@ def set_balance(budget_id: int):
     """Savings / emergency money held in another currency; amount 0 removes it."""
     values = parse(BALANCE, body(), partial=False)
     conn, user_id = get_db(), uid()
+    check_currency(conn, user_id, values["currency"])
     if values["currency"] == settings.get_settings(conn, user_id)["currency"]:
         raise invalid("api.err.balance_in_base_currency", "currency")
     with transaction(conn):

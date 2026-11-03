@@ -260,6 +260,8 @@ def test_goal_category(api):
 def test_settings(api):
     s = api.get("/api/settings").get_json()
     assert s["emergency_ref_factor"] == 1.25
+    assert api.patch("/api/settings", {"currency": "EGP"}).status_code == 422         # not in the user's list yet
+    api.post("/api/currencies", {"code": "EGP"})
     s = api.patch("/api/settings", {"emergency_ref_factor": 1.5, "currency": "EGP"}).get_json()
     assert (s["emergency_ref_factor"], s["currency"]) == (1.5, "EGP")
     assert api.patch("/api/settings", {"good_rate": 0.5}).status_code == 422          # > excellent 0.2

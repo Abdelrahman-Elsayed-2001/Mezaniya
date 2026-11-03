@@ -76,8 +76,9 @@ class IncompatibleDatabase(RuntimeError):
 # Bumped whenever 0001_initial.sql changes in a way older databases can't follow while in beta
 # (the schema is edited in place, not migrated). 0001 stamps it with PRAGMA user_version.
 #   1 = beta 0.1.0 (never stamped, reads as 0), 2 = beta 0.2.0 (never stamped either),
-#   3 = beta 0.3.0: monthly notes, item names by language, currencies and exchange rates.
-SCHEMA_GENERATION = 3
+#   3 = 0.3.0 work in progress, 4 = beta 0.3.0: monthly notes, item names by language,
+#   each user's own currencies, exchange rates.
+SCHEMA_GENERATION = 4
 
 
 def check_compatible(conn: sqlite3.Connection) -> None:

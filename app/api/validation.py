@@ -103,6 +103,13 @@ def choice(value, f: Field) -> str:
     return value
 
 
+def currency_code(value, f: Field) -> str:
+    """A three-letter code (any case); whether the user works with it is checked by the route."""
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z]{3}", value.strip()):
+        raise FieldError("api.err.currency_code")
+    return value.strip().upper()
+
+
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
 

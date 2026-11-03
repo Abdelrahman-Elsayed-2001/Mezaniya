@@ -133,7 +133,7 @@ def test_a_missing_rate_counts_zero_and_says_so(api, conn):
 
 def test_manual_rate_change_moves_only_its_months(api):
     before = months(api)
-    api.put("/api/rates", {"currency": "EGP", "from_year": 2026, "from_month": 9, "to_year": 2026, "to_month": 9,
+    api.put("/api/rates", {"from_currency": "EGP", "to_currency": "SAR", "from_year": 2026, "from_month": 9, "to_year": 2026, "to_month": 9,
                            "rate": 0.1})
     after = months(api)
     assert after[MONTHS[0]]["summary"] == before[MONTHS[0]]["summary"]

@@ -3,15 +3,15 @@ from __future__ import annotations
 
 from flask import jsonify
 
-from app import currency, dashboard, themes
+from app import dashboard, themes
 from app.db import get_db, transaction
 from app.db.repo import base, settings, templates, types
 from app.i18n import current_lang, t
 
 from . import bp, uid
-from .budgets import base_currency_to_null
+from .budgets import base_currency_to_null, check_currency
 from .errors import invalid
-from .validation import Field, body, boolean, choice, count, money, number, optional_text, parse, ratio, ref_id, text
+from .validation import Field, body, boolean, choice, count, currency_code, money, number, optional_text, parse, ratio, ref_id, text
 
 SETTINGS = {
     "excellent_rate": Field(ratio),
@@ -23,7 +23,7 @@ SETTINGS = {
     "saving_rate_em_complete": Field(ratio),
     "emergency_ref_months": Field(number, max_value=60),
     "emergency_ref_factor": Field(number, max_value=10),
-    "currency": Field(choice, required=True, choices=tuple(currency.CURRENCIES)),
+    "currency": Field(currency_code, required=True),        # must be in the user's list
     "theme": Field(text, max_len=40),
     "fetch_rates": Field(boolean),
     "theme_colors": Field(lambda v, f: themes.parse_colors(v), nullable=True),
@@ -44,7 +44,7 @@ TEMPLATE = {
     "name": Field(text, required=True, max_len=100),
     "type_id": Field(ref_id, nullable=True),
     "amount": Field(money, nullable=True),          # empty = variable price
-    "currency": Field(choice, nullable=True, choices=tuple(currency.CURRENCIES)),   # null = base currency
+    "currency": Field(currency_code, nullable=True),   # one of the user's currencies; null = base currency
     "is_savings_withdrawal": Field(boolean),
     "active": Field(boolean),
     "notes": Field(optional_text, nullable=True, max_len=1000),
@@ -70,6 +70,8 @@ def update_settings():
     values = parse(SETTINGS, body(), partial=True)
     conn = get_db()
     merged = {**settings.get_settings(conn, uid()), **values}
+    if "currency" in values:
+        check_currency(conn, uid(), values["currency"])
     if merged["good_rate"] > merged["excellent_rate"]:
         raise invalid("api.err.good_gt_excellent", "good_rate" if "good_rate" in values else "excellent_rate")
     if "theme" in values:

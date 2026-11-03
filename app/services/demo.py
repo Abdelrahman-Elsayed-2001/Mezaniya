@@ -15,7 +15,7 @@ import sqlite3
 from datetime import date
 
 from app.db.connection import transaction
-from app.db.repo import base, budgets, rates, settings, templates, users
+from app.db.repo import base, budgets, currencies, rates, settings, templates, users
 from app.engine import DEFAULT_TYPE_KEYS
 from app.i18n import t as tr
 
@@ -114,6 +114,8 @@ def _fill(b: _Builder) -> None:
     b.template("expense", "subscriptions", 60, "luxury")
     b.template("expense", "saving", 500, "savings")
     b.template("expense", "emergency", 400, "emergency")
+    for code in ("EGP", "USD"):                         # the other currencies this user works with
+        currencies.ensure(conn, uid, code)
     b.template("income", "freelance", 400, currency="USD")
     b.template("income", "egypt_rent", 6000, currency="EGP")
     b.template("expense", "family_support", 1500, "giving", currency="EGP")

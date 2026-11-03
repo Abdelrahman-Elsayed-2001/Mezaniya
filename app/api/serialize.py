@@ -11,8 +11,7 @@ from datetime import date
 from decimal import Decimal
 from enum import Enum
 
-from app import currency as money_currency
-from app.db.repo import base, budgets, settings, types
+from app.db.repo import base, budgets, currencies, settings, types
 from app.db.repo.loader import load_budget_input, month_conversion
 from app.engine import compute, validate
 from app.engine.calc import Dashboard
@@ -94,7 +93,8 @@ def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang:
     if not conn.in_transaction:
         fx_online.refresh_month(conn, user_id, budget)      # only when the user turned fetching on
     user_settings = settings.get_settings(conn, user_id)
-    currency = money_currency.symbol(user_settings["currency"], lang)
+    base_info = currencies.info(conn, user_id, user_settings["currency"], lang)
+    currency = base_info["symbol"]
     conv = month_conversion(conn, user_id, budget)
     inp = load_budget_input(conn, user_id, budget_id, conv)
 
@@ -131,8 +131,8 @@ def dashboard_json(conn: sqlite3.Connection, user_id: int, budget_id: int, lang:
     return {
         "budget": {**budget, "days_in_month": d.suggestions.days_in_month},
         "settings": user_settings,
-        "currency": money_currency.info(user_settings["currency"], lang),
-        "currencies": money_currency.options(lang),
+        "currency": base_info,
+        "currencies": currencies.options(conn, user_id, lang),
         "balances": [{**r, **fx(r, "amount")} for r in budgets.list_balances(conn, user_id, budget_id)],
         "missing_rates": conv.missing,
         "expense_types": type_rows,

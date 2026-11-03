@@ -4,7 +4,7 @@
 --
 -- Schema generation, checked at startup (connection.SCHEMA_GENERATION): bump both together
 -- when an edit here means older beta databases can't be opened.
-PRAGMA user_version = 3;
+PRAGMA user_version = 4;
 --
 -- Note: ON DELETE SET NULL can't be used on composite keys (it would null user_id too),
 -- so "set null on delete" is done with BEFORE DELETE triggers instead.
@@ -43,7 +43,7 @@ CREATE TABLE user_settings (
 -- currency is the setting 'currency'; an item's `currency` column is NULL in the base currency
 -- (so most rows never name one) or the code of another currency its amounts are kept in.
 CREATE TABLE currencies (
-  code TEXT PRIMARY KEY CHECK (length(code) = 3 AND code = upper(code)),
+  code TEXT PRIMARY KEY CHECK (length(code) = 3 AND code GLOB '[A-Z][A-Z][A-Z]'),
   decimals INTEGER NOT NULL CHECK (decimals BETWEEN 0 AND 3),
   sort_order INTEGER NOT NULL
 );
@@ -62,6 +62,19 @@ INSERT INTO currencies (code, decimals, sort_order) VALUES
   ('GBP', 2, 11),
   ('TRY', 2, 12),
   ('MAD', 2, 13);
+
+-- The currencies each user works with (Settings → Currencies): the base currency plus any
+-- other they add. Items, balances and rates may only use a currency in this list. A code that
+-- isn't built in is added to `currencies` (decimals 2) the first time someone adds it; its
+-- name and symbol are the user's own (NULL for built-ins, which are named in strings.json).
+CREATE TABLE user_currencies (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  code TEXT NOT NULL REFERENCES currencies(code),
+  name TEXT CHECK (name IS NULL OR length(name) BETWEEN 1 AND 40),
+  symbol TEXT CHECK (symbol IS NULL OR length(symbol) BETWEEN 1 AND 6),
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, code)
+);
 
 INSERT INTO default_settings (key, default_value, type) VALUES
   ('excellent_rate', '0.2', 'rate'),

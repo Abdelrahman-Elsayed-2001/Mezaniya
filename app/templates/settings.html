@@ -47,13 +47,6 @@
             <input type="number" step="0.05" min="0" max="10" name="emergency_ref_factor" x-model="form.emergency_ref_factor" required>
             <small class="hint">{{ t('settings.emergency_ref_factor_hint') }}</small>
           </label>
-          <label class="field">
-            <span>{{ t('settings.currency') }}</span>
-            <select name="currency" x-model="form.currency" required>
-              {% for c in currencies %}<option value="{{ c.code }}">{{ c.name }} ({{ c.symbol }})</option>{% endfor %}
-            </select>
-            <small class="hint">{{ t('settings.currency_hint') }}</small>
-          </label>
           <div class="form-actions">
             <button class="btn btn-primary btn-small" type="submit" :disabled="busy">{{ t('common.save') }}</button>
           </div>
@@ -155,7 +148,7 @@
                 <td><input class="num" type="number" step="0.01" min="0" placeholder="{{ t('settings.templates_variable') }}" :value="tp.amount ?? ''"
                            @change="updateRow('templates', tp, {amount: numOrNull($event.target.value)})"></td>
                 <td><select class="cur-select" @change="updateRow('templates', tp, {currency: $event.target.value})">
-                  {% for c in currencies %}<option value="{{ c.code }}" :selected="(tp.currency ?? settings.currency) === '{{ c.code }}'">{{ c.code }}</option>{% endfor %}
+                  <template x-for="c in cur.currencies" :key="c.code"><option :value="c.code" :selected="(tp.currency ?? cur.base) === c.code" x-text="c.code"></option></template>
                 </select></td>
                 <td class="center"><input type="checkbox" x-show="tp.kind === 'income'" :checked="tp.is_savings_withdrawal"
                            @change="updateRow('templates', tp, {is_savings_withdrawal: $event.target.checked})"></td>
@@ -195,9 +188,52 @@
       </div>
     </section>
 
-    <!-- ================= exchange rates ================= -->
+    <!-- ================= currencies and exchange rates ================= -->
     <section class="card settings-card" x-show="tab === 'rates'" x-cloak>
-      <h2>{{ t('settings.rates_title') }}</h2>
+      <h2>{{ t('settings.currencies_title') }}</h2>
+      <p class="muted small">{{ t('settings.currencies_hint') }}</p>
+      <div class="cur-list">
+        <template x-for="c in cur.currencies" :key="c.code">
+          <span class="cur-chip" :class="c.code === cur.base ? 'is-base' : ''">
+            <strong x-text="c.code"></strong> <span x-text="c.name + ' (' + c.symbol + ')'"></span>
+            <span class="chip chip-manual" x-show="c.code === cur.base">{{ t('settings.currencies_base') }}</span>
+            <span class="chip" x-show="c.code !== cur.base && cur.in_use.includes(c.code)">{{ t('settings.currencies_in_use') }}</span>
+            <button class="icon-btn" type="button" title="{{ t('common.delete') }}" x-show="c.code !== cur.base"
+                    @click="removeCurrency(c.code)">✕</button>
+          </span>
+        </template>
+      </div>
+      <form class="inline-form cur-add" @submit.prevent="addCurrency()" novalidate>
+        <label class="field"><span>{{ t('settings.currencies_add') }}</span>
+          <select x-model="newCurrency.pick">
+            <option value="">{{ t('settings.currencies_pick') }}</option>
+            <template x-for="c in cur.builtin" :key="c.code">
+              <option :value="c.code" x-text="c.name + ' (' + c.code + ')'"></option>
+            </template>
+            <option value="other">{{ t('settings.currencies_other') }}</option>
+          </select></label>
+        <template x-if="newCurrency.pick === 'other'">
+          <div class="cur-other">
+            <label class="field"><span>{{ t('field.code') }}</span>
+              <input x-model="newCurrency.code" maxlength="3" placeholder="CNY" class="code-input">
+              <small class="hint">{{ t('settings.currencies_code_hint') }}</small></label>
+            <label class="field"><span>{{ t('settings.currencies_name') }}</span>
+              <input x-model="newCurrency.name" maxlength="40"></label>
+            <label class="field"><span>{{ t('settings.currencies_symbol') }}</span>
+              <input x-model="newCurrency.symbol" maxlength="6" class="code-input"></label>
+          </div>
+        </template>
+        <div class="form-actions"><button class="btn btn-small" type="submit" :disabled="busy || !newCurrency.pick">{{ t('common.add') }}</button></div>
+      </form>
+      <label class="field base-field"><span>{{ t('settings.currency') }}</span>
+        <select @change="setBaseCurrency($event.target.value)">
+          <template x-for="c in cur.currencies" :key="c.code">
+            <option :value="c.code" :selected="c.code === cur.base" x-text="c.name + ' (' + c.symbol + ')'"></option>
+          </template>
+        </select>
+        <small class="hint">{{ t('settings.currency_hint') }}</small></label>
+
+      <h2 class="section-gap">{{ t('settings.rates_title') }}</h2>
       <p class="muted small">{{ t('settings.rates_hint') }}</p>
       <div class="rate-fetch" x-show="settings">
         <label class="check"><input type="checkbox" :checked="settings && settings.fetch_rates"
@@ -205,38 +241,67 @@
           <span>{{ t('settings.rates_fetch_toggle') }}</span></label>
         <button class="btn btn-small" type="button" x-show="settings && settings.fetch_rates" :disabled="busy"
                 @click="fetchRatesNow()">{{ t('settings.rates_fetch_now') }}</button>
+        <button class="btn btn-small" type="button" :disabled="busy" title="{{ t('settings.rates_test_hint') }}"
+                @click="testRates()">{{ t('settings.rates_test') }}</button>
         <p class="muted small">{{ t('settings.rates_fetch_hint') }}</p>
       </div>
+      <div class="table-wrap" x-show="rateTest">
+        <table class="grid rate-test">
+          <tbody>
+            <template x-for="r in (rateTest ? rateTest.results : [])" :key="r.currency">
+              <tr>
+                <td x-text="currencyLabel(r.currency)"></td>
+                <template x-if="r.ok">
+                  <td class="num"><span class="ltr-num" x-text="'1 ' + r.currency + ' = ' + fmtRate(r.rate) + ' ' + rateTest.base"></span></td>
+                </template>
+                <template x-if="r.ok">
+                  <td class="num"><span class="ltr-num" x-text="'1 ' + rateTest.base + ' = ' + fmtRate(r.inverse) + ' ' + r.currency"></span></td>
+                </template>
+                <template x-if="r.ok"><td class="muted small" x-text="t('settings.rates_test_ok', {day: r.day})"></td></template>
+                <template x-if="!r.ok"><td colspan="3" class="neg">{{ t('settings.rates_test_fail') }}</td></template>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+
       <form class="rate-form" @submit.prevent="saveRate()" novalidate>
-        <label class="field"><span>{{ t('common.currency') }}</span>
-          <select x-model="newRate.currency" required>
-            <option value="">—</option>
-            <template x-for="c in rateCurrencies()" :key="c.code">
-              <option :value="c.code" x-text="c.name + ' (' + c.code + ')'"></option>
+        <label class="field"><span>{{ t('settings.rates_from_currency') }}</span>
+          <select x-model="newRate.from_currency" @change="pairChanged('from_currency')">
+            <template x-for="c in cur.currencies" :key="c.code">
+              <option :value="c.code" :selected="c.code === newRate.from_currency" x-text="c.code"></option>
             </template>
           </select></label>
+        <label class="field"><span>{{ t('settings.rates_to_currency') }}</span>
+          <select x-model="newRate.to_currency" @change="pairChanged('to_currency')">
+            <template x-for="c in cur.currencies" :key="c.code">
+              <option :value="c.code" :selected="c.code === newRate.to_currency" x-text="c.code"></option>
+            </template>
+          </select></label>
+        <label class="field"><span x-text="t('settings.rates_value', {from: newRate.from_currency || '…', to: newRate.to_currency || '…'})"></span>
+          <input class="num" type="number" step="any" min="0" inputmode="decimal" x-model="newRate.rate" required></label>
         <label class="field"><span>{{ t('settings.rates_from') }}</span>
           <input type="month" x-model="newRate.from" required></label>
         <label class="field"><span>{{ t('settings.rates_to') }}</span>
-          <input type="month" x-model="newRate.to">
-          <small class="hint">{{ t('settings.rates_to_hint') }}</small></label>
-        <label class="field"><span x-text="t('settings.rates_per', {code: newRate.currency || '…', base: rates.base})"></span>
-          <input class="num" type="number" step="any" min="0" inputmode="decimal" x-model="newRate.rate" required></label>
+          <input type="month" x-model="newRate.to"></label>
         <div class="form-actions"><button class="btn btn-primary btn-small" type="submit" :disabled="busy">{{ t('common.save') }}</button></div>
       </form>
+      <p class="muted small">{{ t('settings.rates_pair_hint') }} {{ t('settings.rates_period_hint') }}</p>
 
       <p class="muted" x-show="!rates.rates.length">{{ t('settings.rates_empty') }}</p>
       <div class="table-wrap" x-show="rates.rates.length">
         <table class="grid">
           <thead><tr><th>{{ t('common.currency') }}</th><th>{{ t('settings.rates_from') }}</th><th>{{ t('settings.rates_until') }}</th>
-            <th x-text="t('settings.rates_rate_in', {base: rates.base})"></th><th>{{ t('settings.rates_source') }}</th><th></th></tr></thead>
+            <th x-text="t('settings.rates_rate_in', {base: rates.base})"></th><th>{{ t('settings.rates_inverse') }}</th>
+            <th>{{ t('settings.rates_source') }}</th><th></th></tr></thead>
           <tbody>
             <template x-for="r in rates.rates" :key="r.id">
               <tr>
                 <td x-text="currencyLabel(r.currency)"></td>
                 <td x-text="ymText(r.from_ym)"></td>
                 <td x-text="rateUntil(r)"></td>
-                <td class="num" x-text="r.rate"></td>
+                <td class="num"><span class="ltr-num" x-text="'1 ' + r.currency + ' = ' + fmtRate(r.rate) + ' ' + rates.base"></span></td>
+                <td class="num muted"><span class="ltr-num" x-text="'1 ' + rates.base + ' = ' + fmtRate(1 / r.rate) + ' ' + r.currency"></span></td>
                 <td><span class="chip" :class="r.source === 'manual' ? 'chip-manual' : ''"
                           x-text="t('settings.rates_source_' + r.source)"></span></td>
                 <td><button class="icon-btn" type="button" title="{{ t('common.delete') }}" @click="removeRate(r)">✕</button></td>

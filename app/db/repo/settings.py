@@ -151,6 +151,8 @@ def create_settings(conn: sqlite3.Connection, user_id: int, currency: str) -> No
     defaults = dict(conn.execute(
         f"SELECT key, default_value FROM default_settings WHERE key IN ({marks})", keys).fetchall())
     _write(conn, user_id, {**defaults, "currency": _encode("currency", currency)})
+    from . import currencies                    # the base currency is always in the user's list
+    currencies.ensure(conn, user_id, currency)
 
 
 def get_settings(conn: sqlite3.Connection, user_id: int) -> dict:
