@@ -106,6 +106,12 @@ class Config:
     BACKUP_KEEP = int(_env("BACKUP_KEEP", 14))                 # how many backup files to keep
     BACKUP_INTERVAL_HOURS = float(_env("BACKUP_INTERVAL_HOURS", 24))
     LOG_DIR = Path(_env("LOG_DIR", DATA_DIR / "logs"))
-    PID_FILE = DATA_DIR / "server.pid"          # lets the server manager find a running server
+    # languages and their texts (empty → languages.db next to the database)
+    LANGUAGES_DB = os.environ.get("MEZANIYA_LANGUAGES_DB") or None
+    PID_FILE = DATA_DIR / "server.pid"
+
+    @classmethod
+    def languages_db_path(cls) -> Path:
+        return Path(cls.LANGUAGES_DB) if cls.LANGUAGES_DB else Path(cls.DB_PATH).parent / "languages.db"          # lets the server manager find a running server
     # default language (ar / en) for the web app before a visitor picks one, logs, manager and CLI
     LANGUAGE = _env("LANGUAGE", "ar")

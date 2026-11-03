@@ -35,7 +35,7 @@ def literal_keys(path: Path) -> set[str]:
 
 def entries(lang):
     """The language file's own texts (catalog() would fill gaps from the default language)."""
-    return i18n._load()[1][lang]
+    return i18n._files()[lang][1]
 
 
 def test_both_languages_have_every_key():
@@ -158,13 +158,15 @@ def _with_languages(monkeypatch, tmp_path, files: dict[str, dict]):
     for name, data in files.items():
         (tmp_path / name).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
     monkeypatch.setattr(i18n, "LANGUAGES_DIR", tmp_path)
-    i18n._load.cache_clear()
+    i18n._files.cache_clear()
+    i18n.use_database(None)
 
 
 @pytest.fixture
 def reload_languages():
     yield
-    i18n._load.cache_clear()
+    i18n._files.cache_clear()
+    i18n.use_database(None)
 
 
 def test_language_files_are_found_by_name_and_ordered(monkeypatch, tmp_path, reload_languages):

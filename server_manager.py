@@ -577,6 +577,7 @@ def main():
                              i18n.t("manager.data_dir_unwritable", path=Config.DATA_DIR, error=problem))
         root.destroy()
         return
+    i18n.use_database(Config.languages_db_path())
     ManagerApp().mainloop()
 
 

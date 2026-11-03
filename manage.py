@@ -176,6 +176,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     global LANG
+    i18n.use_database(Config.languages_db_path())
     args = build_parser().parse_args(argv)
     LANG = i18n.normalize(args.lang) if args.lang else i18n.default_language()
     return args.func(args)
