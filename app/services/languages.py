@@ -10,11 +10,14 @@ import io
 import json
 import re
 import sqlite3
+import zipfile
 from pathlib import Path
+from xml.etree import ElementTree
 
 from app import i18n
 from app.db.connection import transaction
 from app.i18n import store
+from app.services import xlsx
 from app.services.admin import AdminError
 
 CODE = re.compile(r"^[a-z]{2,3}$")
@@ -213,39 +216,52 @@ def delete_language(conn: sqlite3.Connection, code: str) -> None:
         store.bump(conn)
 
 
-# ---------- CSV (to translate in Excel or another tool, then bring back)
+# ---------- export / import (to translate in Excel or another tool, then bring back)
 
 CSV_KEY, CSV_FORM = "key", "form"
+EXCEL_ERROR = re.compile(r"^#(NAME\?|VALUE!|REF!|DIV/0!|N/A|NUM!|NULL!|SPILL!|CALC!)$")
 
 
-def export_csv(conn: sqlite3.Connection, path: str | Path, target: str, reference: str | None) -> int:
-    """Write key, form, <reference>, <target>: one row per text, one per plural form.
-    UTF-8 with a BOM so Excel shows Arabic. Returns the number of rows."""
+def export_rows(conn: sqlite3.Connection, target: str, reference: str | None) -> list[list[str]]:
+    """Header key, form, <reference>, <target>, then one row per text and one per plural form."""
     lang = get_language(conn, target)
     ref = get_language(conn, reference) if reference and reference != target else None
     ref_texts = i18n.catalog(ref["code"]) if ref else {}
     own = texts(conn, target)
-    header = [CSV_KEY, CSV_FORM] + ([ref["code"]] if ref else []) + [lang["code"]]
-    count = 0
-    with open(path, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        for key, plural in keys(conn):
-            value = own[key]["value"] if key in own else None
-            reference_value = ref_texts.get(key)
-            forms = PLURAL_FORMS[lang["plural"]] if plural else ("",)
-            for form in forms:
-                def cell(v):
-                    if plural:
-                        return v.get(form, "") if isinstance(v, dict) else ""
-                    return v or ""
-                writer.writerow([key, form] + ([cell(reference_value)] if ref else []) + [cell(value)])
-                count += 1
-    return count
+    rows = [[CSV_KEY, CSV_FORM] + ([ref["code"]] if ref else []) + [lang["code"]]]
+    for key, plural in keys(conn):
+        value = own[key]["value"] if key in own else None
+        reference_value = ref_texts.get(key)
+        forms = PLURAL_FORMS[lang["plural"]] if plural else ("",)
+        for form in forms:
+            def cell(v):
+                if plural:
+                    return v.get(form, "") if isinstance(v, dict) else ""
+                return v or ""
+            rows.append([key, form] + ([cell(reference_value)] if ref else []) + [cell(value)])
+    return rows
+
+
+def export_texts(conn: sqlite3.Connection, path: str | Path, target: str, reference: str | None) -> int:
+    """.xlsx (every cell is text, so Excel never turns "+ New" into a formula) or, for any other
+    extension, CSV in UTF-8 with a BOM so Excel shows Arabic. Returns the number of text rows."""
+    rows = export_rows(conn, target, reference)
+    if Path(path).suffix.lower() == ".xlsx":
+        rtl = get_language(conn, target)["dir"] == "rtl"
+        xlsx.write(path, rows, widths=[34, 8] + [60] * (len(rows[0]) - 2), rtl=rtl)
+    else:
+        with open(path, "w", encoding="utf-8-sig", newline="") as f:
+            csv.writer(f).writerows(rows)
+    return len(rows) - 1
 
 
 def _read_rows(path: str | Path) -> list[list[str]]:
     raw = Path(path).read_bytes()
+    if raw[:2] == b"PK":                                 # .xlsx is a zip
+        try:
+            return xlsx.read(path)
+        except (zipfile.BadZipFile, KeyError, ValueError, ElementTree.ParseError):
+            raise AdminError("manager.lang_err.csv_read") from None
     for encoding in ("utf-8-sig", "cp1256"):           # Excel's "CSV UTF-8", or plain "CSV" on Arabic Windows
         try:
             text = raw.decode(encoding)
@@ -259,7 +275,7 @@ def _read_rows(path: str | Path) -> list[list[str]]:
     return list(csv.reader(io.StringIO(text), delimiter=delimiter))
 
 
-def import_csv(conn: sqlite3.Connection, path: str | Path, target: str) -> dict:
+def import_texts(conn: sqlite3.Connection, path: str | Path, target: str) -> dict:
     """Save the target column's texts. Empty cells are skipped (nothing is cleared); each text is
     checked as in the editor. Returns saved / unchanged counts and the refused keys with their
     AdminError (message(lang) words it)."""
@@ -284,6 +300,9 @@ def import_csv(conn: sqlite3.Connection, path: str | Path, target: str) -> dict:
             continue
         if key not in known:
             errors.append((key, AdminError("manager.lang_err.unknown_key", text=key)))
+            continue
+        if EXCEL_ERROR.match(value):                     # a cell Excel took for a formula
+            errors.append((key, AdminError("manager.lang_err.excel_error", text=value)))
             continue
         if known[key]:
             form = row[f].strip() if f is not None and len(row) > f else ""

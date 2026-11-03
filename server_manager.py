@@ -738,12 +738,12 @@ class ManagerApp(tk.Tk):
 
     def export_csv(self):
         target = self._lang(self.text_target)
-        path = filedialog.asksaveasfilename(parent=self, defaultextension=".csv", initialfile=f"mezaniya-{target['code']}.csv",
-                                            filetypes=[("CSV", "*.csv")])
+        path = filedialog.asksaveasfilename(parent=self, defaultextension=".xlsx", initialfile=f"mezaniya-{target['code']}.xlsx",
+                                            filetypes=[("Excel", "*.xlsx"), ("CSV", "*.csv")])
         if not path:
             return
         try:
-            rows = langs.export_csv(self.lconn, path, target["code"], self.text_reference)
+            rows = langs.export_texts(self.lconn, path, target["code"], self.text_reference)
         except OSError as e:
             messagebox.showerror(self.t("manager.cannot"), str(e), parent=self)
             return
@@ -752,11 +752,11 @@ class ManagerApp(tk.Tk):
 
     def import_csv(self):
         target = self._lang(self.text_target)
-        path = filedialog.askopenfilename(parent=self, filetypes=[("CSV", "*.csv"), ("*", "*")])
+        path = filedialog.askopenfilename(parent=self, filetypes=[("Excel / CSV", "*.xlsx *.csv"), ("*", "*")])
         if not path:
             return
         try:
-            result = langs.import_csv(self.lconn, path, target["code"])
+            result = langs.import_texts(self.lconn, path, target["code"])
         except admin.AdminError as e:
             messagebox.showerror(self.t("manager.cannot"), self.ui.text(e.message(self.lang)), parent=self)
             return
