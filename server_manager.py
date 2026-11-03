@@ -282,8 +282,7 @@ class TextDialog(Dialog):
         box = tk.Text(parent, width=60, height=height, wrap="word", font=FONT, relief="solid", borderwidth=1,
                       background="#f3f4f6" if read_only else "white")
         box.tag_configure("dir", justify="right" if rtl else "left")
-        # marks only where nobody types: Tk loses them around the cursor while editing
-        box.insert("1.0", directed(value, rtl) if read_only else value, "dir")
+        box.insert("1.0", directed(value, rtl), "dir")
         box.bind("<KeyRelease>", lambda _e: box.tag_add("dir", "1.0", "end"))
         if read_only:
             box.configure(state="disabled")
@@ -319,7 +318,7 @@ class TextDialog(Dialog):
             for i, form in enumerate(langs.PLURAL_FORMS[self.target["plural"]]):
                 label = ttk.Label(grid, text=t(f"manager.plural_form_{form}"), font=FONT)
                 entry = ttk.Entry(grid, width=44, justify="right" if rtl else "left", font=FONT)
-                entry.insert(0, value.get(form, ""))
+                entry.insert(0, directed(value.get(form, ""), rtl))
                 label.grid(row=i, column=1 if self.ui.rtl else 0, sticky=self.ui.anchor, padx=6, pady=2)
                 entry.grid(row=i, column=0 if self.ui.rtl else 1, sticky="we", pady=2)
                 self.forms[form] = entry
