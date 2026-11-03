@@ -1,4 +1,4 @@
-"""The currency list: Python, the currencies table and strings.json agree."""
+"""The currency list: Python, the currencies table and the language files agree."""
 from app import currency, i18n
 from app.db import connect
 

@@ -7,7 +7,8 @@
     python manage.py demo [--replace]                (user "test" / "test123" with three months of data)
     python manage.py backup
     python manage.py list-backups
-    python manage.py restore <backup-file> --yes      (stop the server first)
+    python manage.py restore <backup-file> --yes      (stop the server first; --languages also
+                                                      restores languages.db, asked if not given)
     python manage.py migrate
 """
 from __future__ import annotations
@@ -101,7 +102,8 @@ def cmd_demo(args) -> int:
 
 
 def cmd_backup(_args) -> int:
-    path = backup.backup_now(Config.DB_PATH, Config.BACKUP_DIR, Config.BACKUP_KEEP)
+    path = backup.backup_now(Config.DB_PATH, Config.BACKUP_DIR, Config.BACKUP_KEEP,
+                             languages_path=Config.languages_db_path())
     say("cli.backup_written", path=path)
     return 0
 
@@ -123,15 +125,26 @@ def cmd_restore(args) -> int:
     if not args.yes:
         say("cli.restore_needs_yes", error=True)
         return 2
+    with_languages = False
+    if backup.languages_backup(source):
+        if args.languages is None and sys.stdin.isatty():
+            answer = input(t("cli.restore_languages_ask"))
+            args.languages = answer.strip().lower() in ("y", "yes", *t("cli.yes_words").split())
+        with_languages = bool(args.languages)
     try:
-        safety = backup.restore(Config.DB_PATH, source, Config.BACKUP_DIR, Config.BACKUP_KEEP)
+        safety = backup.restore(Config.DB_PATH, source, Config.BACKUP_DIR, Config.BACKUP_KEEP,
+                                with_languages=with_languages, languages_path=Config.languages_db_path())
     except IncompatibleDatabase as e:
-        say("cli.restore_incompatible", error=True, found=e.generation, expected=SCHEMA_GENERATION)
+        say("cli.restore_incompatible", error=True, found=e.generation, expected=e.expected)
         return 1
     except ValueError:
         say("cli.restore_unhealthy", error=True)
         return 1
     say("cli.restored", db=Config.DB_PATH, file=source)
+    if with_languages:
+        say("cli.restored_languages", path=Config.languages_db_path())
+    elif backup.languages_backup(source):
+        say("cli.restore_languages_skipped")
     if safety:
         say("cli.previous_saved", path=safety)
     return 0
@@ -169,6 +182,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("restore", help=t("cli.help_restore"))
     p.add_argument("file")
     p.add_argument("--yes", action="store_true", help=t("cli.help_yes"))
+    p.add_argument("--languages", action=argparse.BooleanOptionalAction, default=None,
+                   help=t("cli.help_restore_languages"))
     p.set_defaults(func=cmd_restore)
     sub.add_parser("migrate", help=t("cli.help_migrate")).set_defaults(func=cmd_migrate)
     return parser
@@ -176,6 +191,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     global LANG
+    i18n.use_database(Config.languages_db_path())
     args = build_parser().parse_args(argv)
     LANG = i18n.normalize(args.lang) if args.lang else i18n.default_language()
     return args.func(args)

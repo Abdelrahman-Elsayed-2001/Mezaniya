@@ -5,7 +5,7 @@ carry-overs, unpaid items carried by the new-month wizard, and payments with dat
 show 0.3.0's features: items, a goal and savings/emergency balances in other currencies (USD,
 EGP) with the user's own monthly exchange rates, a deferred foreign-currency expense carried
 over, and notes for each month. Fetching rates online stays off.
-Item names are strings.json keys ("demo.*", stored as name_key with no name), so they read in
+Item names are the language files keys ("demo.*", stored as name_key with no name), so they read in
 the viewer's language; only the notes are written in the requested language.
 """
 from __future__ import annotations

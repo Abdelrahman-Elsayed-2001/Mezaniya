@@ -1,15 +1,28 @@
-// Translations: the page embeds this language's strings (from strings.json) as JSON.
+// Translations: the page embeds this language's strings (from app/i18n/languages) as JSON.
 const I18N = JSON.parse(document.getElementById("i18n-data").textContent);
 
+// CLDR plural rules, the same as PLURAL_RULES in app/i18n (the language file names its rule)
+const PLURAL_RULES = {
+  ar(n) {
+    if (n === 0) return "zero";
+    if (n === 1) return "one";
+    if (n === 2) return "two";
+    if (n % 100 >= 3 && n % 100 <= 10) return "few";
+    if (n % 100 >= 11 && n % 100 <= 99) return "many";
+    return "other";
+  },
+  en: (n) => (n === 1 ? "one" : "other"),
+  fr: (n) => (n === 0 || n === 1 ? "one" : "other"),
+  ru(n) {
+    if (n % 10 === 1 && n % 100 !== 11) return "one";
+    if (n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14)) return "few";
+    return "many";
+  },
+  none: () => "other",
+};
+
 function pluralForm(n) {
-  n = Math.abs(Math.trunc(n));
-  if (I18N.lang !== "ar") return n === 1 ? "one" : "other";
-  if (n === 0) return "zero";
-  if (n === 1) return "one";
-  if (n === 2) return "two";
-  if (n % 100 >= 3 && n % 100 <= 10) return "few";
-  if (n % 100 >= 11 && n % 100 <= 99) return "many";
-  return "other";
+  return (PLURAL_RULES[I18N.plural] || PLURAL_RULES.en)(Math.abs(Math.trunc(n)));
 }
 
 // tr("section.key", {name: value}) — same {name} placeholders and plural forms as the server.
