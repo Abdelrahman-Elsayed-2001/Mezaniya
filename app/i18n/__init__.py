@@ -308,4 +308,4 @@ def init_app(app) -> None:
 # sections the browser needs (manager / cli / log stay server-side)
 WEB_PREFIXES = ("app.", "common.", "count.", "auth.", "nav.", "dashboard.", "status.", "summary.",
                 "suggestions.", "warnings.", "incomes.", "emergency.", "savings.", "expenses.", "goals.",
-                "payments.", "charts.", "details.", "wizard.", "settings.", "role.")
+                "payments.", "charts.", "details.", "wizard.", "settings.", "role.", "fx.", "month_notes.")
