@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 import queue
+import re
 import threading
 import tkinter as tk
 import webbrowser
@@ -39,6 +40,23 @@ FIREWALL_CMD = ('New-NetFirewallRule -DisplayName "Mezaniya {port}" -Direction I
                 '-LocalPort {port} -Action Allow -Profile Private')
 
 
+# Tk draws every line left-to-right, so in Arabic a line with Latin text or {placeholders} comes out
+# in the wrong order. Wrapping each line in RIGHT-TO-LEFT EMBEDDING … POP DIRECTIONAL FORMATTING makes
+# Windows lay it out right-to-left. The marks are display-only: plain() takes them off what is typed.
+RLE, PDF = "\u202b", "\u202c"
+BIDI_MARKS = re.compile("[\u200e\u200f\u202a-\u202e\u2066-\u2069]")
+
+
+def directed(text: str, rtl: bool) -> str:
+    if not rtl or not text:
+        return text
+    return "\n".join(f"{RLE}{line}{PDF}" if line else line for line in plain(text).split("\n"))
+
+
+def plain(text: str) -> str:
+    return BIDI_MARKS.sub("", text)
+
+
 def configured_port() -> int:
     value = admin.read_env_value(ENV_FILE, "MEZANIYA_PORT") or os.environ.get("MEZANIYA_PORT") or Config.PORT
     try:
@@ -56,6 +74,9 @@ class Layout:
         self.end = "left" if self.rtl else "right"
         self.anchor = "e" if self.rtl else "w"
         self.justify = "right" if self.rtl else "left"
+
+    def text(self, value: str) -> str:
+        return directed(value, self.rtl)
 
 
 class Dialog(tk.Toplevel):
@@ -82,7 +103,7 @@ class Dialog(tk.Toplevel):
         self.focus_first()
 
     def t(self, key: str, **params) -> str:
-        return i18n.t(key, self.lang, **params)
+        return self.ui.text(i18n.t(key, self.lang, **params))
 
     def field(self, parent, label_key: str, show: str | None = None) -> ttk.Entry:
         ttk.Label(parent, text=self.t(label_key), anchor=self.ui.anchor, font=FONT).pack(fill="x")
@@ -94,7 +115,7 @@ class Dialog(tk.Toplevel):
         try:
             self.result = self.apply()
         except admin.AdminError as e:
-            messagebox.showerror(self.t("manager.cannot"), e.message(self.lang), parent=self)
+            messagebox.showerror(self.t("manager.cannot"), self.ui.text(e.message(self.lang)), parent=self)
             return
         self.destroy()
 
@@ -146,7 +167,7 @@ class PasswordDialog(Dialog):
 
 
 def lang_label(lang: dict) -> str:
-    return f"{lang['name']} ({lang['code']})"
+    return directed(f"{lang['name']} ({lang['code']})", lang["dir"] == "rtl")
 
 
 class LanguageDialog(Dialog):
@@ -194,12 +215,12 @@ class LanguageDialog(Dialog):
         (self.name if self.lang_row else self.code).focus_set()
 
     def apply(self):
-        args = (self.name.get(), self.dirs[self.dir.current()], self.rules[self.plural.current()],
+        args = (plain(self.name.get()), self.dirs[self.dir.current()], self.rules[self.plural.current()],
                 self.refs[self.reference.current()])
         if self.lang_row:
             langs.update_language(self.conn, self.lang_row["code"], *args)
             return self.lang_row["code"]
-        return langs.add_language(self.conn, self.code.get(), *args)
+        return langs.add_language(self.conn, plain(self.code.get()), *args)
 
 
 class TextDialog(Dialog):
@@ -213,7 +234,7 @@ class TextDialog(Dialog):
         box = tk.Text(parent, width=60, height=height, wrap="word", font=FONT, relief="solid", borderwidth=1,
                       background="#f3f4f6" if read_only else "white")
         box.tag_configure("dir", justify="right" if rtl else "left")
-        box.insert("1.0", value, "dir")
+        box.insert("1.0", directed(value, rtl), "dir")
         box.bind("<KeyRelease>", lambda _e: box.tag_add("dir", "1.0", "end"))
         if read_only:
             box.configure(state="disabled")
@@ -249,7 +270,7 @@ class TextDialog(Dialog):
             for i, form in enumerate(langs.PLURAL_FORMS[self.target["plural"]]):
                 label = ttk.Label(grid, text=t(f"manager.plural_form_{form}"), font=FONT)
                 entry = ttk.Entry(grid, width=44, justify="right" if rtl else "left", font=FONT)
-                entry.insert(0, value.get(form, ""))
+                entry.insert(0, directed(value.get(form, ""), rtl))
                 label.grid(row=i, column=1 if self.ui.rtl else 0, sticky=self.ui.anchor, padx=6, pady=2)
                 entry.grid(row=i, column=0 if self.ui.rtl else 1, sticky="we", pady=2)
                 self.forms[form] = entry
@@ -270,8 +291,8 @@ class TextDialog(Dialog):
 
     def value(self):
         if self.row["plural"]:
-            return {form: entry.get() for form, entry in self.forms.items()}
-        return self.box.get("1.0", "end-1c")
+            return {form: plain(entry.get()) for form, entry in self.forms.items()}
+        return plain(self.box.get("1.0", "end-1c"))
 
     def apply(self):
         langs.save_text(self.conn, self.target["code"], self.row["key"], self.value())
@@ -318,7 +339,7 @@ class ManagerApp(tk.Tk):
         self._poll_log()
 
     def t(self, key: str, **params) -> str:
-        return i18n.t(key, self.lang, **params)
+        return self.ui.text(i18n.t(key, self.lang, **params))
 
     # ------------------------------------------------------------------ layout
 
@@ -597,8 +618,9 @@ class ManagerApp(tk.Tk):
         tree = self.text_tree
         tree.delete(*tree.get_children())
         for r in rows:
-            values = {"key": r["key"], "reference": langs.as_line(r["reference"])[:300],
-                      "value": langs.as_line(r["value"])[:300]}
+            values = {"key": r["key"],
+                      "reference": directed(langs.as_line(r["reference"])[:300], bool(reference) and reference["dir"] == "rtl"),
+                      "value": directed(langs.as_line(r["value"])[:300], target["dir"] == "rtl")}
             tag = "missing" if r["value"] is None else "edited" if r["edited"] else ""
             tree.insert("", "end", iid=r["key"], values=[values[c] for c in tree.columns_order], tags=(tag,))
         self.texts_count.configure(text=self.t("manager.texts_count", shown=len(rows), done=target["translated"],
@@ -643,7 +665,7 @@ class ManagerApp(tk.Tk):
             try:
                 langs.set_enabled(self.lconn, lang["code"], enabled)
             except admin.AdminError as e:
-                messagebox.showerror(self.t("manager.cannot"), e.message(self.lang), parent=self)
+                messagebox.showerror(self.t("manager.cannot"), self.ui.text(e.message(self.lang)), parent=self)
                 return
             self.languages_changed()
 
@@ -826,7 +848,7 @@ class ManagerApp(tk.Tk):
         try:
             port = admin.validate_port(self.port_var.get())
         except admin.AdminError as e:
-            messagebox.showerror(self.t("manager.port_invalid"), e.message(self.lang), parent=self)
+            messagebox.showerror(self.t("manager.port_invalid"), self.ui.text(e.message(self.lang)), parent=self)
             return
         admin.write_env_value(ENV_FILE, "MEZANIYA_PORT", str(port))
         command = FIREWALL_CMD.format(port=port)
@@ -966,8 +988,9 @@ def main():
     if problem:
         root = tk.Tk()
         root.withdraw()
-        messagebox.showerror(i18n.t("manager.data_dir_title"),
-                             i18n.t("manager.data_dir_unwritable", path=Config.DATA_DIR, error=problem))
+        rtl = i18n.direction(i18n.default_language()) == "rtl"
+        messagebox.showerror(directed(i18n.t("manager.data_dir_title"), rtl),
+                             directed(i18n.t("manager.data_dir_unwritable", path=Config.DATA_DIR, error=problem), rtl))
         root.destroy()
         return
     i18n.use_database(Config.languages_db_path())
