@@ -1,4 +1,4 @@
-// Translations: the page embeds this language's strings (from strings.json) as JSON.
+// Translations: the page embeds this language's strings (from app/i18n/languages) as JSON.
 const I18N = JSON.parse(document.getElementById("i18n-data").textContent);
 
 function pluralForm(n) {

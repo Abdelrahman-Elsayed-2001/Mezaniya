@@ -17,7 +17,7 @@ ICON = str(ROOT / "packaging" / "mezaniya.ico")
 DATAS = [
     (str(ROOT / "app" / "templates"), "app/templates"),
     (str(ROOT / "app" / "static"), "app/static"),
-    (str(ROOT / "app" / "i18n" / "strings.json"), "app/i18n"),
+    (str(ROOT / "app" / "i18n" / "languages"), "app/i18n/languages"),
     (str(ROOT / "app" / "db" / "migrations"), "app/db/migrations"),
 ]
 EXCLUDES = ["pytest", "_pytest", "IPython", "matplotlib", "numpy", "PIL"]

@@ -1,7 +1,7 @@
 """Each user's own currency list (table user_currencies, see 0001).
 
 The base currency is always in the list. Items, templates, balances and rates may only use a
-currency from it. Built-in codes (app/currency.CURRENCIES) are named in strings.json; any other
+currency from it. Built-in codes (app/currency.CURRENCIES) are named in the language files; any other
 three-letter code can be added with the user's own name and symbol.
 """
 from __future__ import annotations
@@ -18,7 +18,7 @@ USED_IN = ("incomes", "expenses", "goals", "recurring_templates", "budget_balanc
 
 
 class CurrencyError(ValueError):
-    """`key` is a strings.json key under api.err."""
+    """`key` is a the language files key under api.err."""
     def __init__(self, key: str, **params):
         super().__init__(key)
         self.key, self.params = key, params

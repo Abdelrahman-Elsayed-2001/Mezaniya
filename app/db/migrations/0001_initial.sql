@@ -39,7 +39,7 @@ CREATE TABLE user_settings (
 );
 
 -- Currencies in use by any user (the catalog is app/currency.CURRENCIES; rows are added on demand).
--- Symbols and names are strings.json "currency.<code>.symbol" / ".name". The user's base
+-- Symbols and names are the language files "currency.<code>.symbol" / ".name". The user's base
 -- currency is the setting 'currency'; an item's `currency` column is NULL in the base currency
 -- (so most rows never name one) or the code of another currency its amounts are kept in.
 CREATE TABLE currencies (
@@ -55,7 +55,7 @@ INSERT INTO currencies (code, decimals, sort_order) VALUES ('SAR', 2, 1);
 -- The currencies each user works with (Settings → Currencies): the base currency plus any
 -- other they add. Items, balances and rates may only use a currency in this list. A code that
 -- isn't built in is added to `currencies` (decimals 2) the first time someone adds it; its
--- name and symbol are the user's own (NULL for built-ins, which are named in strings.json).
+-- name and symbol are the user's own (NULL for built-ins, which are named in the language files).
 CREATE TABLE user_currencies (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   code TEXT NOT NULL REFERENCES currencies(code),
@@ -82,7 +82,7 @@ INSERT INTO default_settings (key, default_value, type) VALUES
   ('dashboards', '{"v":1,"boards":[{"id":"main","name":null,"rows":[["incomes","summary"],["expenses"],["by_type","payments","suggestions"],["warnings"],["emergency","savings","progress"],["goals"],["daily","notes"],["details"]]}],"seen":["summary","suggestions","warnings","incomes","emergency","savings","expenses","goals","payments","by_type","progress","daily","details","notes"]}', 'json');
 
 -- Built-in colour themes: five base colours each; app/themes.py derives the rest. Names are
--- strings.json "theme.<id>". A user's choice is user_settings key 'theme' ('auto' = follow
+-- the language files "theme.<id>". A user's choice is user_settings key 'theme' ('auto' = follow
 -- Windows light/dark, a theme id, or 'custom' with the colours as JSON in value2).
 CREATE TABLE themes (
   id TEXT PRIMARY KEY,
@@ -102,7 +102,7 @@ INSERT INTO themes (id, sort_order, mode, colors) VALUES
   ('mint', 8, 'light', '{"text":"#0f241c","background":"#eef8f3","primary":"#0f766e","secondary":"#bfe3d4","accent":"#7c3aed"}'),
   ('ocean', 9, 'dark', '{"text":"#e3eef2","background":"#0b1a20","primary":"#38bdf8","secondary":"#1e3a4a","accent":"#f59e0b"}');
 
--- Types and categories made at registration carry name_key ('savings' → strings.json
+-- Types and categories made at registration carry name_key ('savings' → the language files
 -- "seed.type.savings") and are shown in the viewer's language; name stays NULL until the user
 -- renames one, and then that name is shown in every language. Types the user adds have name only.
 CREATE TABLE expense_types (
@@ -123,7 +123,7 @@ CREATE TABLE expense_types (
 CREATE TABLE goal_categories (
   id INTEGER PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name_key TEXT,                        -- strings.json "seed.category.<key>", as for expense_types
+  name_key TEXT,                        -- the language files "seed.category.<key>", as for expense_types
   name TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
   CHECK (name IS NOT NULL OR name_key IS NOT NULL),
@@ -133,7 +133,7 @@ CREATE TABLE goal_categories (
 );
 
 -- Demo names: rows the demo creates (recurring items and month items) carry name_key
--- ('rent' → strings.json "demo.rent") with the name NULL, so they read in the viewer's language,
+-- ('rent' → the language files "demo.rent") with the name NULL, so they read in the viewer's language,
 -- and copying them into a new month keeps them that way. Once the user renames one, the name is
 -- theirs and reads the same in every language. Rows the user adds have a name only.
 CREATE TABLE recurring_templates (

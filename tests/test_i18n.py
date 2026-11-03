@@ -1,4 +1,4 @@
-"""strings.json is the only home of display text: both languages complete, every key the code
+"""The language files are the only home of display text: both languages complete, every key the code
 uses exists, and no Arabic is left in code files."""
 import re
 from pathlib import Path
@@ -34,7 +34,8 @@ def literal_keys(path: Path) -> set[str]:
 
 
 def entries(lang):
-    return i18n.catalog(lang)
+    """The language file's own texts (catalog() would fill gaps from the default language)."""
+    return i18n._load()[1][lang]
 
 
 def test_both_languages_have_every_key():
@@ -44,7 +45,7 @@ def test_both_languages_have_every_key():
 
 @pytest.mark.parametrize("key", sorted(i18n.catalog("ar")))
 def test_placeholders_match_between_languages(key):
-    ar, en = i18n.catalog("ar")[key], i18n.catalog("en")[key]
+    ar, en = entries("ar")[key], entries("en")[key]
     if isinstance(ar, dict):                                  # plural forms
         assert {"one", "two", "few", "many", "other"} <= set(ar) and {"one", "other"} <= set(en)
         ar_ph = set().union(*(PLACEHOLDER.findall(v) for v in ar.values()))
@@ -148,3 +149,54 @@ def test_arabic_messages_by_default(app):
     api = Api(app, "huda")
     bad = api.post(f"/api/budgets/{api.budget_id()}/expenses", {"name": "x", "type_id": 1, "cash_amount": -1})
     assert bad.get_json()["message"] == "يجب ألا تكون قيمة «المبلغ النقدي» سالبة"
+
+
+# ---------- language files
+
+def _with_languages(monkeypatch, tmp_path, files: dict[str, dict]):
+    import json
+    for name, data in files.items():
+        (tmp_path / name).write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+    monkeypatch.setattr(i18n, "LANGUAGES_DIR", tmp_path)
+    i18n._load.cache_clear()
+
+
+@pytest.fixture
+def reload_languages():
+    yield
+    i18n._load.cache_clear()
+
+
+def test_language_files_are_found_by_name_and_ordered(monkeypatch, tmp_path, reload_languages):
+    ar = {"_meta": {"name": "العربية", "dir": "rtl", "plural": "ar", "order": 1},
+          "app": {"title": "ميزانيتي"}, "count": {"months": {"one": "شهر", "two": "شهران", "few": "{n} أشهر",
+                                                             "many": "{n} شهرًا", "other": "{n} شهر"}}}
+    fr = {"_meta": {"name": "Français", "dir": "ltr", "plural": "fr", "order": 3},
+          "count": {"months": {"one": "{n} mois", "other": "{n} mois"}}}
+    en = {"_meta": {"name": "English", "dir": "ltr", "plural": "en", "order": 2}, "app": {"title": "Budget"}}
+    _with_languages(monkeypatch, tmp_path, {"ar.json": ar, "fr.json": fr, "en.json": en, "notes.json": {}})
+    assert i18n.languages() == ["ar", "en", "fr"]                  # by order; notes.json is not a code
+    assert i18n.language_name("fr") == "Français" and i18n.direction("fr") == "ltr"
+    assert i18n.t("app.title", "fr") == "ميزانيتي"                  # missing key → default language
+    assert i18n.catalog("fr")["app.title"] == "ميزانيتي"
+    assert i18n.plural("count.months", 0, "fr") == "0 mois"         # French: 0 is singular
+    assert i18n.plural("count.months", 3, "ar") == "3 أشهر"
+    assert i18n.normalize("FR") == "fr" and i18n.normalize("de") == "ar"
+
+
+def test_language_file_meta_is_checked(monkeypatch, tmp_path, reload_languages):
+    bad = {"_meta": {"name": "X", "dir": "up", "plural": "en"}}
+    _with_languages(monkeypatch, tmp_path, {"ar.json": bad})
+    with pytest.raises(ValueError):
+        i18n.languages()
+
+
+@pytest.mark.parametrize("rule,cases", [
+    ("ar", {0: "zero", 1: "one", 2: "two", 3: "few", 10: "few", 11: "many", 99: "many", 100: "other", 103: "few"}),
+    ("en", {0: "other", 1: "one", 2: "other"}),
+    ("fr", {0: "one", 1: "one", 2: "other"}),
+    ("ru", {1: "one", 21: "one", 11: "many", 2: "few", 22: "few", 12: "many", 5: "many"}),
+    ("none", {0: "other", 1: "other"}),
+])
+def test_plural_rules(rule, cases):
+    assert {n: i18n.PLURAL_RULES[rule](n) for n in cases} == cases

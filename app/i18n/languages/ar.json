@@ -1,0 +1,1478 @@
+{
+  "_meta": {
+    "name": "العربية",
+    "dir": "rtl",
+    "plural": "ar",
+    "order": 1
+  },
+
+  "app": {
+    "title": "ميزانيتي الشهرية",
+    "stage_banner": {
+      "beta": "نسخة تجريبية (Beta) · الإصدار {version}"
+    }
+  },
+
+  "lang": {
+    "switch_to": "English"
+  },
+
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "close": "إغلاق",
+    "delete": "حذف",
+    "add": "إضافة",
+    "logout": "تسجيل الخروج",
+    "settings": "الإعدادات",
+    "total": "الإجمالي",
+    "loading": "جارٍ التحميل…",
+    "confirm_delete": "حذف «{name}»؟",
+    "error_generic": "حدث خطأ، حاول مرة أخرى.",
+    "error_network": "تعذّر الاتصال بالخادم، تحقّق من الاتصال.",
+    "note_add": "إضافة ملاحظة",
+    "currency": "العملة",
+    "note_placeholder": "ملاحظة…",
+    "dash": "—",
+    "list_sep": "، "
+  },
+
+  "count": {
+    "months": {"zero": "لا أشهر", "one": "شهر واحد", "two": "شهران", "few": "{n} أشهر", "many": "{n} شهرًا", "other": "{n} شهر"},
+    "minutes": {"zero": "{n} دقيقة", "one": "دقيقة واحدة", "two": "دقيقتين", "few": "{n} دقائق", "many": "{n} دقيقة", "other": "{n} دقيقة"},
+    "days": {"zero": "{n} يوم", "one": "يوم واحد", "two": "يومان", "few": "{n} أيام", "many": "{n} يومًا", "other": "{n} يوم"},
+    "items": {"zero": "لا بنود", "one": "بند واحد", "two": "بندان", "few": "{n} بنود", "many": "{n} بندًا", "other": "{n} بند"},
+    "users": {"zero": "لا مستخدمين", "one": "مستخدم واحد", "two": "مستخدمان", "few": "{n} مستخدمين", "many": "{n} مستخدمًا", "other": "{n} مستخدم"}
+  },
+
+  "auth": {
+    "username": "اسم المستخدم",
+    "password": "كلمة المرور",
+    "password_confirm": "تأكيد كلمة المرور",
+    "username_hint": "من 3 إلى 32 حرفًا، دون مسافات",
+    "password_hint": "6 أحرف على الأقل",
+    "current_password": "كلمة المرور الحالية",
+    "new_password": "كلمة المرور الجديدة",
+    "new_password_confirm": "تأكيد كلمة المرور الجديدة",
+    "login": {
+      "title": "تسجيل الدخول",
+      "subtitle": "سجّل الدخول للمتابعة",
+      "submit": "دخول",
+      "first_time": "أول مرة؟"
+    },
+    "register": {
+      "link": "تسجيل مستخدم جديد",
+      "title": "تسجيل مستخدم جديد",
+      "subtitle": "بياناتك منفصلة تمامًا عن بيانات أي مستخدم آخر",
+      "submit": "إنشاء الحساب",
+      "have_account": "لديّ حساب بالفعل"
+    },
+    "change": {
+      "title": "تغيير كلمة المرور",
+      "forced": "سجّلت الدخول بكلمة مرور مؤقتة عُيّنت يدويًا. اختر كلمة مرور جديدة للمتابعة.",
+      "back": "رجوع",
+      "other_devices": "تغيير كلمة المرور يُخرجك من جميع الأجهزة الأخرى.",
+      "done": "تغيّرت كلمة المرور"
+    },
+    "err": {
+      "bad_request": "تعذّر فهم الطلب",
+      "csrf": "رُفض الطلب",
+      "unauthorized": "يجب تسجيل الدخول",
+      "must_change": "يجب تغيير كلمة المرور أولًا",
+      "bad_credentials": "اسم المستخدم أو كلمة المرور غير صحيحة",
+      "locked": "محاولات خاطئة كثيرة. حاول مرة أخرى بعد {duration}.",
+      "registration_closed": "التسجيل مغلق حاليًا",
+      "username_invalid": "يجب أن يتكوّن اسم المستخدم من 3 إلى 32 حرفًا (حروف أو أرقام أو _ . -) دون مسافات",
+      "password_short": "يجب ألا تقل كلمة المرور عن {min} أحرف",
+      "password_long": "كلمة المرور طويلة جدًا (الحد الأقصى {max} حرفًا)",
+      "confirm_mismatch": "تأكيد كلمة المرور غير مطابق",
+      "username_taken": "اسم المستخدم هذا مستخدم من قبل",
+      "current_wrong": "كلمة المرور الحالية غير صحيحة",
+      "same_password": "يجب أن تختلف كلمة المرور الجديدة عن الحالية"
+    }
+  },
+
+  "nav": {
+    "month": "الشهر",
+    "new_month": "شهر جديد",
+    "new_month_label": "شهر جديد ({label})"
+  },
+
+  "dashboard": {
+    "no_months": "لا توجد أشهر بعد",
+    "month_created": "أُنشئ شهر {label}",
+    "customize": "تخصيص",
+    "editing_title": "تخصيص الداشبورد",
+    "editing_hint": "رتّب العناصر بالأزرار فوق كل عنصر: ↑ ↓ ينقله للسطر السابق أو التالي، والأسهم الجانبية تبدّله مع جاره، و⇲ يضعه في سطر وحده، و✕ يخفيه. السطر يتسع لثلاثة عناصر. لا يُحفظ شيء حتى تضغط «حفظ التخطيط».",
+    "done": "حفظ التخطيط",
+    "saved": "حُفظ التخطيط",
+    "board_main": "الرئيسية",
+    "board_n": "داشبورد {n}",
+    "add_board": "+ داشبورد جديدة",
+    "board_name_prompt": "اسم الداشبورد",
+    "rename_board": "تغيير اسم هذه الداشبورد",
+    "delete_board": "حذف هذه الداشبورد",
+    "delete_board_confirm": "حذف «{name}»؟ عناصرها تبقى كما هي في الداشبوردات الأخرى.",
+    "reset": "الرجوع للتخطيط الافتراضي",
+    "reset_confirm": "سيُستبدل تخطيطك كله بالتخطيط الافتراضي (داشبورد واحدة). يُحفظ عند الضغط على «حفظ التخطيط».",
+    "widgets_title": "العناصر (إظهار عنصر مخفي أو تكراره)",
+    "used_in": "مستخدم في: {boards}",
+    "unused": "غير مستخدم",
+    "list_sep": "، ",
+    "add_here": "إضافة لهذه الداشبورد",
+    "move_up": "للسطر السابق",
+    "move_down": "للسطر التالي",
+    "move_before": "قبل جاره",
+    "move_after": "بعد جاره",
+    "own_row": "في سطر وحده",
+    "hide": "إخفاء من هذه الداشبورد",
+    "copy_to": "نسخ إلى…",
+    "copied": "نُسخ إلى «{name}»",
+    "empty_board": "هذه الداشبورد فارغة. اضغط «تخصيص» وأضف لها عناصر."
+  },
+
+  "status": {
+    "deficit": "🔴 خطر — عجز",
+    "squeezed": "🟠 ضائقة — السحب من المدخرات غطّى العجز",
+    "high_debt_luxury": "🟠 انتبه — الأقساط والكماليات مرتفعة",
+    "high_debt": "🟠 انتبه — الأقساط مرتفعة",
+    "high_luxury": "🟠 انتبه — الكماليات مرتفعة",
+    "complete_emergency": "🟡 جيد — أكمِل صندوق الطوارئ",
+    "excellent": "🟢 ممتاز",
+    "good": "🟡 جيد",
+    "acceptable": "🟠 مقبول — الفائض قليل"
+  },
+
+  "summary": {
+    "title": "الملخص",
+    "income": "إجمالي الدخل",
+    "expenses": "إجمالي المصروفات",
+    "debt": "منها: الأقساط",
+    "luxury": "منها: الكماليات",
+    "essential": "منها: الأساسيات",
+    "net": "الصافي (الفائض)"
+  },
+
+  "suggestions": {
+    "title": "الاقتراحات الشهرية",
+    "emergency": "1) لصندوق الطوارئ",
+    "saving": "2) للادخار والأهداف",
+    "safe_spend": "3) الإنفاق الآمن",
+    "daily": "يوميًا ({days})",
+    "weekly": "أسبوعيًا",
+    "return": "↩️ أعِد إلى المدخرات"
+  },
+
+  "warnings": {
+    "title": "التحذيرات",
+    "state_active": "⚠️ نشط",
+    "state_ok": "✅ سليم",
+    "summary_none": "✅ لا توجد تحذيرات",
+    "summary_some": "⚠️ راجع البنود أدناه",
+    "deficit": {
+      "title": "عجز في الميزانية",
+      "details": "عجز قدره {amount} {currency} حتى بعد السحب"
+    },
+    "squeezed": {
+      "title": "ضائقة — الإنفاق من المدخرات",
+      "details": "غطّى السحب عجزًا قدره {amount} {currency}"
+    },
+    "over_withdrawn": {
+      "title": "السحب أكبر من المدخرات المتاحة",
+      "details": "سحبت {withdrawn} والمتاح {available} {currency}"
+    },
+    "high_debt": {
+      "title": "الأقساط مرتفعة",
+      "details": "{pct} (الحد {limit})"
+    },
+    "high_luxury": {
+      "title": "الكماليات مرتفعة",
+      "details": "{pct} (الحد {limit})"
+    },
+    "emergency_short": {
+      "title": "صندوق الطوارئ غير مكتمل",
+      "details": "ينقصه {amount} {currency}"
+    },
+    "low_surplus": {
+      "title": "الفائض قليل",
+      "details": "{pct} (الحد الأدنى {min})"
+    },
+    "over_allocated": {
+      "title": "الموزَّع على الأهداف أكبر من المتاح",
+      "details": "زيادة بمقدار {amount} {currency}"
+    },
+    "return_to_savings": {
+      "title": "يجب إعادة مبلغ إلى المدخرات",
+      "details": "أعِد {amount} {currency}"
+    },
+    "needs_amount": {
+      "title": "بنود تحتاج إلى مبلغ",
+      "details": "{items} دون مبلغ حتى الآن"
+    }
+  },
+
+  "incomes": {
+    "title": "الدخل",
+    "source": "المصدر",
+    "amount": "المبلغ",
+    "withdrawal_short": "سحب؟",
+    "withdrawal_hint": "سحب من المدخرات: يُضاف إلى الدخل ويُخصم من رصيد الادخار",
+    "new_placeholder": "مصدر جديد",
+    "needs_amount": "يحتاج إلى مبلغ",
+    "err_empty": "اكتب مصدر الدخل"
+  },
+
+  "emergency": {
+    "title": "صندوق الطوارئ",
+    "current": "المبلغ الحالي",
+    "minimum": "الحد الأدنى",
+    "from_expenses": "إضافة من المصروفات",
+    "after": "بعد الإضافة",
+    "reference": "المرجع: (الأساسيات + الأقساط) × {months} × {factor}",
+    "remaining": "المتبقي",
+    "status": "الحالة",
+    "complete": "✅ مكتمل",
+    "incomplete": "⚠️ غير مكتمل",
+    "months": "الأشهر المتوقعة للاكتمال"
+  },
+
+  "savings": {
+    "title": "الادخار",
+    "current": "المدخرات الحالية",
+    "from_expenses": "إضافة من المصروفات",
+    "withdrawal": "سحب للدخل (يُخصم)",
+    "total": "الإجمالي بعد الإضافة والسحب",
+    "allocated": "الموزَّع على الأهداف",
+    "unallocated": "غير الموزَّع",
+    "distribution": "حالة التوزيع",
+    "status": {
+      "over_withdrawn": "❌ السحب أكبر من المدخرات المتاحة",
+      "over_allocated": "❌ الموزَّع أكبر من المتاح",
+      "all_covered": "✅ المدخرات تكفي جميع الأهداف",
+      "ok": "✅ سليم"
+    }
+  },
+
+  "expenses": {
+    "title": "المصروفات والالتزامات",
+    "apply_templates": "+ البنود المتكررة",
+    "apply_templates_hint": "يضيف البنود المتكررة (من الإعدادات) غير الموجودة في هذا الشهر",
+    "templates_added": "أُضيف {items} من البنود المتكررة",
+    "templates_none_missing": "جميع البنود المتكررة موجودة بالفعل",
+    "name": "البند",
+    "type": "النوع",
+    "cash": "نقدًا",
+    "inst_balance": "رصيد التقسيط",
+    "inst_count": "الدفعات المتبقية",
+    "payment_of": "الدفعة {current} من {total}",
+    "monthly": "الشهري",
+    "carried": "مرحَّل",
+    "carried_hint": "مرحَّل من الشهر السابق",
+    "due": "المطلوب",
+    "status": "حالة الدفع",
+    "status_unpaid": "⏳ لم يُدفع",
+    "status_paid": "✅ مدفوع",
+    "status_deferred": "↪️ ترحيل",
+    "deferred_amount": "مبلغ الترحيل",
+    "deferred_hint": "المبلغ المنقول إلى الشهر التالي (يُعدّ الباقي مدفوعًا)",
+    "paid_at": "تاريخ الدفع",
+    "needs_amount": "يحتاج إلى سعر",
+    "new_placeholder": "بند جديد",
+    "note_placeholder": "ملاحظة على البند…",
+    "counts": "{paid} مدفوع · {deferred} مرحَّل",
+    "err_empty": "اكتب اسم البند"
+  },
+
+  "goals": {
+    "title": "الأهداف",
+    "hint": "النسبة والمبلغ اليدوي مرتبطان: اكتب أحدهما. المبلغ اليدوي حدّ أقصى ثابت. اتركهما فارغين للتوزيع التلقائي.",
+    "name": "الهدف",
+    "category": "النوع",
+    "target": "المبلغ المطلوب",
+    "priority": "الأولوية %",
+    "manual": "مبلغ يدوي",
+    "allocated": "التوزيع الفعلي",
+    "remaining": "المتبقي",
+    "progress": "الإنجاز",
+    "monthly": "المقترح شهريًا",
+    "months": "الأشهر",
+    "new_placeholder": "هدف جديد",
+    "target_placeholder": "المبلغ",
+    "note_placeholder": "ملاحظة على الهدف…",
+    "months_covered": "✅ المدخرات تكفي",
+    "months_unknown": "-",
+    "total_all_covered": "✅ المدخرات تكفي جميع الأهداف",
+    "total_some_missing": "⏳ بعض الأهداف لم تكتمل بعد",
+    "err_empty": "اكتب اسم الهدف"
+  },
+
+  "payments": {
+    "title": "تتبّع الدفع",
+    "paid": "✅ المدفوع فعلًا",
+    "deferred": "↪️ مرحَّل إلى الشهر التالي",
+    "unpaid": "⏳ مخطط ولم يُدفع بعد (ما زال معك)",
+    "cash_now": "💰 الرصيد الفعلي معك الآن (الدخل − المدفوع)",
+    "carried_in": "منها مرحَّل من الشهر السابق"
+  },
+
+  "charts": {
+    "surplus": "الفائض (الصافي)",
+    "by_type_title": "المصروفات حسب النوع",
+    "by_type_subtitle": "المبلغ ونسبته من الدخل",
+    "by_type_empty": "لا توجد مصروفات بعد",
+    "progress_title": "التقدّم",
+    "progress_emergency": "صندوق الطوارئ",
+    "progress_goals": "أهداف الادخار",
+    "progress_available": "المتوفر {amount}",
+    "progress_remaining": "المتبقي {amount}",
+    "daily_title": "الإنفاق حسب اليوم",
+    "daily_subtitle": "المبالغ المدفوعة فعلًا حسب تاريخ الدفع في هذا الشهر",
+    "daily_show_table": "عرض كجدول",
+    "daily_show_chart": "عرض كرسم",
+    "daily_empty": "لا توجد مدفوعات مسجّلة بعد. اختر «مدفوع» أو «ترحيل» لأي بند، وسيُسجَّل تاريخ اليوم تلقائيًا.",
+    "daily_day": "يوم {day}",
+    "daily_no_date": "مدفوع دون تاريخ:",
+    "daily_outside": "بتاريخ خارج الشهر:"
+  },
+
+  "details": {
+    "title": "تفاصيل حساب الاقتراحات",
+    "available": "الصافي المتاح (بعد المصروفات ودون السحب)",
+    "base": "الأساس: الصافي قبل الادخار والطوارئ",
+    "em_gap": "الطوارئ: المتبقي قبل جدول المصروفات",
+    "em_target": "الطوارئ: المستهدف (الأساس × النسبة)",
+    "saving_rate": "الادخار: النسبة المطبّقة",
+    "saving_target": "الادخار: المستهدف",
+    "goals_pool": "المدخرات المتاحة لتوزيع الأهداف",
+    "goals_monthly_pool": "المتاح للأهداف شهريًا"
+  },
+
+  "balances": {
+    "add": "+ رصيد بعملة أخرى",
+    "add_hint": "مال تحتفظ به بعملة غير العملة الأساسية، مثل نقد بالجنيه"
+  },
+
+  "fx": {
+    "missing": "لا يوجد سعر صرف لهذا الشهر لـ: {codes}. البنود والأرصدة بهذه العملات محسوبة صفرًا حتى تُدخل السعر.",
+    "enter_rate": "أدخل السعر",
+    "rate_title": "1 {code} = {rate} {base} ({source}، من {from})",
+    "no_rate": "لا يوجد سعر صرف لـ {code} لهذا الشهر",
+    "no_rate_short": "⚠ بلا سعر صرف",
+    "estimated": "تقديري: لم يُجلب سعر هذا الشهر بعد"
+  },
+
+  "month_notes": {
+    "title": "ملاحظات الشهر",
+    "placeholder": "اكتب أي ملاحظات عن هذا الشهر…",
+    "hint": "لا تُنسخ إلى الشهر التالي."
+  },
+
+  "wizard": {
+    "title": "شهر جديد",
+    "title_with": "شهر جديد: {label}",
+    "source": "يُنسخ من آخر شهر: {label}",
+    "month": "الشهر",
+    "year": "السنة",
+    "balances": "الأرصدة في بداية الشهر",
+    "emergency": "مبلغ الطوارئ",
+    "emergency_min": "الحد الأدنى للطوارئ",
+    "savings": "المدخرات",
+    "return": "أعدتُ {amount} إلى المدخرات (الجزء الذي لم يُنفق من السحب)",
+    "unpaid_title": "بنود لم تُدفع بعد في الشهر الحالي",
+    "unpaid_hint": "ما تختاره يُرحَّل بالكامل إلى الشهر الجديد، ويُعلَّم في الشهر الحالي «ترحيل».",
+    "expenses_title": "المصروفات المنقولة ({n})",
+    "expenses_none": "لا يوجد تقسيط أو بنود متكررة أو مبالغ مرحَّلة.",
+    "origin_template": "متكرر",
+    "origin_installment": "تقسيط",
+    "origin_carry": "مرحَّل",
+    "installment_left": "الدفعات المتبقية {count} · الرصيد {balance}",
+    "needs_price": "يحتاج إلى سعر",
+    "needs_amount": "يحتاج إلى مبلغ",
+    "plus_carried": "+ مرحَّل {amount}",
+    "incomes_title": "الدخل المتكرر",
+    "incomes_none": "لا يوجد دخل متكرر. يمكنك إضافة الراتب بندًا متكررًا من",
+    "incomes_settings_link": "الإعدادات",
+    "goals_title": "الأهداف ({n})",
+    "goals_drop": "احذف الأهداف المكتملة: {names}",
+    "goals_keep_all": "تنتقل جميع الأهداف كما هي.",
+    "create": "إنشاء شهر {label}",
+    "older_title": "شهر سابق",
+    "older_hint": "هذا الشهر يسبق آخر شهر ({latest})، لذا يُنشأ فارغًا دون ترحيل تلقائي. يمكنك إضافة البنود المتكررة إليه بعد إنشائه."
+  },
+
+  "rollover": {
+    "carry_note": "مرحَّل من {label}",
+    "err": {
+      "duplicate": "هذا الشهر موجود بالفعل",
+      "no_previous": "لا يوجد شهر سابق للنسخ منه",
+      "not_after_latest": "النسخ التلقائي متاح فقط لشهر بعد آخر شهر ({label})",
+      "invalid": "بعض البنود المختارة للترحيل ليست من البنود غير المدفوعة"
+    }
+  },
+
+  "field": {
+    "from_year": "سنة البداية",
+    "from_month": "شهر البداية",
+    "to_year": "سنة النهاية",
+    "to_month": "شهر النهاية",
+    "rate": "سعر الصرف",
+    "fetch_rates": "جلب الأسعار من الإنترنت",
+    "from_currency": "من عملة",
+    "to_currency": "إلى عملة",
+    "code": "رمز العملة",
+    "symbol": "الرمز المختصر",
+    "theme": "الثيم",
+    "theme_colors": "الألوان المخصصة",
+    "dashboards": "تخطيط الداشبورد",
+    "emergency_current": "مبلغ الطوارئ الحالي",
+    "emergency_min": "الحد الأدنى للطوارئ",
+    "savings_current": "المدخرات الحالية",
+    "year": "السنة",
+    "month": "الشهر",
+    "copy_from_previous": "النسخ من الشهر السابق",
+    "carry_unpaid_ids": "البنود المرحَّلة",
+    "add_return_to_savings": "الإعادة إلى المدخرات",
+    "drop_completed_goals": "حذف الأهداف المكتملة",
+    "source": "المصدر",
+    "amount": "المبلغ",
+    "is_savings_withdrawal": "سحب من المدخرات",
+    "needs_amount": "يحتاج إلى مبلغ",
+    "template_id": "البند المتكرر",
+    "notes": "الملاحظات",
+    "sort_order": "الترتيب",
+    "name": "الاسم",
+    "type_id": "النوع",
+    "cash_amount": "المبلغ النقدي",
+    "inst_balance": "رصيد التقسيط",
+    "inst_count": "عدد الدفعات",
+    "inst_original_count": "إجمالي عدد الدفعات",
+    "carried_in": "المرحَّل من الشهر السابق",
+    "status": "حالة الدفع",
+    "deferred_amount": "مبلغ الترحيل",
+    "paid_at": "تاريخ الدفع",
+    "category_id": "نوع الهدف",
+    "target_amount": "المبلغ المطلوب",
+    "priority": "الأولوية",
+    "manual_allocation": "التوزيع اليدوي",
+    "currency": "العملة",
+    "role": "التصنيف",
+    "kind": "النوع",
+    "active": "نشط",
+    "goals": "الأهداف",
+    "excellent_rate": "نسبة الادخار الممتاز",
+    "good_rate": "نسبة الادخار الجيد",
+    "max_debt_rate": "الحد الآمن للأقساط",
+    "max_luxury_rate": "الحد المقترح للكماليات",
+    "emergency_cut_rate": "نسبة الاقتطاع للطوارئ",
+    "saving_rate_em_incomplete": "نسبة الادخار (الطوارئ غير مكتمل)",
+    "saving_rate_em_complete": "نسبة الادخار (الطوارئ مكتمل)",
+    "emergency_ref_months": "عدد أشهر مرجع الطوارئ",
+    "emergency_ref_factor": "معامل زيادة مرجع الطوارئ"
+  },
+
+  "api": {
+    "err": {
+      "not_found": "العنصر غير موجود",
+      "unknown_fields": "حقول غير معروفة: {fields}",
+      "required": "حقل «{field}» مطلوب",
+      "invalid_value": "قيمة «{field}» غير صحيحة",
+      "non_negative": "يجب ألا تكون قيمة «{field}» سالبة",
+      "too_large": "قيمة «{field}» كبيرة جدًا",
+      "ratio_range": "يجب أن تكون قيمة «{field}» بين 0 و{max}%",
+      "integer": "يجب أن تكون قيمة «{field}» عددًا صحيحًا غير سالب",
+      "max_value": "قيمة «{field}» أكبر من المسموح ({max})",
+      "number_range": "يجب أن تكون قيمة «{field}» بين 0 و{max}",
+      "too_long": "قيمة «{field}» طويلة جدًا (الحد الأقصى {max} حرف)",
+      "choice": "يجب أن تكون قيمة «{field}» إحدى: {choices}",
+      "date": "يجب أن تكون قيمة «{field}» تاريخًا بالصيغة YYYY-MM-DD",
+      "period": "الشهر أو السنة غير صحيحين",
+      "rate_range": "سعر الصرف يجب أن يكون أكبر من صفر",
+      "rate_base_currency": "هذه هي العملة الأساسية: لا تحتاج إلى سعر صرف",
+      "fetch_rates_off": "فعّل جلب الأسعار من الإنترنت أولًا",
+      "currency_code": "رمز العملة 3 حروف إنجليزية (مثل USD)",
+      "currency_name_required": "اكتب اسمًا لهذه العملة",
+      "currency_exists": "العملة {code} موجودة في قائمتك بالفعل",
+      "currency_is_base": "لا يمكن حذف العملة الأساسية؛ غيّرها أولًا",
+      "currency_in_use": "العملة {code} مستخدمة في بنود أو أرصدة أو بنود متكررة؛ غيّرها أولًا",
+      "currency_not_in_list": "العملة {code} ليست في قائمة عملاتك (الإعدادات ← العملات)",
+      "rate_needs_base": "إحدى العملتين يجب أن تكون العملة الأساسية ({base})",
+      "no_other_currency": "أضف عملة غير العملة الأساسية أولًا",
+      "period_order": "نهاية الفترة قبل بدايتها",
+      "balance_in_base_currency": "هذه هي العملة الأساسية: اكتب المبلغ في الرصيد الحالي نفسه",
+      "period_pair": "أرسل السنة والشهر معًا",
+      "rollover_options": "هذه الخيارات تعمل فقط مع النسخ من الشهر السابق",
+      "template_kind": "هذا البند المتكرر من نوع آخر",
+      "deferred_needs_status": "يُكتب مبلغ الترحيل فقط عندما تكون الحالة «ترحيل»",
+      "priority_and_manual": "اكتب النسبة أو المبلغ اليدوي، لا كليهما",
+      "good_gt_excellent": "يجب ألا تتجاوز نسبة «جيد» نسبة «ممتاز»",
+      "template_needs_type": "البند المتكرر للمصروف يحتاج إلى نوع",
+      "withdrawal_income_only": "«سحب من المدخرات» للدخل فقط",
+      "income_no_type": "الدخل لا يأخذ نوع مصروف"
+    },
+    "conflict": {
+      "duplicate": "الاسم أو الشهر موجود بالفعل",
+      "system_type": "هذا النوع أساسي في الحسابات ولا يمكن حذفه",
+      "system_role": "لا يمكن تغيير تصنيف نوع أساسي في الحسابات",
+      "in_use": "هذا النوع مستخدم في بنود أو بنود متكررة؛ غيّر نوعها أولًا",
+      "has_followers": "لا يمكن حذف شهر نُسخ منه شهر آخر؛ احذف ذلك الشهر أولًا",
+      "last_budget": "يجب أن يبقى شهر واحد على الأقل",
+      "integrity": "هذه البيانات غير مقبولة"
+    }
+  },
+
+  "issue": {
+    "type_unknown": "يجب أن يكون النوع من قائمة الأنواع",
+    "deferred_range": "يجب أن يكون مبلغ الترحيل أكبر من صفر وألا يتجاوز {max}",
+    "over_requested": "الموزَّع على الأهداف أكبر من المدخرات المتاحة بمقدار {amount}"
+  },
+
+  "settings": {
+    "back": "→ العودة إلى الميزانية",
+    "saved": "حُفظت الإعدادات",
+    "tab_criteria": "المعايير",
+    "tab_types": "أنواع المصروفات",
+    "tab_categories": "أنواع الأهداف",
+    "tab_templates": "البنود المتكررة",
+    "tab_account": "الحساب",
+    "tab_rates": "العملات وأسعار الصرف",
+    "currencies_title": "عملاتي",
+    "currencies_hint": "العملات التي تتعامل بها فقط هي التي تظهر في البنود والأرصدة والأسعار. العملة الأساسية يجب أن تكون منها.",
+    "currencies_base": "أساسية",
+    "currencies_in_use": "مستخدمة",
+    "currencies_add": "إضافة عملة",
+    "currencies_other": "عملة غير موجودة في القائمة؟",
+    "currencies_other_hint": "مثل العملات الرقمية (BTC). اكتب رمزها واسمها؛ جلب سعرها من الإنترنت يعمل فقط إذا كان المصدر يعرفها.",
+    "currencies_search": "ابحث بالرمز أو بالاسم (عربي أو إنجليزي)…",
+    "currencies_no_match": "لا توجد عملة بهذا البحث.",
+    "currencies_added": "أُضيفت {code}",
+    "currencies_code_hint": "3 حروف إنجليزية، مثل CNY",
+    "currencies_name": "الاسم",
+    "currencies_symbol": "الرمز (اختياري)",
+    "currencies_confirm_remove": "حذف {code} من قائمتك؟ ستُحذف أسعار الصرف الخاصة بها.",
+    "rates_from_currency": "من عملة",
+    "rates_to_currency": "إلى عملة",
+    "rates_value": "كم {to} يساوي 1 {from}؟",
+    "rates_pair_hint": "اكتب السعر بالاتجاه الذي تعرفه، والعكس يُحسب تلقائيًا. يجب أن تكون إحدى العملتين هي الأساسية.",
+    "rates_inverse": "العكس",
+    "rates_period_hint": "«إلى شهر» اختياري: إذا تُرك فارغًا يستمر السعر، وإذا حُدِّد يعود السعر السابق بعد نهاية الفترة.",
+    "rates_test": "اختبار المصدر",
+    "rates_test_hint": "يجلب سعر اليوم لكل عملاتك الآن ويعرضه بدون حفظ، للتأكد إن المصدر شغال.",
+    "rates_test_ok": "سعر {day}",
+    "rates_test_fail": "تعذر الوصول للمصدر",
+    "rates_title": "أسعار الصرف",
+    "rates_hint": "سعر كل عملة مقابل العملة الأساسية، لكل فترة. السعر يسري من شهر البداية حتى أول سعر بعده. الأسعار التي تكتبها هنا تغلب أي سعر يُجلب من الإنترنت.",
+    "rates_from": "من شهر",
+    "rates_to": "إلى شهر (اختياري)",
+    "rates_to_hint": "اتركه فارغًا ليستمر السعر. بعد نهاية الفترة يعود السعر السابق.",
+    "rates_until": "حتى",
+    "rates_open": "مستمر",
+    "rates_per": "1 {code} = كم {base}؟",
+    "rates_rate_in": "السعر ({base})",
+    "rates_source": "المصدر",
+    "rates_source_manual": "يدوي",
+    "rates_source_online": "من الإنترنت",
+    "rates_empty": "لا توجد أسعار بعد.",
+    "rates_err_missing": "اختر العملة وشهر البداية واكتب السعر",
+    "rates_fetch_toggle": "جلب أسعار الصرف من الإنترنت تلقائيًا",
+    "rates_fetch_hint": "مقفول افتراضيًا. عند تفعيله يجلب البرنامج سعر كل عملة مستخدمة في الشهر عند فتحه (سعر آخر يوم للشهور المنتهية، وسعر اليوم للشهر الحالي) من خدمة مجانية مفتوحة، ولا يُرسل غير رمز العملة والتاريخ. الأسعار المتاحة تبدأ من مارس 2024؛ الشهور الأقدم تحتاج سعرًا يدويًا. سعرك اليدوي يغلب دائمًا.",
+    "rates_fetch_now": "جلب الآن",
+    "rates_fetched": "تم جلب {n} سعر",
+    "rates_fetch_none": "لا جديد: لكل شهر سعر يدوي أو سعر محدَّث، أو تعذر الاتصال. جرّب «اختبار المصدر».",
+    "rates_confirm_delete": "حذف السعر الذي يبدأ في {from}؟ ستأخذ شهوره السعر الذي قبله.",
+    "tab_appearance": "المظهر",
+    "appearance_title": "ألوان البرنامج",
+    "appearance_hint": "اختر ثيمًا جاهزًا أو اصنع ألوانك. «تلقائي» يتبع وضع ويندوز الفاتح أو الداكن.",
+    "theme_light": "فاتح",
+    "theme_dark": "داكن",
+    "theme_in_use": "مستخدم الآن",
+    "theme_saved": "حُفظ المظهر",
+    "theme": {
+      "auto": "تلقائي (حسب ويندوز)",
+      "custom": "ألواني",
+      "ember": "جمر",
+      "sky": "سماء",
+      "lavender": "لافندر",
+      "midnight": "منتصف الليل",
+      "mezaniya_light": "ميزانيتي فاتح",
+      "mezaniya_dark": "ميزانيتي داكن",
+      "sand": "رمال",
+      "mint": "نعناع",
+      "ocean": "محيط"
+    },
+    "custom_title": "ألوانك",
+    "custom_hint": "تبدأ من ألوان الثيم الحالي. المعاينة فورية، ولا يُحفظ شيء حتى تضغط «استخدم ألواني».",
+    "color": {
+      "text": "النص",
+      "background": "الخلفية",
+      "primary": "الأساسي (الأزرار والروابط)",
+      "secondary": "الثانوي (خلفيات الأشرطة)",
+      "accent": "التمييز (الرسوم والتركيز)"
+    },
+    "custom_use": "استخدم ألواني",
+    "custom_cancel": "إلغاء المعاينة",
+    "warn_low_text_contrast": "النص قريب من لون الخلفية وقد تصعب قراءته. يمكنك الحفظ رغم ذلك.",
+    "criteria_title": "معايير التقييم وخطة التوزيع",
+    "excellent_rate": "ادخار ممتاز إذا كان ≥",
+    "excellent_rate_hint": "الفائض نسبةً من الدخل",
+    "good_rate": "ادخار جيد إذا كان ≥",
+    "good_rate_hint": "دون ذلك يُعدّ الفائض قليلًا",
+    "max_debt_rate": "الحد الآمن للأقساط ≤",
+    "max_luxury_rate": "الحد المقترح للكماليات ≤",
+    "of_income": "من الدخل",
+    "emergency_cut_rate": "نسبة الاقتطاع للطوارئ",
+    "emergency_cut_rate_hint": "من الصافي حتى يكتمل صندوق الطوارئ",
+    "saving_rate_em_incomplete": "نسبة الادخار (الطوارئ غير مكتمل)",
+    "saving_rate_em_complete": "نسبة الادخار (الطوارئ مكتمل)",
+    "of_net": "من الصافي",
+    "emergency_ref_months": "عدد أشهر مرجع الطوارئ",
+    "emergency_ref_months_hint": "المرجع = (الأساسيات + الأقساط) × الأشهر × المعامل",
+    "emergency_ref_factor": "معامل زيادة مرجع الطوارئ",
+    "emergency_ref_factor_hint": "1.25 تعني احتياطيًا إضافيًا بنسبة 25%",
+    "currency": "العملة الأساسية",
+    "currency_hint": "كل الحسابات والمجاميع تظهر بها.",
+    "types_title": "أنواع المصروفات",
+    "types_hint": "التصنيف هو ما يحدد الحسابات (أساسي، كمالي، أقساط، ادخار، طوارئ). يمكن تغيير أسماء الأنواع الخمسة الأساسية فقط. الأنواع الأصلية تظهر بلغة الواجهة؛ إن غيّرت اسمًا ثبت كما كتبته، وإن أعدته لاسمه الأصلي عاد يتبع اللغة.",
+    "types_name": "الاسم",
+    "types_role": "التصنيف في الحسابات",
+    "types_core": "نوع أساسي",
+    "types_new_placeholder": "نوع جديد",
+    "types_err_empty": "اكتب اسم النوع",
+    "categories_title": "أنواع الأهداف",
+    "categories_hint": "للتصنيف والتصفية فقط، ولا تؤثر في التوزيع. عند حذف نوع تصبح أهدافه دون نوع. الأنواع الأصلية تظهر بلغة الواجهة ما لم تغيّر اسمها.",
+    "categories_new_placeholder": "نوع هدف جديد",
+    "categories_err_empty": "اكتب اسم نوع الهدف",
+    "templates_title": "البنود المتكررة",
+    "templates_hint": "تُضاف تلقائيًا إلى كل شهر جديد. اترك المبلغ فارغًا إذا كان السعر يتغير كل شهر (مثل الكهرباء)، وسيُعلَّم «يحتاج إلى سعر».",
+    "templates_kind": "دخل / مصروف",
+    "templates_kind_income": "دخل",
+    "templates_kind_expense": "مصروف",
+    "templates_name": "الاسم",
+    "templates_expense_type": "نوع المصروف",
+    "templates_amount": "المبلغ",
+    "templates_variable": "متغير",
+    "templates_withdrawal": "سحب؟",
+    "templates_active": "نشط",
+    "templates_notes": "ملاحظات",
+    "templates_new_placeholder": "بند متكرر جديد",
+    "templates_err_empty": "اكتب اسم البند",
+    "account_title": "الحساب",
+    "account_username": "اسم المستخدم:",
+    "account_change_password": "تغيير كلمة المرور"
+  },
+
+  "role": {
+    "essential": "أساسي",
+    "luxury": "كمالي",
+    "debt": "دين/أقساط",
+    "savings": "ادخار",
+    "emergency": "طوارئ",
+    "other": "مصروف عادي"
+  },
+
+  "currency": {
+    "AED": {
+      "symbol": "د.إ",
+      "name": "درهم إماراتي"
+    },
+    "AFN": {
+      "symbol": "AFN",
+      "name": "أفغاني"
+    },
+    "ALL": {
+      "symbol": "ALL",
+      "name": "ليك ألباني"
+    },
+    "AMD": {
+      "symbol": "AMD",
+      "name": "درام أرميني"
+    },
+    "AOA": {
+      "symbol": "AOA",
+      "name": "كوانزا أنغولي"
+    },
+    "ARS": {
+      "symbol": "ARS",
+      "name": "بيزو أرجنتيني"
+    },
+    "AUD": {
+      "symbol": "AU$",
+      "name": "دولار أسترالي"
+    },
+    "AWG": {
+      "symbol": "AWG",
+      "name": "فلورن أروبي"
+    },
+    "AZN": {
+      "symbol": "AZN",
+      "name": "مانات أذربيجان"
+    },
+    "BAM": {
+      "symbol": "BAM",
+      "name": "مارك البوسنة والهرسك قابل للتحويل"
+    },
+    "BBD": {
+      "symbol": "BBD",
+      "name": "دولار بربادوسي"
+    },
+    "BDT": {
+      "symbol": "BDT",
+      "name": "تاكا بنغلاديشي"
+    },
+    "BGN": {
+      "symbol": "BGN",
+      "name": "ليف بلغاري"
+    },
+    "BHD": {
+      "symbol": "د.ب",
+      "name": "دينار بحريني"
+    },
+    "BIF": {
+      "symbol": "BIF",
+      "name": "فرنك بروندي"
+    },
+    "BMD": {
+      "symbol": "BMD",
+      "name": "دولار برمودي"
+    },
+    "BND": {
+      "symbol": "BND",
+      "name": "دولار بروناي"
+    },
+    "BOB": {
+      "symbol": "BOB",
+      "name": "بوليفيانو بوليفي"
+    },
+    "BRL": {
+      "symbol": "R$",
+      "name": "ريال برازيلي"
+    },
+    "BSD": {
+      "symbol": "BSD",
+      "name": "دولار باهامي"
+    },
+    "BTN": {
+      "symbol": "BTN",
+      "name": "نولتوم بوتاني"
+    },
+    "BWP": {
+      "symbol": "BWP",
+      "name": "بولا بتسواني"
+    },
+    "BYN": {
+      "symbol": "BYN",
+      "name": "روبل بيلاروسي"
+    },
+    "BZD": {
+      "symbol": "BZD",
+      "name": "دولار بليزي"
+    },
+    "CAD": {
+      "symbol": "CA$",
+      "name": "دولار كندي"
+    },
+    "CDF": {
+      "symbol": "CDF",
+      "name": "فرنك كونغولي"
+    },
+    "CHF": {
+      "symbol": "CHF",
+      "name": "فرنك سويسري"
+    },
+    "CLP": {
+      "symbol": "CLP",
+      "name": "بيزو تشيلي"
+    },
+    "CNY": {
+      "symbol": "CN¥",
+      "name": "يوان صيني"
+    },
+    "COP": {
+      "symbol": "COP",
+      "name": "بيزو كولومبي"
+    },
+    "CRC": {
+      "symbol": "CRC",
+      "name": "كولن كوستاريكي"
+    },
+    "CUP": {
+      "symbol": "CUP",
+      "name": "بيزو كوبي"
+    },
+    "CVE": {
+      "symbol": "CVE",
+      "name": "اسكودو الرأس الأخضر"
+    },
+    "CZK": {
+      "symbol": "CZK",
+      "name": "كرونة تشيكية"
+    },
+    "DJF": {
+      "symbol": "DJF",
+      "name": "فرنك جيبوتي"
+    },
+    "DKK": {
+      "symbol": "DKK",
+      "name": "كرونة دنماركية"
+    },
+    "DOP": {
+      "symbol": "DOP",
+      "name": "بيزو الدومنيكان"
+    },
+    "DZD": {
+      "symbol": "د.ج",
+      "name": "دينار جزائري"
+    },
+    "EGP": {
+      "symbol": "ج.م",
+      "name": "جنيه مصري"
+    },
+    "ERN": {
+      "symbol": "ERN",
+      "name": "ناكفا أريتري"
+    },
+    "ETB": {
+      "symbol": "ETB",
+      "name": "بير أثيوبي"
+    },
+    "EUR": {
+      "symbol": "€",
+      "name": "يورو"
+    },
+    "FJD": {
+      "symbol": "FJD",
+      "name": "دولار فيجي"
+    },
+    "FKP": {
+      "symbol": "FKP",
+      "name": "جنيه جزر فوكلاند"
+    },
+    "GBP": {
+      "symbol": "£",
+      "name": "جنيه إسترليني"
+    },
+    "GEL": {
+      "symbol": "GEL",
+      "name": "لارى جورجي"
+    },
+    "GHS": {
+      "symbol": "GHS",
+      "name": "سيدي غانا"
+    },
+    "GIP": {
+      "symbol": "GIP",
+      "name": "جنيه جبل طارق"
+    },
+    "GMD": {
+      "symbol": "GMD",
+      "name": "دلاسي غامبي"
+    },
+    "GNF": {
+      "symbol": "GNF",
+      "name": "فرنك غينيا"
+    },
+    "GTQ": {
+      "symbol": "GTQ",
+      "name": "كوتزال غواتيمالا"
+    },
+    "GYD": {
+      "symbol": "GYD",
+      "name": "دولار غيانا"
+    },
+    "HKD": {
+      "symbol": "HK$",
+      "name": "دولار هونغ كونغ"
+    },
+    "HNL": {
+      "symbol": "HNL",
+      "name": "ليمبيرا هنداروس"
+    },
+    "HTG": {
+      "symbol": "HTG",
+      "name": "جوردى هايتي"
+    },
+    "HUF": {
+      "symbol": "HUF",
+      "name": "فورينت هنغاري"
+    },
+    "IDR": {
+      "symbol": "IDR",
+      "name": "روبية إندونيسية"
+    },
+    "ILS": {
+      "symbol": "₪",
+      "name": "شيكل إسرائيلي جديد"
+    },
+    "INR": {
+      "symbol": "₹",
+      "name": "روبية هندي"
+    },
+    "IQD": {
+      "symbol": "د.ع",
+      "name": "دينار عراقي"
+    },
+    "IRR": {
+      "symbol": "ر.إ",
+      "name": "ريال إيراني"
+    },
+    "ISK": {
+      "symbol": "ISK",
+      "name": "كرونة أيسلندية"
+    },
+    "JMD": {
+      "symbol": "JMD",
+      "name": "دولار جامايكي"
+    },
+    "JOD": {
+      "symbol": "د.أ",
+      "name": "دينار أردني"
+    },
+    "JPY": {
+      "symbol": "JP¥",
+      "name": "ين ياباني"
+    },
+    "KES": {
+      "symbol": "KES",
+      "name": "شلن كينيي"
+    },
+    "KGS": {
+      "symbol": "KGS",
+      "name": "سوم قيرغستاني"
+    },
+    "KHR": {
+      "symbol": "KHR",
+      "name": "رييال كمبودي"
+    },
+    "KMF": {
+      "symbol": "KMF",
+      "name": "فرنك جزر القمر"
+    },
+    "KPW": {
+      "symbol": "KPW",
+      "name": "وون كوريا الشمالية"
+    },
+    "KRW": {
+      "symbol": "₩",
+      "name": "وون كوريا الجنوبية"
+    },
+    "KWD": {
+      "symbol": "د.ك",
+      "name": "دينار كويتي"
+    },
+    "KYD": {
+      "symbol": "KYD",
+      "name": "دولار جزر كيمن"
+    },
+    "KZT": {
+      "symbol": "KZT",
+      "name": "تينغ كازاخستاني"
+    },
+    "LAK": {
+      "symbol": "LAK",
+      "name": "كيب لاوسي"
+    },
+    "LBP": {
+      "symbol": "ل.ل",
+      "name": "جنيه لبناني"
+    },
+    "LKR": {
+      "symbol": "LKR",
+      "name": "روبية سريلانكية"
+    },
+    "LRD": {
+      "symbol": "LRD",
+      "name": "دولار ليبيري"
+    },
+    "LSL": {
+      "symbol": "LSL",
+      "name": "لوتي ليسوتو"
+    },
+    "LYD": {
+      "symbol": "د.ل",
+      "name": "دينار ليبي"
+    },
+    "MAD": {
+      "symbol": "د.م",
+      "name": "درهم مغربي"
+    },
+    "MDL": {
+      "symbol": "MDL",
+      "name": "ليو مولدوفي"
+    },
+    "MGA": {
+      "symbol": "MGA",
+      "name": "أرياري مدغشقر"
+    },
+    "MKD": {
+      "symbol": "MKD",
+      "name": "دينار مقدوني"
+    },
+    "MMK": {
+      "symbol": "MMK",
+      "name": "كيات ميانمار"
+    },
+    "MNT": {
+      "symbol": "MNT",
+      "name": "توغروغ منغولي"
+    },
+    "MOP": {
+      "symbol": "MOP",
+      "name": "باتاكا ماكاوي"
+    },
+    "MRU": {
+      "symbol": "أ.م",
+      "name": "أوقية موريتانية"
+    },
+    "MUR": {
+      "symbol": "MUR",
+      "name": "روبية موريشيوسية"
+    },
+    "MVR": {
+      "symbol": "MVR",
+      "name": "روفيه جزر المالديف"
+    },
+    "MWK": {
+      "symbol": "MWK",
+      "name": "كواشا مالاوي"
+    },
+    "MXN": {
+      "symbol": "MX$",
+      "name": "بيزو مكسيكي"
+    },
+    "MYR": {
+      "symbol": "MYR",
+      "name": "رينغيت ماليزي"
+    },
+    "MZN": {
+      "symbol": "MZN",
+      "name": "متكال موزمبيقي"
+    },
+    "NAD": {
+      "symbol": "NAD",
+      "name": "دولار ناميبي"
+    },
+    "NGN": {
+      "symbol": "NGN",
+      "name": "نايرا نيجيري"
+    },
+    "NIO": {
+      "symbol": "NIO",
+      "name": "قرطبة نيكاراغوا"
+    },
+    "NOK": {
+      "symbol": "NOK",
+      "name": "كرونة نرويجية"
+    },
+    "NPR": {
+      "symbol": "NPR",
+      "name": "روبية نيبالي"
+    },
+    "NZD": {
+      "symbol": "NZ$",
+      "name": "دولار نيوزيلندي"
+    },
+    "OMR": {
+      "symbol": "ر.ع",
+      "name": "ريال عماني"
+    },
+    "PAB": {
+      "symbol": "PAB",
+      "name": "بالبوا بنمي"
+    },
+    "PEN": {
+      "symbol": "PEN",
+      "name": "سول بيروفي"
+    },
+    "PGK": {
+      "symbol": "PGK",
+      "name": "كينا بابوا غينيا الجديدة"
+    },
+    "PHP": {
+      "symbol": "PHP",
+      "name": "بيزو فلبيني"
+    },
+    "PKR": {
+      "symbol": "PKR",
+      "name": "روبية باكستاني"
+    },
+    "PLN": {
+      "symbol": "PLN",
+      "name": "زلوتي بولندي"
+    },
+    "PYG": {
+      "symbol": "PYG",
+      "name": "غواراني باراغواي"
+    },
+    "QAR": {
+      "symbol": "ر.ق",
+      "name": "ريال قطري"
+    },
+    "RON": {
+      "symbol": "RON",
+      "name": "ليو روماني"
+    },
+    "RSD": {
+      "symbol": "RSD",
+      "name": "دينار صربي"
+    },
+    "RUB": {
+      "symbol": "RUB",
+      "name": "روبل روسي"
+    },
+    "RWF": {
+      "symbol": "RWF",
+      "name": "فرنك رواندي"
+    },
+    "SAR": {
+      "symbol": "ر.س",
+      "name": "ريال سعودي"
+    },
+    "SBD": {
+      "symbol": "SBD",
+      "name": "دولار جزر سليمان"
+    },
+    "SCR": {
+      "symbol": "SCR",
+      "name": "روبية سيشيلية"
+    },
+    "SDG": {
+      "symbol": "ج.س",
+      "name": "جنيه سوداني"
+    },
+    "SEK": {
+      "symbol": "SEK",
+      "name": "كرونة سويدية"
+    },
+    "SGD": {
+      "symbol": "SGD",
+      "name": "دولار سنغافوري"
+    },
+    "SHP": {
+      "symbol": "SHP",
+      "name": "جنيه سانت هيلين"
+    },
+    "SLE": {
+      "symbol": "SLE",
+      "name": "ليون سيراليوني"
+    },
+    "SOS": {
+      "symbol": "SOS",
+      "name": "شلن صومالي"
+    },
+    "SRD": {
+      "symbol": "SRD",
+      "name": "دولار سورينامي"
+    },
+    "SSP": {
+      "symbol": "SSP",
+      "name": "جنيه جنوب السودان"
+    },
+    "STN": {
+      "symbol": "STN",
+      "name": "دوبرا ساو تومي وبرينسيبي"
+    },
+    "SYP": {
+      "symbol": "ل.س",
+      "name": "ليرة سورية"
+    },
+    "SZL": {
+      "symbol": "SZL",
+      "name": "ليلانجيني سوازيلندي"
+    },
+    "THB": {
+      "symbol": "฿",
+      "name": "باخت تايلاندي"
+    },
+    "TJS": {
+      "symbol": "TJS",
+      "name": "سوموني طاجيكستاني"
+    },
+    "TMT": {
+      "symbol": "TMT",
+      "name": "مانات تركمانستان"
+    },
+    "TND": {
+      "symbol": "د.ت",
+      "name": "دينار تونسي"
+    },
+    "TOP": {
+      "symbol": "TOP",
+      "name": "بانغا تونغا"
+    },
+    "TRY": {
+      "symbol": "ل.ت",
+      "name": "ليرة تركية"
+    },
+    "TTD": {
+      "symbol": "TTD",
+      "name": "دولار ترينداد وتوباغو"
+    },
+    "TWD": {
+      "symbol": "NT$",
+      "name": "دولار تايواني"
+    },
+    "TZS": {
+      "symbol": "TZS",
+      "name": "شلن تنزاني"
+    },
+    "UAH": {
+      "symbol": "UAH",
+      "name": "هريفنيا أوكراني"
+    },
+    "UGX": {
+      "symbol": "UGX",
+      "name": "شلن أوغندي"
+    },
+    "USD": {
+      "symbol": "$",
+      "name": "دولار أمريكي"
+    },
+    "UYU": {
+      "symbol": "UYU",
+      "name": "بيزو اوروغواي"
+    },
+    "UZS": {
+      "symbol": "UZS",
+      "name": "سوم أوزبكستاني"
+    },
+    "VES": {
+      "symbol": "VES",
+      "name": "بوليفار فنزويلي"
+    },
+    "VND": {
+      "symbol": "₫",
+      "name": "دونج فيتنامي"
+    },
+    "VUV": {
+      "symbol": "VUV",
+      "name": "فاتو فانواتو"
+    },
+    "WST": {
+      "symbol": "WST",
+      "name": "تالا ساموا"
+    },
+    "XAF": {
+      "symbol": "FCFA",
+      "name": "فرنك وسط أفريقي"
+    },
+    "XAG": {
+      "symbol": "XAG",
+      "name": "فضة (أونصة)"
+    },
+    "XAU": {
+      "symbol": "XAU",
+      "name": "ذهب (أونصة)"
+    },
+    "XCD": {
+      "symbol": "EC$",
+      "name": "دولار شرق الكاريبي"
+    },
+    "XOF": {
+      "symbol": "F CFA",
+      "name": "فرنك غرب أفريقي"
+    },
+    "XPF": {
+      "symbol": "CFPF",
+      "name": "فرنك سي إف بي"
+    },
+    "YER": {
+      "symbol": "ر.ي",
+      "name": "ريال يمني"
+    },
+    "ZAR": {
+      "symbol": "ZAR",
+      "name": "راند جنوب أفريقيا"
+    },
+    "ZMW": {
+      "symbol": "ZMW",
+      "name": "كواشا زامبي"
+    },
+    "ZWG": {
+      "symbol": "ZWG",
+      "name": "ذهب زيمبابوي"
+    }
+  },
+
+  "seed": {
+    "type": {
+      "emergency": "طوارئ",
+      "savings": "ادخار",
+      "luxury": "كمالي",
+      "debt": "دين/أقساط",
+      "essential": "أساسي",
+      "giving": "العطاء والمساندة",
+      "transfer": "تحويل خارجي",
+      "investment": "الاستثمار"
+    },
+    "category": {
+      "essential": "أساسي",
+      "luxury": "كمالي",
+      "investment": "استثمار",
+      "other": "أخرى"
+    }
+  },
+
+  "demo": {
+    "salary": "الراتب",
+    "bonus": "حوافز",
+    "rent": "الإيجار",
+    "internet": "الإنترنت",
+    "electricity": "الكهرباء",
+    "groceries": "مشتريات المنزل",
+    "subscriptions": "اشتراكات رقمية",
+    "saving": "ادخار شهري",
+    "emergency": "صندوق الطوارئ",
+    "phone": "قسط الجوال",
+    "car": "قسط السيارة",
+    "outing": "نزهة عائلية",
+    "gift": "هدية",
+    "charity": "صدقة",
+    "course": "دورة تدريبية",
+    "goal_car": "سيارة جديدة",
+    "goal_trip": "رحلة صيفية",
+    "goal_laptop": "حاسوب محمول",
+    "note_card": "دُفع بالبطاقة",
+    "freelance": "عمل حر",
+    "egypt_rent": "إيجار شقة مصر",
+    "family_support": "مصروف الأهل في مصر",
+    "goal_gold": "ادخار ذهب",
+    "note_transfer": "يصل بتحويل بنكي من مصر",
+    "month_note_1": "بداية تتبّع الميزانية. أرصدة: 1000 دولار مدخرات و20000 جنيه طوارئ في مصر.",
+    "month_note_2": "أُجّل 500 جنيه من مصروف الأهل للشهر القادم. الدورة التدريبية لم تُدفع بعد.",
+    "month_note_3": "راجع سعر الجنيه آخر الشهر قبل التحويل."
+  },
+
+  "admin": {
+    "err": {
+      "user_missing": "المستخدم غير موجود",
+      "port_number": "يجب أن يكون المنفذ رقمًا",
+      "port_range": "يجب أن يكون المنفذ بين 1024 و65535",
+      "demo_exists": "المستخدم «{name}» موجود بالفعل"
+    }
+  },
+
+  "manager": {
+    "data_dir_title": "لا يمكن حفظ البيانات",
+    "data_dir_unwritable": "لا يمكن الكتابة في مجلد البيانات:\n{path}\n\n{error}\n\nفي النسخة المحمولة: انقل مجلد البرنامج كله إلى مكان يمكن الكتابة فيه (سطح المكتب، المستندات، فلاشة غير محمية)، وليس داخل Program Files.",
+    "title": "مدير خادم ميزانيتي",
+    "version": "الإصدار:",
+    "server": "الخادم",
+    "start": "تشغيل",
+    "stop": "إيقاف",
+    "restart": "إعادة التشغيل",
+    "open": "فتح في المتصفح",
+    "state_running": "يعمل",
+    "state_starting": "قيد التشغيل…",
+    "state_stopped": "متوقف",
+    "port": "المنفذ",
+    "save_port": "حفظ المنفذ",
+    "port_pending": "يعمل على {running}، والمنفذ الجديد {configured} يحتاج إلى إعادة تشغيل",
+    "users": "المستخدمون",
+    "new_user": "مستخدم جديد",
+    "change_password": "تغيير كلمة المرور",
+    "logout_user": "إخراج المستخدم",
+    "delete_user": "حذف المستخدم وجميع بياناته",
+    "logout_all": "إخراج جميع المستخدمين",
+    "demo": "مستخدم تجريبي ({name})",
+    "online_count": "المتصلون الآن {online} من {total}",
+    "online_hint": "المتصل هو من استخدم البرنامج خلال آخر {duration}",
+    "col_username": "اسم المستخدم",
+    "col_state": "الحالة",
+    "col_last_seen": "آخر نشاط",
+    "col_last_login": "آخر دخول",
+    "col_created": "تاريخ التسجيل",
+    "col_months": "عدد الأشهر",
+    "online": "● متصل الآن",
+    "temp_password": "كلمة مرور مؤقتة",
+    "backup": "النسخ الاحتياطي",
+    "backup_now": "نسخة احتياطية الآن",
+    "open_backups": "فتح مجلد النسخ",
+    "last_backup": "آخر نسخة",
+    "log": "سجل الخادم",
+    "new_password_hint": "كلمة المرور (6 أحرف على الأقل)",
+    "temporary_check": "مؤقتة: يكتبها بين علامتي # ويغيّرها عند أول دخول",
+    "cannot": "تعذّر التنفيذ",
+    "error": "خطأ",
+    "done": "تم",
+    "start_failed_title": "لم يبدأ الخادم",
+    "start_failed": "تأكد من أن المنفذ {port} غير مستخدم من برنامج آخر، وراجع سجل الخادم أدناه.",
+    "stop_failed": "لم يتوقف الخادم",
+    "port_invalid": "منفذ غير صالح",
+    "port_saved_title": "تغيّر المنفذ",
+    "port_saved": "حُفظ المنفذ {port} في mezaniya.env.\n\nلكي تتصل الأجهزة الأخرى، افتح PowerShell بصلاحيات المسؤول والصق الأمر المنسوخ:\n{command}",
+    "port_restart_now": "هل تريد إعادة تشغيل الخادم الآن على المنفذ الجديد؟",
+    "pick_user_title": "اختر مستخدمًا",
+    "pick_user": "اختر مستخدمًا من الجدول أولًا",
+    "user_created": "أُنشئ المستخدم «{name}»",
+    "password_changed": "تغيّرت كلمة مرور «{name}»، وخرج من جميع الأجهزة.",
+    "password_temp_note": "كلمة المرور المؤقتة: {password}\nيكتبها مع العلامتين، وسيطلب منه البرنامج كلمة مرور جديدة.",
+    "logout_user_title": "إخراج",
+    "logout_user_confirm": "إخراج «{name}» من جميع الأجهزة؟",
+    "logout_user_done": "يجب على «{name}» تسجيل الدخول من جديد",
+    "logout_all_title": "إخراج الجميع",
+    "logout_all_confirm": "إخراج جميع المستخدمين من جميع الأجهزة الآن؟\nسيحتاج كل مستخدم إلى تسجيل الدخول من جديد.",
+    "logout_all_done": "خرج {users} من جميع الأجهزة",
+    "delete_title": "حذف نهائي",
+    "delete_confirm": "حذف «{name}» وجميع بياناته ({months}، مع الدخل والمصروفات والأهداف والإعدادات)؟\nستُنشأ نسخة احتياطية قبل الحذف.",
+    "delete_type_name": "اكتب «{name}» للتأكيد:",
+    "delete_confirm_title": "تأكيد",
+    "delete_mismatch_title": "لم يُحذف",
+    "delete_mismatch": "الاسم غير مطابق",
+    "deleted_title": "حُذف",
+    "deleted": "حُذف «{name}» وجميع بياناته.\nنسخة ما قبل الحذف: {file}",
+    "backup_done": "أُنشئت نسخة احتياطية:\n{path}",
+    "close_title": "إغلاق المدير",
+    "close_body": "الخادم يعمل.\nنعم = إيقافه ثم الإغلاق\nلا = تركه يعمل وإغلاق المدير فقط",
+    "demo_created": "أُنشئ المستخدم التجريبي «{name}» بكلمة المرور «{password}» مع بيانات {months}.",
+    "demo_replace": "المستخدم «{name}» موجود بالفعل. هل تريد حذفه وإعادة إنشائه ببيانات تجريبية جديدة؟"
+  },
+
+  "cli": {
+    "description": "أوامر إدارة ميزانيتي",
+    "help_lang": "لغة الرسائل (ar أو en)",
+    "help_list_users": "عرض المستخدمين",
+    "help_reset_password": "تعيين كلمة مرور مؤقتة #...# لمستخدم",
+    "help_password": "كلمة المرور المؤقتة (عشوائية إن لم تُحدَّد)، وتُضاف العلامتان # عند غيابهما",
+    "help_logout_all": "إخراج جميع المستخدمين من جميع الأجهزة",
+    "help_delete_user": "حذف مستخدم وجميع بياناته (بعد نسخة احتياطية)",
+    "help_backup": "إنشاء نسخة احتياطية الآن",
+    "help_list_backups": "عرض النسخ الاحتياطية",
+    "help_restore": "استبدال قاعدة البيانات بنسخة احتياطية (والخادم متوقف)",
+    "help_migrate": "ترقية بنية قاعدة البيانات",
+    "help_demo": "إنشاء المستخدم التجريبي ببيانات ثلاثة أشهر",
+    "help_replace": "حذف المستخدم التجريبي الحالي وإعادة إنشائه",
+    "help_yes": "تأكيد التنفيذ",
+    "user_line": "{id}  {username}  التسجيل {created}  آخر دخول {last_login}{flag}",
+    "must_change_flag": "  (كلمة مرور مؤقتة — يجب تغييرها)",
+    "no_user": "لا يوجد مستخدم باسم {name}",
+    "temp_password": "كلمة المرور المؤقتة للمستخدم {name}: {password}",
+    "temp_password_note": "اكتبها كما هي مع علامتي #، وسيطلب البرنامج كلمة مرور جديدة فورًا.",
+    "logged_out": "خرج {users} من جميع الأجهزة",
+    "delete_needs_yes": "سيُحذف {name} وجميع بياناته. أعد الأمر مع --yes للتأكيد",
+    "deleted": "حُذف {name} (نسخة ما قبل الحذف: {path})",
+    "backup_written": "كُتبت نسخة احتياطية: {path}",
+    "no_backups": "لا توجد نسخ احتياطية بعد",
+    "backup_line": "{path}  ({size} ك.ب)",
+    "file_missing": "الملف غير موجود: {path}",
+    "restore_incompatible": "لم تتم الاستعادة: هذه النسخة من إصدار آخر من ميزانيتي (بنية {found}) ولا يفتحها هذا الإصدار (بنية {expected}). لم يتغير شيء في بياناتك.",
+    "restore_unhealthy": "لم تتم الاستعادة: الملف ليس قاعدة بيانات سليمة. لم يتغير شيء في بياناتك.",
+    "restore_needs_yes": "سيستبدل هذا قاعدة البيانات الحالية. أوقف الخادم ثم أعد الأمر مع --yes",
+    "restored": "استُرجعت {db} من {file}",
+    "previous_saved": "حُفظت قاعدة البيانات السابقة باسم {path}",
+    "migrations_applied": "طُبّقت ترقيات قاعدة البيانات: {versions}",
+    "db_up_to_date": "قاعدة البيانات محدّثة",
+    "demo_exists": "المستخدم {name} موجود بالفعل. استخدم --replace لإعادة إنشائه"
+  },
+
+  "log": {
+    "data_dir_unwritable": "لا يمكن الكتابة في مجلد البيانات {path}: {error}",
+    "started": "ميزانيتي يعمل على http://localhost:{port}",
+    "network": "على الشبكة: http://{ip}:{port}",
+    "config": "البيانات: {db} | النسخ: {backups} (الاحتفاظ بـ {keep}، كل {hours} ساعة) | التسجيل {registration}",
+    "registration_open": "مفتوح",
+    "registration_closed": "مغلق",
+    "server_error": "توقف الخادم بسبب خطأ (هل المنفذ {port} مستخدم بالفعل؟)",
+    "backup_written": "كُتبت نسخة احتياطية: {path}",
+    "backup_failed": "فشل النسخ الاحتياطي",
+    "restored": "استُرجعت {db} من {file} (حُفظت السابقة باسم {safety})"
+  }
+}

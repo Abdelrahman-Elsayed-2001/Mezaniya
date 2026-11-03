@@ -8,7 +8,7 @@ the programs for the portable build.
 
 Start / stop / restart the server, see who is connected and log them out, create users
 (including the demo user), change passwords, delete a user with all their data, back up,
-and change the port. Texts come from app/i18n/strings.json; the layout mirrors for Arabic.
+and change the port. Texts come from app/i18n/languages/*.json; the layout mirrors for Arabic.
 """
 from __future__ import annotations
 

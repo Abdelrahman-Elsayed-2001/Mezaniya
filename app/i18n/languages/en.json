@@ -1,0 +1,1478 @@
+{
+  "_meta": {
+    "name": "English",
+    "dir": "ltr",
+    "plural": "en",
+    "order": 2
+  },
+
+  "app": {
+    "title": "My Monthly Budget",
+    "stage_banner": {
+      "beta": "Beta version · v{version}"
+    }
+  },
+
+  "lang": {
+    "switch_to": "العربية"
+  },
+
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "add": "Add",
+    "logout": "Log out",
+    "settings": "Settings",
+    "total": "Total",
+    "loading": "Loading…",
+    "confirm_delete": "Delete “{name}”?",
+    "error_generic": "Something went wrong. Please try again.",
+    "error_network": "Can't reach the server. Check your connection.",
+    "note_add": "Add a note",
+    "currency": "Currency",
+    "note_placeholder": "Note…",
+    "dash": "—",
+    "list_sep": ", "
+  },
+
+  "count": {
+    "months": {"one": "{n} month", "other": "{n} months"},
+    "minutes": {"one": "{n} minute", "other": "{n} minutes"},
+    "days": {"one": "{n} day", "other": "{n} days"},
+    "items": {"one": "{n} item", "other": "{n} items"},
+    "users": {"one": "{n} user", "other": "{n} users"}
+  },
+
+  "auth": {
+    "username": "Username",
+    "password": "Password",
+    "password_confirm": "Confirm password",
+    "username_hint": "3–32 characters, no spaces",
+    "password_hint": "At least 6 characters",
+    "current_password": "Current password",
+    "new_password": "New password",
+    "new_password_confirm": "Confirm new password",
+    "login": {
+      "title": "Log in",
+      "subtitle": "Log in to continue",
+      "submit": "Log in",
+      "first_time": "First time here?"
+    },
+    "register": {
+      "link": "Register a new user",
+      "title": "Register a new user",
+      "subtitle": "Your data is completely separate from every other user's",
+      "submit": "Create account",
+      "have_account": "I already have an account"
+    },
+    "change": {
+      "title": "Change password",
+      "forced": "You signed in with a temporary password that was set manually. Choose a new password to continue.",
+      "back": "Back",
+      "other_devices": "Changing your password signs you out on every other device.",
+      "done": "Password changed"
+    },
+    "err": {
+      "bad_request": "The request could not be understood",
+      "csrf": "Request rejected",
+      "unauthorized": "You need to log in",
+      "must_change": "You must change your password first",
+      "bad_credentials": "Incorrect username or password",
+      "locked": "Too many wrong attempts. Try again in {duration}.",
+      "registration_closed": "Registration is currently closed",
+      "username_invalid": "Username must be 3–32 characters (letters, digits, _ . -) with no spaces",
+      "password_short": "Password must be at least {min} characters",
+      "password_long": "Password is too long (maximum {max} characters)",
+      "confirm_mismatch": "Password confirmation does not match",
+      "username_taken": "This username is already taken",
+      "current_wrong": "Current password is incorrect",
+      "same_password": "The new password must differ from the current one"
+    }
+  },
+
+  "nav": {
+    "month": "Month",
+    "new_month": "New month",
+    "new_month_label": "New month ({label})"
+  },
+
+  "dashboard": {
+    "no_months": "No months yet",
+    "month_created": "Month {label} created",
+    "customize": "Customize",
+    "editing_title": "Customize the dashboard",
+    "editing_hint": "Arrange widgets with the buttons above each one: ↑ ↓ move it to the row above or below, the side arrows swap it with its neighbour, ⇲ puts it on a row of its own and ✕ hides it. A row holds up to three widgets. Nothing is saved until you press Save layout.",
+    "done": "Save layout",
+    "saved": "Layout saved",
+    "board_main": "Main",
+    "board_n": "Dashboard {n}",
+    "add_board": "+ New dashboard",
+    "board_name_prompt": "Dashboard name",
+    "rename_board": "Rename this dashboard",
+    "delete_board": "Delete this dashboard",
+    "delete_board_confirm": "Delete \"{name}\"? Its widgets stay as they are on the other dashboards.",
+    "reset": "Back to the default layout",
+    "reset_confirm": "Your whole layout will be replaced by the default one (a single dashboard). It is saved when you press Save layout.",
+    "widgets_title": "Widgets (show a hidden one or repeat one)",
+    "used_in": "Used in: {boards}",
+    "unused": "Not used",
+    "list_sep": ", ",
+    "add_here": "Add to this dashboard",
+    "move_up": "To the row above",
+    "move_down": "To the row below",
+    "move_before": "Before its neighbour",
+    "move_after": "After its neighbour",
+    "own_row": "On a row of its own",
+    "hide": "Hide from this dashboard",
+    "copy_to": "Copy to…",
+    "copied": "Copied to \"{name}\"",
+    "empty_board": "This dashboard is empty. Press Customize and add widgets to it."
+  },
+
+  "status": {
+    "deficit": "🔴 Danger — deficit",
+    "squeezed": "🟠 Tight — the savings withdrawal covered the shortfall",
+    "high_debt_luxury": "🟠 Careful — installments and luxuries are high",
+    "high_debt": "🟠 Careful — installments are high",
+    "high_luxury": "🟠 Careful — luxuries are high",
+    "complete_emergency": "🟡 Good — finish the emergency fund",
+    "excellent": "🟢 Excellent",
+    "good": "🟡 Good",
+    "acceptable": "🟠 Acceptable — the surplus is small"
+  },
+
+  "summary": {
+    "title": "Summary",
+    "income": "Total income",
+    "expenses": "Total expenses",
+    "debt": "of which: installments",
+    "luxury": "of which: luxuries",
+    "essential": "of which: essentials",
+    "net": "Net (surplus)"
+  },
+
+  "suggestions": {
+    "title": "Monthly suggestions",
+    "emergency": "1) Emergency fund",
+    "saving": "2) Savings and goals",
+    "safe_spend": "3) Safe to spend",
+    "daily": "Daily ({days})",
+    "weekly": "Weekly",
+    "return": "↩️ Return to savings"
+  },
+
+  "warnings": {
+    "title": "Warnings",
+    "state_active": "⚠️ Active",
+    "state_ok": "✅ OK",
+    "summary_none": "✅ No warnings",
+    "summary_some": "⚠️ Review the items below",
+    "deficit": {
+      "title": "Budget deficit",
+      "details": "A deficit of {amount} {currency} even after the withdrawal"
+    },
+    "squeezed": {
+      "title": "Tight — spending from savings",
+      "details": "The withdrawal covered a shortfall of {amount} {currency}"
+    },
+    "over_withdrawn": {
+      "title": "Withdrawal exceeds available savings",
+      "details": "Withdrew {withdrawn}, available {available} {currency}"
+    },
+    "high_debt": {
+      "title": "High installments",
+      "details": "{pct} (limit {limit})"
+    },
+    "high_luxury": {
+      "title": "High luxuries",
+      "details": "{pct} (limit {limit})"
+    },
+    "emergency_short": {
+      "title": "Emergency fund incomplete",
+      "details": "{amount} {currency} short"
+    },
+    "low_surplus": {
+      "title": "Small surplus",
+      "details": "{pct} (minimum {min})"
+    },
+    "over_allocated": {
+      "title": "Goal allocations exceed what is available",
+      "details": "{amount} {currency} over"
+    },
+    "return_to_savings": {
+      "title": "Money should go back to savings",
+      "details": "Return {amount} {currency}"
+    },
+    "needs_amount": {
+      "title": "Items need an amount",
+      "details": "{items} still without an amount"
+    }
+  },
+
+  "incomes": {
+    "title": "Income",
+    "source": "Source",
+    "amount": "Amount",
+    "withdrawal_short": "Withdrawal?",
+    "withdrawal_hint": "Withdrawal from savings: added to income and deducted from savings",
+    "new_placeholder": "New source",
+    "needs_amount": "Needs an amount",
+    "err_empty": "Enter the income source"
+  },
+
+  "emergency": {
+    "title": "Emergency fund",
+    "current": "Current amount",
+    "minimum": "Minimum",
+    "from_expenses": "Added from expenses",
+    "after": "After additions",
+    "reference": "Reference: (essentials + installments) × {months} × {factor}",
+    "remaining": "Remaining",
+    "status": "Status",
+    "complete": "✅ Complete",
+    "incomplete": "⚠️ Incomplete",
+    "months": "Months to complete"
+  },
+
+  "savings": {
+    "title": "Savings",
+    "current": "Current savings",
+    "from_expenses": "Added from expenses",
+    "withdrawal": "Withdrawn to income (deducted)",
+    "total": "Total after additions and withdrawal",
+    "allocated": "Allocated to goals",
+    "unallocated": "Unallocated",
+    "distribution": "Allocation status",
+    "status": {
+      "over_withdrawn": "❌ Withdrawal exceeds available savings",
+      "over_allocated": "❌ Allocations exceed what is available",
+      "all_covered": "✅ Savings cover every goal",
+      "ok": "✅ OK"
+    }
+  },
+
+  "expenses": {
+    "title": "Expenses and commitments",
+    "apply_templates": "+ Recurring items",
+    "apply_templates_hint": "Adds recurring items (from Settings) missing from this month",
+    "templates_added": "Added {items} from the recurring list",
+    "templates_none_missing": "All recurring items are already here",
+    "name": "Item",
+    "type": "Type",
+    "cash": "Cash",
+    "inst_balance": "Installment balance",
+    "inst_count": "Payments left",
+    "payment_of": "Payment {current} of {total}",
+    "monthly": "Monthly",
+    "carried": "Carried",
+    "carried_hint": "Carried from the previous month",
+    "due": "Due",
+    "status": "Payment status",
+    "status_unpaid": "⏳ Unpaid",
+    "status_paid": "✅ Paid",
+    "status_deferred": "↪️ Carry over",
+    "deferred_amount": "Carry-over amount",
+    "deferred_hint": "Amount moved to next month (the rest counts as paid)",
+    "paid_at": "Payment date",
+    "needs_amount": "Needs a price",
+    "new_placeholder": "New item",
+    "note_placeholder": "Note on this item…",
+    "counts": "{paid} paid · {deferred} carried",
+    "err_empty": "Enter the item name"
+  },
+
+  "goals": {
+    "title": "Goals",
+    "hint": "Percentage and manual amount are linked: fill in one. The manual amount is a fixed cap. Leave both empty for automatic allocation.",
+    "name": "Goal",
+    "category": "Type",
+    "target": "Target",
+    "priority": "Priority %",
+    "manual": "Manual amount",
+    "allocated": "Allocated",
+    "remaining": "Remaining",
+    "progress": "Progress",
+    "monthly": "Suggested monthly",
+    "months": "Months",
+    "new_placeholder": "New goal",
+    "target_placeholder": "Amount",
+    "note_placeholder": "Note on this goal…",
+    "months_covered": "✅ Covered by savings",
+    "months_unknown": "-",
+    "total_all_covered": "✅ Savings cover every goal",
+    "total_some_missing": "⏳ Some goals are not complete yet",
+    "err_empty": "Enter the goal name"
+  },
+
+  "payments": {
+    "title": "Payment tracking",
+    "paid": "✅ Paid so far",
+    "deferred": "↪️ Carried to next month",
+    "unpaid": "⏳ Planned, not paid yet (still with you)",
+    "cash_now": "💰 Cash on hand now (income − paid)",
+    "carried_in": "of which carried from last month"
+  },
+
+  "charts": {
+    "surplus": "Surplus (net)",
+    "by_type_title": "Expenses by type",
+    "by_type_subtitle": "Amount and share of income",
+    "by_type_empty": "No expenses yet",
+    "progress_title": "Progress",
+    "progress_emergency": "Emergency fund",
+    "progress_goals": "Savings goals",
+    "progress_available": "Available {amount}",
+    "progress_remaining": "Remaining {amount}",
+    "daily_title": "Spending by day",
+    "daily_subtitle": "Amounts actually paid this month, by payment date",
+    "daily_show_table": "Show as table",
+    "daily_show_chart": "Show as chart",
+    "daily_empty": "No payments recorded yet. Mark any item “Paid” or “Carry over” and today's date is filled in automatically.",
+    "daily_day": "Day {day}",
+    "daily_no_date": "Paid without a date:",
+    "daily_outside": "Dated outside the month:"
+  },
+
+  "details": {
+    "title": "How the suggestions are calculated",
+    "available": "Net available (after expenses, excluding the withdrawal)",
+    "base": "Base: net before savings and emergency",
+    "em_gap": "Emergency: remaining before the expense table",
+    "em_target": "Emergency: target (base × rate)",
+    "saving_rate": "Saving: rate applied",
+    "saving_target": "Saving: target",
+    "goals_pool": "Savings available for goals",
+    "goals_monthly_pool": "Available for goals each month"
+  },
+
+  "balances": {
+    "add": "+ Balance in another currency",
+    "add_hint": "Money you keep in a currency other than the base one, e.g. cash in another currency"
+  },
+
+  "fx": {
+    "missing": "No exchange rate for this month for: {codes}. Items and balances in these currencies count as zero until you enter a rate.",
+    "enter_rate": "Enter a rate",
+    "rate_title": "1 {code} = {rate} {base} ({source}, from {from})",
+    "no_rate": "No exchange rate for {code} this month",
+    "no_rate_short": "⚠ no exchange rate",
+    "estimated": "estimate: this month's rate hasn't been fetched yet"
+  },
+
+  "month_notes": {
+    "title": "Notes for the month",
+    "placeholder": "Anything worth remembering about this month…",
+    "hint": "Not copied to the next month."
+  },
+
+  "wizard": {
+    "title": "New month",
+    "title_with": "New month: {label}",
+    "source": "Copied from the latest month: {label}",
+    "month": "Month",
+    "year": "Year",
+    "balances": "Opening balances",
+    "emergency": "Emergency fund",
+    "emergency_min": "Emergency minimum",
+    "savings": "Savings",
+    "return": "I returned {amount} to savings (the unspent part of the withdrawal)",
+    "unpaid_title": "Items still unpaid this month",
+    "unpaid_hint": "Whatever you tick is carried in full to the new month and marked “Carry over” in the current one.",
+    "expenses_title": "Expenses carried over ({n})",
+    "expenses_none": "No installments, recurring items or carried amounts.",
+    "origin_template": "Recurring",
+    "origin_installment": "Installment",
+    "origin_carry": "Carried",
+    "installment_left": "{count} payments left · balance {balance}",
+    "needs_price": "Needs a price",
+    "needs_amount": "Needs an amount",
+    "plus_carried": "+ carried {amount}",
+    "incomes_title": "Recurring income",
+    "incomes_none": "There's no recurring income. You can add your salary as a recurring item in",
+    "incomes_settings_link": "Settings",
+    "goals_title": "Goals ({n})",
+    "goals_drop": "Drop completed goals: {names}",
+    "goals_keep_all": "All goals move over as they are.",
+    "create": "Create {label}",
+    "older_title": "An earlier month",
+    "older_hint": "This month comes before the latest one ({latest}), so it starts empty with no automatic carry-over. You can add the recurring items to it after creating it."
+  },
+
+  "rollover": {
+    "carry_note": "Carried from {label}",
+    "err": {
+      "duplicate": "This month already exists",
+      "no_previous": "There is no earlier month to copy from",
+      "not_after_latest": "Automatic copying only works for a month after the latest one ({label})",
+      "invalid": "Some items picked for carry-over are not among the unpaid ones"
+    }
+  },
+
+  "field": {
+    "from_year": "Start year",
+    "from_month": "Start month",
+    "to_year": "End year",
+    "to_month": "End month",
+    "rate": "Exchange rate",
+    "fetch_rates": "Fetch rates online",
+    "from_currency": "From currency",
+    "to_currency": "To currency",
+    "code": "Currency code",
+    "symbol": "Symbol",
+    "theme": "Theme",
+    "theme_colors": "Custom colours",
+    "dashboards": "Dashboard layout",
+    "emergency_current": "Current emergency amount",
+    "emergency_min": "Emergency minimum",
+    "savings_current": "Current savings",
+    "year": "Year",
+    "month": "Month",
+    "copy_from_previous": "Copy from previous month",
+    "carry_unpaid_ids": "Items to carry over",
+    "add_return_to_savings": "Return to savings",
+    "drop_completed_goals": "Drop completed goals",
+    "source": "Source",
+    "amount": "Amount",
+    "is_savings_withdrawal": "Withdrawal from savings",
+    "needs_amount": "Needs an amount",
+    "template_id": "Recurring item",
+    "notes": "Notes",
+    "sort_order": "Order",
+    "name": "Name",
+    "type_id": "Type",
+    "cash_amount": "Cash amount",
+    "inst_balance": "Installment balance",
+    "inst_count": "Number of payments",
+    "inst_original_count": "Total number of payments",
+    "carried_in": "Carried from previous month",
+    "status": "Payment status",
+    "deferred_amount": "Carry-over amount",
+    "paid_at": "Payment date",
+    "category_id": "Goal type",
+    "target_amount": "Target amount",
+    "priority": "Priority",
+    "manual_allocation": "Manual allocation",
+    "currency": "Currency",
+    "role": "Category",
+    "kind": "Kind",
+    "active": "Active",
+    "goals": "Goals",
+    "excellent_rate": "Excellent saving rate",
+    "good_rate": "Good saving rate",
+    "max_debt_rate": "Safe installment limit",
+    "max_luxury_rate": "Suggested luxury limit",
+    "emergency_cut_rate": "Emergency contribution rate",
+    "saving_rate_em_incomplete": "Saving rate (emergency incomplete)",
+    "saving_rate_em_complete": "Saving rate (emergency complete)",
+    "emergency_ref_months": "Emergency reference months",
+    "emergency_ref_factor": "Emergency reference factor"
+  },
+
+  "api": {
+    "err": {
+      "not_found": "Not found",
+      "unknown_fields": "Unknown fields: {fields}",
+      "required": "“{field}” is required",
+      "invalid_value": "Invalid value for “{field}”",
+      "non_negative": "“{field}” cannot be negative",
+      "too_large": "“{field}” is too large",
+      "ratio_range": "“{field}” must be between 0 and {max}%",
+      "integer": "“{field}” must be a whole number, zero or more",
+      "max_value": "“{field}” is above the allowed maximum ({max})",
+      "number_range": "“{field}” must be between 0 and {max}",
+      "too_long": "“{field}” is too long (maximum {max} characters)",
+      "choice": "“{field}” must be one of: {choices}",
+      "date": "“{field}” must be a date in the form YYYY-MM-DD",
+      "period": "Invalid month or year",
+      "rate_range": "The exchange rate must be more than zero",
+      "rate_base_currency": "That is the base currency: it needs no exchange rate",
+      "fetch_rates_off": "Turn on fetching rates online first",
+      "currency_code": "A currency code is 3 letters (like USD)",
+      "currency_name_required": "Enter a name for this currency",
+      "currency_exists": "{code} is already in your list",
+      "currency_is_base": "The base currency can't be removed; change it first",
+      "currency_in_use": "{code} is used by items, balances or recurring items; change them first",
+      "currency_not_in_list": "{code} isn't in your currencies (Settings → Currencies)",
+      "rate_needs_base": "One of the two currencies must be the base currency ({base})",
+      "no_other_currency": "Add a currency other than the base currency first",
+      "period_order": "The period ends before it starts",
+      "balance_in_base_currency": "That is the base currency: enter the amount in the current balance itself",
+      "period_pair": "Send the year and the month together",
+      "rollover_options": "These options only work when copying from the previous month",
+      "template_kind": "This recurring item is of a different kind",
+      "deferred_needs_status": "A carry-over amount needs the “Carry over” status",
+      "priority_and_manual": "Enter the percentage or the manual amount, not both",
+      "good_gt_excellent": "The “good” rate must not exceed the “excellent” rate",
+      "template_needs_type": "An expense recurring item needs a type",
+      "withdrawal_income_only": "“Withdrawal from savings” is for income only",
+      "income_no_type": "Income doesn't take an expense type"
+    },
+    "conflict": {
+      "duplicate": "That name or month already exists",
+      "system_type": "This type is used by the calculations and can't be deleted",
+      "system_role": "The category of a core type can't be changed",
+      "in_use": "This type is used by items or recurring items; change their type first",
+      "has_followers": "A month that another month was copied from can't be deleted; delete that month first",
+      "last_budget": "At least one month must remain",
+      "integrity": "This data is not accepted"
+    }
+  },
+
+  "issue": {
+    "type_unknown": "The type must be from the type list",
+    "deferred_range": "The carry-over amount must be above zero and at most {max}",
+    "over_requested": "Goal allocations exceed available savings by {amount}"
+  },
+
+  "settings": {
+    "back": "← Back to the budget",
+    "saved": "Settings saved",
+    "tab_criteria": "Criteria",
+    "tab_types": "Expense types",
+    "tab_categories": "Goal types",
+    "tab_templates": "Recurring items",
+    "tab_account": "Account",
+    "tab_rates": "Currencies & rates",
+    "currencies_title": "My currencies",
+    "currencies_hint": "Only the currencies you work with appear in items, balances and rates. The base currency is one of them.",
+    "currencies_base": "Base",
+    "currencies_in_use": "In use",
+    "currencies_add": "Add a currency",
+    "currencies_other": "A currency that isn't listed?",
+    "currencies_other_hint": "Like a crypto currency (BTC). Enter its code and name; fetching its rate online only works if the source knows it.",
+    "currencies_search": "Search by code or name (English or Arabic)…",
+    "currencies_no_match": "No currency matches.",
+    "currencies_added": "{code} added",
+    "currencies_code_hint": "3 letters, like CNY",
+    "currencies_name": "Name",
+    "currencies_symbol": "Symbol (optional)",
+    "currencies_confirm_remove": "Remove {code} from your list? Its exchange rates are deleted too.",
+    "rates_from_currency": "From",
+    "rates_to_currency": "To",
+    "rates_value": "1 {from} = how many {to}?",
+    "rates_pair_hint": "Enter the rate the way you know it; the other direction is worked out. One side must be the base currency.",
+    "rates_inverse": "Inverse",
+    "rates_period_hint": "“To” is optional: empty keeps the rate going; with an end month the previous rate comes back after it.",
+    "rates_test": "Test the source",
+    "rates_test_hint": "Fetches today's rate for each of your currencies now and shows it without saving, to check the source works.",
+    "rates_test_ok": "rate of {day}",
+    "rates_test_fail": "Couldn't reach the source",
+    "rates_title": "Exchange rates",
+    "rates_hint": "Each currency's rate against the base currency, per period. A rate holds from its start month until the next rate. Rates you enter here always win over rates fetched online.",
+    "rates_from": "From",
+    "rates_to": "To (optional)",
+    "rates_to_hint": "Leave empty to keep the rate going. After the period the previous rate comes back.",
+    "rates_until": "Until",
+    "rates_open": "Ongoing",
+    "rates_per": "1 {code} = how many {base}?",
+    "rates_rate_in": "Rate ({base})",
+    "rates_source": "Source",
+    "rates_source_manual": "Manual",
+    "rates_source_online": "Online",
+    "rates_empty": "No rates yet.",
+    "rates_err_missing": "Pick the currency and start month, and enter the rate",
+    "rates_fetch_toggle": "Fetch exchange rates online automatically",
+    "rates_fetch_hint": "Off by default. When on, the app fetches the rate of each currency a month uses when you open it (the last day's rate for ended months, today's for the current month) from a free open service; only the currency code and date are sent. Rates are available from March 2024; older months need a manual rate. Your manual rates always win.",
+    "rates_fetch_now": "Fetch now",
+    "rates_fetched": "Fetched {n} rate(s)",
+    "rates_fetch_none": "Nothing new: every month has a manual or up-to-date rate, or the source couldn't be reached. Try “Test the source”.",
+    "rates_confirm_delete": "Delete the rate starting {from}? Its months take the rate before it.",
+    "tab_appearance": "Appearance",
+    "appearance_title": "App colours",
+    "appearance_hint": "Pick a ready theme or make your own. Automatic follows Windows light or dark mode.",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_in_use": "In use",
+    "theme_saved": "Appearance saved",
+    "theme": {
+      "auto": "Automatic (follows Windows)",
+      "custom": "My colours",
+      "ember": "Ember",
+      "sky": "Sky",
+      "lavender": "Lavender",
+      "midnight": "Midnight",
+      "mezaniya_light": "Mezaniya light",
+      "mezaniya_dark": "Mezaniya dark",
+      "sand": "Sand",
+      "mint": "Mint",
+      "ocean": "Ocean"
+    },
+    "custom_title": "Your colours",
+    "custom_hint": "Starts from the current theme's colours. The preview is live; nothing is saved until you press Use my colours.",
+    "color": {
+      "text": "Text",
+      "background": "Background",
+      "primary": "Primary (buttons and links)",
+      "secondary": "Secondary (bar backgrounds)",
+      "accent": "Accent (charts and focus)"
+    },
+    "custom_use": "Use my colours",
+    "custom_cancel": "Cancel preview",
+    "warn_low_text_contrast": "The text is close to the background colour and may be hard to read. You can still save it.",
+    "criteria_title": "Evaluation criteria and allocation plan",
+    "excellent_rate": "Excellent saving if ≥",
+    "excellent_rate_hint": "Surplus as a share of income",
+    "good_rate": "Good saving if ≥",
+    "good_rate_hint": "Below this the surplus counts as small",
+    "max_debt_rate": "Safe installment limit ≤",
+    "max_luxury_rate": "Suggested luxury limit ≤",
+    "of_income": "of income",
+    "emergency_cut_rate": "Emergency contribution rate",
+    "emergency_cut_rate_hint": "of net, until the emergency fund is complete",
+    "saving_rate_em_incomplete": "Saving rate (emergency incomplete)",
+    "saving_rate_em_complete": "Saving rate (emergency complete)",
+    "of_net": "of net",
+    "emergency_ref_months": "Emergency reference months",
+    "emergency_ref_months_hint": "Reference = (essentials + installments) × months × factor",
+    "emergency_ref_factor": "Emergency reference factor",
+    "emergency_ref_factor_hint": "1.25 means a 25% extra buffer",
+    "currency": "Base currency",
+    "currency_hint": "All totals and calculations are shown in it.",
+    "types_title": "Expense types",
+    "types_hint": "The category drives the calculations (essential, luxury, installments, savings, emergency). The five core types can only be renamed. The original types follow the interface language; a name you change stays as you wrote it, and changing it back to the original makes it follow the language again.",
+    "types_name": "Name",
+    "types_role": "Category in calculations",
+    "types_core": "Core type",
+    "types_new_placeholder": "New type",
+    "types_err_empty": "Enter the type name",
+    "categories_title": "Goal types",
+    "categories_hint": "For grouping and filtering only; they don't affect allocation. Deleting a type leaves its goals without a type. The original types follow the interface language unless you rename them.",
+    "categories_new_placeholder": "New goal type",
+    "categories_err_empty": "Enter the goal type name",
+    "templates_title": "Recurring items",
+    "templates_hint": "Added automatically to every new month. Leave the amount empty if the price changes monthly (like electricity) and it will be marked “Needs a price”.",
+    "templates_kind": "Income / expense",
+    "templates_kind_income": "Income",
+    "templates_kind_expense": "Expense",
+    "templates_name": "Name",
+    "templates_expense_type": "Expense type",
+    "templates_amount": "Amount",
+    "templates_variable": "Variable",
+    "templates_withdrawal": "Withdrawal?",
+    "templates_active": "Active",
+    "templates_notes": "Notes",
+    "templates_new_placeholder": "New recurring item",
+    "templates_err_empty": "Enter the item name",
+    "account_title": "Account",
+    "account_username": "Username:",
+    "account_change_password": "Change password"
+  },
+
+  "role": {
+    "essential": "Essential",
+    "luxury": "Luxury",
+    "debt": "Debt/installments",
+    "savings": "Savings",
+    "emergency": "Emergency",
+    "other": "Regular expense"
+  },
+
+  "currency": {
+    "AED": {
+      "symbol": "AED",
+      "name": "UAE dirham"
+    },
+    "AFN": {
+      "symbol": "AFN",
+      "name": "Afghan Afghani"
+    },
+    "ALL": {
+      "symbol": "ALL",
+      "name": "Albanian Lek"
+    },
+    "AMD": {
+      "symbol": "AMD",
+      "name": "Armenian Dram"
+    },
+    "AOA": {
+      "symbol": "AOA",
+      "name": "Angolan Kwanza"
+    },
+    "ARS": {
+      "symbol": "ARS",
+      "name": "Argentine Peso"
+    },
+    "AUD": {
+      "symbol": "A$",
+      "name": "Australian Dollar"
+    },
+    "AWG": {
+      "symbol": "AWG",
+      "name": "Aruban Florin"
+    },
+    "AZN": {
+      "symbol": "AZN",
+      "name": "Azerbaijani Manat"
+    },
+    "BAM": {
+      "symbol": "BAM",
+      "name": "Bosnia-Herzegovina Convertible Mark"
+    },
+    "BBD": {
+      "symbol": "BBD",
+      "name": "Barbadian Dollar"
+    },
+    "BDT": {
+      "symbol": "BDT",
+      "name": "Bangladeshi Taka"
+    },
+    "BGN": {
+      "symbol": "BGN",
+      "name": "Bulgarian Lev"
+    },
+    "BHD": {
+      "symbol": "BHD",
+      "name": "Bahraini dinar"
+    },
+    "BIF": {
+      "symbol": "BIF",
+      "name": "Burundian Franc"
+    },
+    "BMD": {
+      "symbol": "BMD",
+      "name": "Bermudan Dollar"
+    },
+    "BND": {
+      "symbol": "BND",
+      "name": "Brunei Dollar"
+    },
+    "BOB": {
+      "symbol": "BOB",
+      "name": "Bolivian Boliviano"
+    },
+    "BRL": {
+      "symbol": "R$",
+      "name": "Brazilian Real"
+    },
+    "BSD": {
+      "symbol": "BSD",
+      "name": "Bahamian Dollar"
+    },
+    "BTN": {
+      "symbol": "BTN",
+      "name": "Bhutanese Ngultrum"
+    },
+    "BWP": {
+      "symbol": "BWP",
+      "name": "Botswanan Pula"
+    },
+    "BYN": {
+      "symbol": "BYN",
+      "name": "Belarusian Ruble"
+    },
+    "BZD": {
+      "symbol": "BZD",
+      "name": "Belize Dollar"
+    },
+    "CAD": {
+      "symbol": "CA$",
+      "name": "Canadian Dollar"
+    },
+    "CDF": {
+      "symbol": "CDF",
+      "name": "Congolese Franc"
+    },
+    "CHF": {
+      "symbol": "CHF",
+      "name": "Swiss Franc"
+    },
+    "CLP": {
+      "symbol": "CLP",
+      "name": "Chilean Peso"
+    },
+    "CNY": {
+      "symbol": "CN¥",
+      "name": "Chinese Yuan"
+    },
+    "COP": {
+      "symbol": "COP",
+      "name": "Colombian Peso"
+    },
+    "CRC": {
+      "symbol": "CRC",
+      "name": "Costa Rican Colón"
+    },
+    "CUP": {
+      "symbol": "CUP",
+      "name": "Cuban Peso"
+    },
+    "CVE": {
+      "symbol": "CVE",
+      "name": "Cape Verdean Escudo"
+    },
+    "CZK": {
+      "symbol": "CZK",
+      "name": "Czech Koruna"
+    },
+    "DJF": {
+      "symbol": "DJF",
+      "name": "Djiboutian Franc"
+    },
+    "DKK": {
+      "symbol": "DKK",
+      "name": "Danish Krone"
+    },
+    "DOP": {
+      "symbol": "DOP",
+      "name": "Dominican Peso"
+    },
+    "DZD": {
+      "symbol": "DZD",
+      "name": "Algerian Dinar"
+    },
+    "EGP": {
+      "symbol": "EGP",
+      "name": "Egyptian pound"
+    },
+    "ERN": {
+      "symbol": "ERN",
+      "name": "Eritrean Nakfa"
+    },
+    "ETB": {
+      "symbol": "ETB",
+      "name": "Ethiopian Birr"
+    },
+    "EUR": {
+      "symbol": "EUR",
+      "name": "Euro"
+    },
+    "FJD": {
+      "symbol": "FJD",
+      "name": "Fijian Dollar"
+    },
+    "FKP": {
+      "symbol": "FKP",
+      "name": "Falkland Islands Pound"
+    },
+    "GBP": {
+      "symbol": "GBP",
+      "name": "British pound"
+    },
+    "GEL": {
+      "symbol": "GEL",
+      "name": "Georgian Lari"
+    },
+    "GHS": {
+      "symbol": "GHS",
+      "name": "Ghanaian Cedi"
+    },
+    "GIP": {
+      "symbol": "GIP",
+      "name": "Gibraltar Pound"
+    },
+    "GMD": {
+      "symbol": "GMD",
+      "name": "Gambian Dalasi"
+    },
+    "GNF": {
+      "symbol": "GNF",
+      "name": "Guinean Franc"
+    },
+    "GTQ": {
+      "symbol": "GTQ",
+      "name": "Guatemalan Quetzal"
+    },
+    "GYD": {
+      "symbol": "GYD",
+      "name": "Guyanaese Dollar"
+    },
+    "HKD": {
+      "symbol": "HK$",
+      "name": "Hong Kong Dollar"
+    },
+    "HNL": {
+      "symbol": "HNL",
+      "name": "Honduran Lempira"
+    },
+    "HTG": {
+      "symbol": "HTG",
+      "name": "Haitian Gourde"
+    },
+    "HUF": {
+      "symbol": "HUF",
+      "name": "Hungarian Forint"
+    },
+    "IDR": {
+      "symbol": "IDR",
+      "name": "Indonesian Rupiah"
+    },
+    "ILS": {
+      "symbol": "₪",
+      "name": "Israeli New Shekel"
+    },
+    "INR": {
+      "symbol": "₹",
+      "name": "Indian Rupee"
+    },
+    "IQD": {
+      "symbol": "IQD",
+      "name": "Iraqi Dinar"
+    },
+    "IRR": {
+      "symbol": "IRR",
+      "name": "Iranian Rial"
+    },
+    "ISK": {
+      "symbol": "ISK",
+      "name": "Icelandic Króna"
+    },
+    "JMD": {
+      "symbol": "JMD",
+      "name": "Jamaican Dollar"
+    },
+    "JOD": {
+      "symbol": "JOD",
+      "name": "Jordanian dinar"
+    },
+    "JPY": {
+      "symbol": "¥",
+      "name": "Japanese Yen"
+    },
+    "KES": {
+      "symbol": "KES",
+      "name": "Kenyan Shilling"
+    },
+    "KGS": {
+      "symbol": "KGS",
+      "name": "Kyrgystani Som"
+    },
+    "KHR": {
+      "symbol": "KHR",
+      "name": "Cambodian Riel"
+    },
+    "KMF": {
+      "symbol": "KMF",
+      "name": "Comorian Franc"
+    },
+    "KPW": {
+      "symbol": "KPW",
+      "name": "North Korean Won"
+    },
+    "KRW": {
+      "symbol": "₩",
+      "name": "South Korean Won"
+    },
+    "KWD": {
+      "symbol": "KWD",
+      "name": "Kuwaiti dinar"
+    },
+    "KYD": {
+      "symbol": "KYD",
+      "name": "Cayman Islands Dollar"
+    },
+    "KZT": {
+      "symbol": "KZT",
+      "name": "Kazakhstani Tenge"
+    },
+    "LAK": {
+      "symbol": "LAK",
+      "name": "Laotian Kip"
+    },
+    "LBP": {
+      "symbol": "LBP",
+      "name": "Lebanese Pound"
+    },
+    "LKR": {
+      "symbol": "LKR",
+      "name": "Sri Lankan Rupee"
+    },
+    "LRD": {
+      "symbol": "LRD",
+      "name": "Liberian Dollar"
+    },
+    "LSL": {
+      "symbol": "LSL",
+      "name": "Lesotho Loti"
+    },
+    "LYD": {
+      "symbol": "LYD",
+      "name": "Libyan Dinar"
+    },
+    "MAD": {
+      "symbol": "MAD",
+      "name": "Moroccan dirham"
+    },
+    "MDL": {
+      "symbol": "MDL",
+      "name": "Moldovan Leu"
+    },
+    "MGA": {
+      "symbol": "MGA",
+      "name": "Malagasy Ariary"
+    },
+    "MKD": {
+      "symbol": "MKD",
+      "name": "Macedonian Denar"
+    },
+    "MMK": {
+      "symbol": "MMK",
+      "name": "Myanmar Kyat"
+    },
+    "MNT": {
+      "symbol": "MNT",
+      "name": "Mongolian Tugrik"
+    },
+    "MOP": {
+      "symbol": "MOP",
+      "name": "Macanese Pataca"
+    },
+    "MRU": {
+      "symbol": "MRU",
+      "name": "Mauritanian Ouguiya"
+    },
+    "MUR": {
+      "symbol": "MUR",
+      "name": "Mauritian Rupee"
+    },
+    "MVR": {
+      "symbol": "MVR",
+      "name": "Maldivian Rufiyaa"
+    },
+    "MWK": {
+      "symbol": "MWK",
+      "name": "Malawian Kwacha"
+    },
+    "MXN": {
+      "symbol": "MX$",
+      "name": "Mexican Peso"
+    },
+    "MYR": {
+      "symbol": "MYR",
+      "name": "Malaysian Ringgit"
+    },
+    "MZN": {
+      "symbol": "MZN",
+      "name": "Mozambican Metical"
+    },
+    "NAD": {
+      "symbol": "NAD",
+      "name": "Namibian Dollar"
+    },
+    "NGN": {
+      "symbol": "NGN",
+      "name": "Nigerian Naira"
+    },
+    "NIO": {
+      "symbol": "NIO",
+      "name": "Nicaraguan Córdoba"
+    },
+    "NOK": {
+      "symbol": "NOK",
+      "name": "Norwegian Krone"
+    },
+    "NPR": {
+      "symbol": "NPR",
+      "name": "Nepalese Rupee"
+    },
+    "NZD": {
+      "symbol": "NZ$",
+      "name": "New Zealand Dollar"
+    },
+    "OMR": {
+      "symbol": "OMR",
+      "name": "Omani rial"
+    },
+    "PAB": {
+      "symbol": "PAB",
+      "name": "Panamanian Balboa"
+    },
+    "PEN": {
+      "symbol": "PEN",
+      "name": "Peruvian Sol"
+    },
+    "PGK": {
+      "symbol": "PGK",
+      "name": "Papua New Guinean Kina"
+    },
+    "PHP": {
+      "symbol": "₱",
+      "name": "Philippine Peso"
+    },
+    "PKR": {
+      "symbol": "PKR",
+      "name": "Pakistani Rupee"
+    },
+    "PLN": {
+      "symbol": "PLN",
+      "name": "Polish Zloty"
+    },
+    "PYG": {
+      "symbol": "PYG",
+      "name": "Paraguayan Guarani"
+    },
+    "QAR": {
+      "symbol": "QAR",
+      "name": "Qatari riyal"
+    },
+    "RON": {
+      "symbol": "RON",
+      "name": "Romanian Leu"
+    },
+    "RSD": {
+      "symbol": "RSD",
+      "name": "Serbian Dinar"
+    },
+    "RUB": {
+      "symbol": "RUB",
+      "name": "Russian Ruble"
+    },
+    "RWF": {
+      "symbol": "RWF",
+      "name": "Rwandan Franc"
+    },
+    "SAR": {
+      "symbol": "SAR",
+      "name": "Saudi riyal"
+    },
+    "SBD": {
+      "symbol": "SBD",
+      "name": "Solomon Islands Dollar"
+    },
+    "SCR": {
+      "symbol": "SCR",
+      "name": "Seychellois Rupee"
+    },
+    "SDG": {
+      "symbol": "SDG",
+      "name": "Sudanese Pound"
+    },
+    "SEK": {
+      "symbol": "SEK",
+      "name": "Swedish Krona"
+    },
+    "SGD": {
+      "symbol": "SGD",
+      "name": "Singapore Dollar"
+    },
+    "SHP": {
+      "symbol": "SHP",
+      "name": "St. Helena Pound"
+    },
+    "SLE": {
+      "symbol": "SLE",
+      "name": "Sierra Leonean Leone"
+    },
+    "SOS": {
+      "symbol": "SOS",
+      "name": "Somali Shilling"
+    },
+    "SRD": {
+      "symbol": "SRD",
+      "name": "Surinamese Dollar"
+    },
+    "SSP": {
+      "symbol": "SSP",
+      "name": "South Sudanese Pound"
+    },
+    "STN": {
+      "symbol": "STN",
+      "name": "São Tomé & Príncipe Dobra"
+    },
+    "SYP": {
+      "symbol": "SYP",
+      "name": "Syrian Pound"
+    },
+    "SZL": {
+      "symbol": "SZL",
+      "name": "Swazi Lilangeni"
+    },
+    "THB": {
+      "symbol": "THB",
+      "name": "Thai Baht"
+    },
+    "TJS": {
+      "symbol": "TJS",
+      "name": "Tajikistani Somoni"
+    },
+    "TMT": {
+      "symbol": "TMT",
+      "name": "Turkmenistani Manat"
+    },
+    "TND": {
+      "symbol": "TND",
+      "name": "Tunisian Dinar"
+    },
+    "TOP": {
+      "symbol": "TOP",
+      "name": "Tongan Paʻanga"
+    },
+    "TRY": {
+      "symbol": "TRY",
+      "name": "Turkish lira"
+    },
+    "TTD": {
+      "symbol": "TTD",
+      "name": "Trinidad & Tobago Dollar"
+    },
+    "TWD": {
+      "symbol": "NT$",
+      "name": "New Taiwan Dollar"
+    },
+    "TZS": {
+      "symbol": "TZS",
+      "name": "Tanzanian Shilling"
+    },
+    "UAH": {
+      "symbol": "UAH",
+      "name": "Ukrainian Hryvnia"
+    },
+    "UGX": {
+      "symbol": "UGX",
+      "name": "Ugandan Shilling"
+    },
+    "USD": {
+      "symbol": "USD",
+      "name": "US dollar"
+    },
+    "UYU": {
+      "symbol": "UYU",
+      "name": "Uruguayan Peso"
+    },
+    "UZS": {
+      "symbol": "UZS",
+      "name": "Uzbekistani Som"
+    },
+    "VES": {
+      "symbol": "VES",
+      "name": "Venezuelan Bolívar"
+    },
+    "VND": {
+      "symbol": "₫",
+      "name": "Vietnamese Dong"
+    },
+    "VUV": {
+      "symbol": "VUV",
+      "name": "Vanuatu Vatu"
+    },
+    "WST": {
+      "symbol": "WST",
+      "name": "Samoan Tala"
+    },
+    "XAF": {
+      "symbol": "FCFA",
+      "name": "Central African CFA Franc"
+    },
+    "XAG": {
+      "symbol": "XAG",
+      "name": "Silver (troy ounce)"
+    },
+    "XAU": {
+      "symbol": "XAU",
+      "name": "Gold (troy ounce)"
+    },
+    "XCD": {
+      "symbol": "EC$",
+      "name": "East Caribbean Dollar"
+    },
+    "XOF": {
+      "symbol": "F CFA",
+      "name": "West African CFA Franc"
+    },
+    "XPF": {
+      "symbol": "CFPF",
+      "name": "CFP Franc"
+    },
+    "YER": {
+      "symbol": "YER",
+      "name": "Yemeni Rial"
+    },
+    "ZAR": {
+      "symbol": "ZAR",
+      "name": "South African Rand"
+    },
+    "ZMW": {
+      "symbol": "ZMW",
+      "name": "Zambian Kwacha"
+    },
+    "ZWG": {
+      "symbol": "ZWG",
+      "name": "Zimbabwean Gold"
+    }
+  },
+
+  "seed": {
+    "type": {
+      "emergency": "Emergency",
+      "savings": "Savings",
+      "luxury": "Luxury",
+      "debt": "Debt/installments",
+      "essential": "Essential",
+      "giving": "Giving and support",
+      "transfer": "External transfer",
+      "investment": "Investment"
+    },
+    "category": {
+      "essential": "Essential",
+      "luxury": "Luxury",
+      "investment": "Investment",
+      "other": "Other"
+    }
+  },
+
+  "demo": {
+    "salary": "Salary",
+    "bonus": "Bonus",
+    "rent": "Rent",
+    "internet": "Internet",
+    "electricity": "Electricity",
+    "groceries": "Groceries",
+    "subscriptions": "Digital subscriptions",
+    "saving": "Monthly saving",
+    "emergency": "Emergency fund",
+    "phone": "Phone installment",
+    "car": "Car installment",
+    "outing": "Family outing",
+    "gift": "Gift",
+    "charity": "Charity",
+    "course": "Training course",
+    "goal_car": "New car",
+    "goal_trip": "Summer trip",
+    "goal_laptop": "Laptop",
+    "note_card": "Paid by card",
+    "freelance": "Freelance",
+    "egypt_rent": "Egypt flat rent",
+    "family_support": "Family support in Egypt",
+    "goal_gold": "Gold savings",
+    "note_transfer": "Arrives by bank transfer from Egypt",
+    "month_note_1": "Started tracking the budget. Balances: 1,000 USD savings and 20,000 EGP emergency money in Egypt.",
+    "month_note_2": "500 EGP of the family support moved to next month. The training course isn't paid yet.",
+    "month_note_3": "Check the EGP rate at the end of the month before transferring."
+  },
+
+  "admin": {
+    "err": {
+      "user_missing": "User not found",
+      "port_number": "The port must be a number",
+      "port_range": "The port must be between 1024 and 65535",
+      "demo_exists": "User “{name}” already exists"
+    }
+  },
+
+  "manager": {
+    "data_dir_title": "Can't save data",
+    "data_dir_unwritable": "The data folder can't be written to:\n{path}\n\n{error}\n\nPortable copy: move the whole program folder somewhere writable (Desktop, Documents, an unprotected USB drive), not inside Program Files.",
+    "title": "Mezaniya server manager",
+    "version": "Version:",
+    "server": "Server",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart",
+    "open": "Open in browser",
+    "state_running": "Running",
+    "state_starting": "Starting…",
+    "state_stopped": "Stopped",
+    "port": "Port",
+    "save_port": "Save port",
+    "port_pending": "Running on {running}; the new port {configured} needs a restart",
+    "users": "Users",
+    "new_user": "New user",
+    "change_password": "Change password",
+    "logout_user": "Sign user out",
+    "delete_user": "Delete user and all data",
+    "logout_all": "Sign everyone out",
+    "demo": "Demo user ({name})",
+    "online_count": "Online now: {online} of {total}",
+    "online_hint": "“Online” means used in the last {duration}",
+    "col_username": "Username",
+    "col_state": "Status",
+    "col_last_seen": "Last activity",
+    "col_last_login": "Last login",
+    "col_created": "Registered",
+    "col_months": "Months",
+    "online": "● Online now",
+    "temp_password": "temporary password",
+    "backup": "Backups",
+    "backup_now": "Back up now",
+    "open_backups": "Open backups folder",
+    "last_backup": "Latest backup",
+    "log": "Server log",
+    "new_password_hint": "Password (at least 6 characters)",
+    "temporary_check": "Temporary: typed between # marks and changed at first login",
+    "cannot": "Can't do that",
+    "error": "Error",
+    "done": "Done",
+    "start_failed_title": "The server didn't start",
+    "start_failed": "Make sure port {port} isn't used by another program, and check the server log below.",
+    "stop_failed": "The server didn't stop",
+    "port_invalid": "Invalid port",
+    "port_saved_title": "Port changed",
+    "port_saved": "Port {port} saved to mezaniya.env.\n\nFor other devices to connect, open PowerShell as Administrator and paste the copied command:\n{command}",
+    "port_restart_now": "Restart the server on the new port now?",
+    "pick_user_title": "Select a user",
+    "pick_user": "Select a user from the table first",
+    "user_created": "User “{name}” created",
+    "password_changed": "“{name}”'s password was changed and they were signed out everywhere.",
+    "password_temp_note": "Temporary password: {password}\nIt must be typed with the # marks; the app will then ask for a new password.",
+    "logout_user_title": "Sign out",
+    "logout_user_confirm": "Sign “{name}” out on every device?",
+    "logout_user_done": "“{name}” has to log in again",
+    "logout_all_title": "Sign everyone out",
+    "logout_all_confirm": "Sign every user out on every device now?\nEveryone will need to log in again.",
+    "logout_all_done": "Signed out {users} everywhere",
+    "delete_title": "Permanent delete",
+    "delete_confirm": "Delete “{name}” and all their data ({months}, with income, expenses, goals and settings)?\nA backup is made before deleting.",
+    "delete_type_name": "Type “{name}” to confirm:",
+    "delete_confirm_title": "Confirm",
+    "delete_mismatch_title": "Not deleted",
+    "delete_mismatch": "The name doesn't match",
+    "deleted_title": "Deleted",
+    "deleted": "“{name}” and all their data were deleted.\nBackup taken before deleting: {file}",
+    "backup_done": "Backup created:\n{path}",
+    "close_title": "Close the manager",
+    "close_body": "The server is running.\nYes = stop it, then close\nNo = leave it running and close the manager only",
+    "demo_created": "Demo user “{name}” created with password “{password}” and {months} of data.",
+    "demo_replace": "User “{name}” already exists. Delete it and recreate it with fresh demo data?"
+  },
+
+  "cli": {
+    "description": "Mezaniya admin commands",
+    "help_lang": "Message language (ar or en)",
+    "help_list_users": "List users",
+    "help_reset_password": "Set a temporary #password# for a user",
+    "help_password": "Temporary password (random if omitted); # marks are added if missing",
+    "help_logout_all": "Sign every user out on every device",
+    "help_delete_user": "Delete a user and all their data (backs up first)",
+    "help_backup": "Make a backup now",
+    "help_list_backups": "List backups",
+    "help_restore": "Replace the database with a backup (server stopped)",
+    "help_migrate": "Upgrade the database structure",
+    "help_demo": "Create the demo user with three months of data",
+    "help_replace": "Delete the existing demo user and recreate it",
+    "help_yes": "Confirm",
+    "user_line": "{id}  {username}  registered {created}  last login {last_login}{flag}",
+    "must_change_flag": "  (temporary password — must change)",
+    "no_user": "No user named {name}",
+    "temp_password": "Temporary password for {name}: {password}",
+    "temp_password_note": "Type it exactly as shown (with the # marks); the app will ask for a new password right away.",
+    "logged_out": "Signed out {users} everywhere",
+    "delete_needs_yes": "This deletes {name} and ALL their data. Re-run with --yes",
+    "deleted": "Deleted {name} (backup before deleting: {path})",
+    "backup_written": "Backup written: {path}",
+    "no_backups": "No backups yet",
+    "backup_line": "{path}  ({size} KB)",
+    "file_missing": "File not found: {path}",
+    "restore_incompatible": "Not restored: this backup is from another version of Mezaniya (schema {found}), which this version (schema {expected}) can't open. Your data wasn't changed.",
+    "restore_unhealthy": "Not restored: the file isn't a healthy database. Your data wasn't changed.",
+    "restore_needs_yes": "This replaces the current database. Stop the server, then re-run with --yes",
+    "restored": "Restored {db} from {file}",
+    "previous_saved": "The previous database was saved as {path}",
+    "migrations_applied": "Applied database upgrades: {versions}",
+    "db_up_to_date": "The database is up to date",
+    "demo_exists": "User {name} already exists. Use --replace to recreate it"
+  },
+
+  "log": {
+    "data_dir_unwritable": "The data folder {path} can't be written to: {error}",
+    "started": "Mezaniya running on http://localhost:{port}",
+    "network": "On the network: http://{ip}:{port}",
+    "config": "Data: {db} | backups: {backups} (keep {keep}, every {hours}h) | registration {registration}",
+    "registration_open": "open",
+    "registration_closed": "closed",
+    "server_error": "The server stopped with an error (is port {port} already in use?)",
+    "backup_written": "Backup written: {path}",
+    "backup_failed": "Backup failed",
+    "restored": "Restored {db} from {file} (previous saved as {safety})"
+  }
+}

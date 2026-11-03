@@ -1,5 +1,5 @@
 """Request body parsing: each entity declares its writable fields; anything else is rejected.
-Field labels in messages come from strings.json ("field.<name>")."""
+Field labels in messages come from the language files ("field.<name>")."""
 from __future__ import annotations
 
 import math

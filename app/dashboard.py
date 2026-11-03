@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import re
 
-# id → strings.json key of its title (for the layout editor)
+# id → the language files key of its title (for the layout editor)
 WIDGETS: dict[str, str] = {
     "summary": "summary.title",
     "suggestions": "suggestions.title",

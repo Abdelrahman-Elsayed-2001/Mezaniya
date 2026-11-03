@@ -1,9 +1,12 @@
-"""Every user-visible text lives in strings.json, Arabic and English side by side:
+"""Every user-visible text lives in the language files app/i18n/languages/<code>.json, one per
+language, found automatically (a new <code>.json is a new language):
 
-    {"section": {"key": {"ar": "...", "en": "..."}}}         → t("section.key")
-    {"count": {"months": {"ar": {"one": .., "few": ..}, "en": {...}}}}   → plural by `n`
+    {"_meta": {"name": "English", "dir": "ltr", "plural": "en", "order": 2},
+     "section": {"key": "..."},                                    → t("section.key")
+     "count": {"months": {"one": "{n} month", "other": "{n} months"}}}   → plural by `n`
 
-Placeholders are `{name}`. Python, the Jinja templates and the browser all read the same file.
+Placeholders are `{name}`. Python, the Jinja templates and the browser all read the same files.
+A key missing from a language shows in the default language.
 """
 from __future__ import annotations
 
@@ -14,61 +17,114 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
-STRINGS_PATH = Path(__file__).with_name("strings.json")
+LANGUAGES_DIR = Path(__file__).with_name("languages")
+DEFAULT_LANGUAGE = "ar"
 COOKIE = "mezaniya_lang"
 _PLACEHOLDER = re.compile(r"\{(\w+)\}")
 _PLURAL_FORMS = {"zero", "one", "two", "few", "many", "other"}
+_CODE = re.compile(r"^[a-z]{2,3}$")
 
 log = logging.getLogger(__name__)
 
 
+def _plural_ar(n: int) -> str:
+    if n == 0:
+        return "zero"
+    if n == 1:
+        return "one"
+    if n == 2:
+        return "two"
+    if 3 <= n % 100 <= 10:
+        return "few"
+    if 11 <= n % 100 <= 99:
+        return "many"
+    return "other"
+
+
+def _plural_ru(n: int) -> str:
+    if n % 10 == 1 and n % 100 != 11:
+        return "one"
+    if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
+        return "few"
+    return "many"
+
+
+# CLDR plural rules a language file can name in _meta "plural" (whole numbers only)
+PLURAL_RULES = {
+    "ar": _plural_ar,                                      # zero/one/two/few/many/other
+    "en": lambda n: "one" if n == 1 else "other",          # also German, Spanish, Italian, Turkish…
+    "fr": lambda n: "one" if n in (0, 1) else "other",     # also Portuguese (Brazil), Hindi…
+    "ru": _plural_ru,                                      # also Ukrainian; one/few/many
+    "none": lambda n: "other",                             # Japanese, Chinese, Indonesian…
+}
+
+
+def _is_plural(value: object) -> bool:
+    return (isinstance(value, dict) and value and set(value) <= _PLURAL_FORMS
+            and all(isinstance(v, str) for v in value.values()))
+
+
+def _flatten(node: dict, prefix: str, out: dict[str, object], source: str) -> None:
+    for name, value in node.items():
+        key = f"{prefix}{name}"
+        if isinstance(value, str) or _is_plural(value):
+            out[key] = value
+        elif isinstance(value, dict):
+            _flatten(value, f"{key}.", out, source)
+        else:
+            raise ValueError(f"{source}: {key} must be a text, plural forms or a section")
+
+
 @lru_cache(maxsize=1)
-def _load() -> tuple[dict, dict[str, dict[str, object]]]:
-    raw = json.loads(STRINGS_PATH.read_text(encoding="utf-8"))
-    meta = raw.pop("_meta")
-    catalogs: dict[str, dict[str, object]] = {lang: {} for lang in meta["languages"]}
-
-    def walk(node: dict, prefix: str) -> None:
-        for name, value in node.items():
-            key = f"{prefix}{name}"
-            if isinstance(value, dict) and set(value) == set(meta["languages"]):
-                for lang in meta["languages"]:
-                    catalogs[lang][key] = value[lang]
-            elif isinstance(value, dict):
-                walk(value, f"{key}.")
-            else:
-                raise ValueError(f"strings.json: {key} must have one entry per language")
-
-    walk(raw, "")
-    return meta, catalogs
+def _load() -> tuple[dict[str, dict], dict[str, dict[str, object]]]:
+    found = []
+    for path in sorted(LANGUAGES_DIR.glob("*.json")):
+        code = path.stem.lower()
+        if not _CODE.match(code):
+            log.warning("ignoring language file %s (name must be a 2-3 letter code)", path.name)
+            continue
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        meta = raw.pop("_meta")
+        if meta.get("dir") not in ("rtl", "ltr") or meta.get("plural") not in PLURAL_RULES:
+            raise ValueError(f"{path.name}: _meta needs dir rtl/ltr and plural one of {sorted(PLURAL_RULES)}")
+        entries: dict[str, object] = {}
+        _flatten(raw, "", entries, path.name)
+        found.append((meta.get("order", 99), code, meta, entries))
+    found.sort(key=lambda row: (row[0], row[1]))
+    metas = {code: meta for _, code, meta, _ in found}
+    if DEFAULT_LANGUAGE not in metas:
+        raise ValueError(f"{LANGUAGES_DIR}: the default language file {DEFAULT_LANGUAGE}.json is missing")
+    return metas, {code: entries for _, code, _, entries in found}
 
 
 def languages() -> list[str]:
-    return list(_load()[0]["languages"])
+    return list(_load()[0])
 
 
 def default_language() -> str:
     env = os.environ.get("MEZANIYA_LANGUAGE", "").strip().lower()
-    return env if env in languages() else _load()[0]["default"]
+    return env if env in languages() else DEFAULT_LANGUAGE
 
 
 def normalize(lang: str | None) -> str:
-    lang = (lang or "").strip().lower()[:2]
+    lang = (lang or "").strip().lower()
     return lang if lang in languages() else default_language()
 
 
 def direction(lang: str) -> str:
-    return _load()[0]["dir"][normalize(lang)]
+    return _load()[0][normalize(lang)]["dir"]
 
 
 def language_name(lang: str) -> str:
-    return _load()[0]["names"][normalize(lang)]
+    return _load()[0][normalize(lang)]["name"]
 
 
 def catalog(lang: str, prefixes: tuple[str, ...] | None = None) -> dict[str, object]:
-    entries = _load()[1][normalize(lang)]
+    """The language's texts, with any key it lacks taken from the default language."""
+    catalogs = _load()[1]
+    entries = {**catalogs[DEFAULT_LANGUAGE], **catalogs[normalize(lang)]}
     if prefixes is None:
-        return dict(entries)
+        return entries
     return {k: v for k, v in entries.items() if k.startswith(prefixes)}
 
 
@@ -77,21 +133,8 @@ def has(key: str) -> bool:
 
 
 def plural_form(lang: str, n: int) -> str:
-    """CLDR plural categories (Arabic has six, English two)."""
-    n = abs(int(n))
-    if normalize(lang) == "ar":
-        if n == 0:
-            return "zero"
-        if n == 1:
-            return "one"
-        if n == 2:
-            return "two"
-        if 3 <= n % 100 <= 10:
-            return "few"
-        if 11 <= n % 100 <= 99:
-            return "many"
-        return "other"
-    return "one" if n == 1 else "other"
+    """CLDR plural category of `n` under the language's rule."""
+    return PLURAL_RULES[_load()[0][normalize(lang)]["plural"]](abs(int(n)))
 
 
 def fill(template: str, params: dict) -> str:
@@ -100,7 +143,10 @@ def fill(template: str, params: dict) -> str:
 
 def t(key: str, lang: str | None = None, **params) -> str:
     lang = normalize(lang)
-    value = _load()[1][lang].get(key)
+    catalogs = _load()[1]
+    value = catalogs[lang].get(key)
+    if value is None and lang != DEFAULT_LANGUAGE:
+        value = catalogs[DEFAULT_LANGUAGE].get(key)
     if value is None:
         log.warning("missing translation %s [%s]", key, lang)
         return key

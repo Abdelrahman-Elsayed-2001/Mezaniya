@@ -1,6 +1,6 @@
 """Built-in currencies, by ISO 4217 code, and how a currency is shown.
 
-Built-ins are named in strings.json "currency.<CODE>.symbol" / ".name" and are offered when a
+Built-ins are named in the language files "currency.<CODE>.symbol" / ".name" and are offered when a
 user adds a currency (Settings → Currencies). The `currencies` table in 0001 starts with the same
 list (a test keeps them equal); a user may add any other three-letter code with their own name.
 Which currencies a user works with is app/db/repo/currencies.py.
@@ -10,7 +10,7 @@ from __future__ import annotations
 from app.i18n import has, t
 
 # ISO 4217 currencies in use today (from Unicode CLDR 46), code → decimal places, plus gold and
-# silver by the troy ounce. Names and symbols in both languages are strings.json "currency.<CODE>".
+# silver by the troy ounce. Names and symbols in both languages are the language files "currency.<CODE>".
 CURRENCIES: dict[str, int] = {
     "AED": 2, "AFN": 0, "ALL": 0, "AMD": 2, "AOA": 2, "ARS": 2, "AUD": 2, "AWG": 2, "AZN": 2, "BAM": 2,
     "BBD": 2, "BDT": 2, "BGN": 2, "BHD": 3, "BIF": 0, "BMD": 2, "BND": 2, "BOB": 2, "BRL": 2, "BSD": 2,
