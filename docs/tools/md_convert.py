@@ -519,13 +519,44 @@ def write_pdf(html_file: Path, out: Path, browser: str | None):
         browser = find_browser(None)
     if not browser:
         sys.exit("No browser found to print the PDF. Install Microsoft Edge or Google Chrome, or pass --browser PATH.")
-    with tempfile.TemporaryDirectory() as profile:
-        cmd = [browser, "--headless=new", "--disable-gpu", "--no-sandbox", f"--user-data-dir={profile}",
-               "--no-pdf-header-footer", "--print-to-pdf-no-header", f"--print-to-pdf={out.resolve()}",
-               html_file.resolve().as_uri()]
-        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=180)
-    if not out.is_file():
-        sys.exit(f"The browser did not write {out}.")
+    out = out.resolve()
+    out.unlink(missing_ok=True)
+    errors = []
+    # The new headless mode first, then the old one. On Windows msedge.exe may return before the
+    # PDF is on disk (another process writes it), so wait for the file after each try.
+    for mode in ("--headless=new", "--headless"):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as profile:
+            cmd = [browser, mode, "--disable-gpu", "--no-first-run", "--no-default-browser-check",
+                   "--disable-extensions", f"--user-data-dir={profile}", "--no-pdf-header-footer",
+                   "--print-to-pdf-no-header", "--virtual-time-budget=10000", f"--print-to-pdf={out}",
+                   html_file.resolve().as_uri()]
+            try:
+                done = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+                if done.returncode:
+                    errors.append(f"{mode}: exit code {done.returncode}")
+                tail = (done.stderr or "").strip().splitlines()[-3:]
+                errors += [f"{mode}: {line}" for line in tail]
+            except (OSError, subprocess.TimeoutExpired) as exc:
+                errors.append(f"{mode}: {exc}")
+            if wait_for_file(out, seconds=30):
+                return
+    details = "\n  ".join(errors) or "no output"
+    sys.exit(f"The browser did not write {out}.\n  browser: {browser}\n  {details}\n"
+             "Try another browser with --browser PATH (chrome.exe or msedge.exe), or: "
+             "pip install playwright && python -m playwright install chromium")
+
+
+def wait_for_file(path: Path, seconds: float) -> bool:
+    """True once `path` exists and its size has stopped changing."""
+    import time
+    deadline, last = time.monotonic() + seconds, -1
+    while time.monotonic() < deadline:
+        size = path.stat().st_size if path.is_file() else -1
+        if size > 0 and size == last:
+            return True
+        last = size
+        time.sleep(0.5)
+    return path.is_file() and path.stat().st_size > 0
 
 
 # ---------------------------------------------------------------- command line
