@@ -12,7 +12,7 @@ APP_NAME = "Mezaniya"
 REPO_URL = "https://github.com/Abdelrahman-Elsayed-2001/Mezaniya"
 LICENSE_NAME = "MIT License"
 LICENSE_URL = f"{REPO_URL}/blob/main/LICENSE"
-COPYRIGHT = "Copyright (c) 2026 Abdelrahman Elsayed"
+COPYRIGHT = "Copyright (c) 2026 Abdelrahman Hassanin Elsayed"
 
 # newest first; add the new version here (and its whats_new key) on every release
 RELEASES: tuple[tuple[str, str], ...] = (

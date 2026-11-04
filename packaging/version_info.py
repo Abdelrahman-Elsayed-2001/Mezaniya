@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-AUTHOR = "Abdelrahman Elsayed"
+AUTHOR = "Abdelrahman Hassanin Elsayed"
 COPYRIGHT = f"Copyright (c) 2026 {AUTHOR}"
 PRODUCT = "Mezaniya"
 

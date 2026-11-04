@@ -17,8 +17,8 @@
 #define AppName "Mezaniya"
 #define AppExe "Mezaniya.exe"
 #define ServerExe "MezaniyaServer.exe"
-#define AppPublisher "Abdelrahman Elsayed"
-#define AppCopyright "Copyright (c) 2026 Abdelrahman Elsayed"
+#define AppPublisher "Abdelrahman Hassanin Elsayed"
+#define AppCopyright "Copyright (c) 2026 Abdelrahman Hassanin Elsayed"
 #define AppURL "https://github.com/Abdelrahman-Elsayed-2001/Mezaniya"
 
 [Setup]
