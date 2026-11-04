@@ -4,11 +4,9 @@
 
 ## Version 0.4.1 (beta)
 
-- New name: “ميزانية” in Arabic and “Mezaniya” in English.
 - A full user guide for the website and the server manager, as a PDF inside the setup and the portable copy; the server manager's “User guide” button opens it.
 - An About page on the website with the version, the license, the GitHub link and what's new in every release, and an About button in the server manager.
 - Fixed texts that showed up on the website as raw keys instead of the translation: the missing exchange rate alert and its tooltips, and the name of “Month notes” when customizing.
-- What's new is available in Arabic and English, and its texts live in the language files, so they can be translated like every other text.
 - Documentation in the `docs` folder, with a tool that turns any of its files into Word and PDF.
 - Works with 0.4.0 and 0.3.0 data as is, without any conversion.
 
