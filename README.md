@@ -8,6 +8,8 @@
 تطبيق ويب لإدارة الميزانية الشهرية، حُوِّل من ملف `mezaniya.xlsx`. يدعم أكثر من مستخدم على الشبكة الداخلية، وبيانات كل مستخدم منفصلة تمامًا عن غيره، ويعمل باللغتين العربية والإنجليزية.
 تفاصيل الحسابات والقرارات في [PLAN.md](PLAN.md).
 
+📘 **[دليل المستخدم](docs/user_guide.md)** · 🆕 **[ما الجديد في كل إصدار](docs/whats_new.md)**
+
 ## التثبيت على ويندوز (دون Python)
 
 نزّل `Mezaniya-Setup-v<الإصدار>.exe` من صفحة [Releases](https://github.com/Abdelrahman-Elsayed-2001/Mezaniya/releases) وشغّله. يُثبَّت البرنامج في `Program Files`، ويضع اختصار **Mezaniya** على سطح المكتب وفي قائمة Start. الاختصار يفتح مدير الخادم (الفقرة «مدير الخادم» أدناه)، ومنه زر التشغيل.
@@ -17,7 +19,7 @@
 - التحديث: ثبّت الإصدار الجديد فوق القديم مباشرة، والبيانات تبقى كما هي (عدا الانتقال من إصدار beta سابق، انظر التنبيه).
 
 > [!WARNING]
-> **beta 0.4.0 متوافق مع بيانات 0.3.0**: يكفي تثبيته فوقه، وتبقى البيانات والنسخ الاحتياطية صالحة. أما 0.3.0 فغير متوافق مع 0.2.0 ولا 0.1.0؛ إن جرّبت إصدارًا أقدم من 0.3.0، احذف مجلد البيانات أو انقله (`%LOCALAPPDATA%\Mezaniya`، أو `data\` عند التشغيل من الشيفرة) قبل التشغيل، وإلا يتوقف الخادم برسالة تطلب ذلك، ولا تُسترجع نسخة احتياطية من تلك الإصدارات. خلال مرحلة beta قد تتكرر تغييرات كهذه دون تحويل.
+> **beta 0.4.x متوافق مع بيانات 0.3.0**: يكفي تثبيته فوقه، وتبقى البيانات والنسخ الاحتياطية صالحة. أما 0.3.0 فغير متوافق مع 0.2.0 ولا 0.1.0؛ إن جرّبت إصدارًا أقدم من 0.3.0، احذف مجلد البيانات أو انقله (`%LOCALAPPDATA%\Mezaniya`، أو `data\` عند التشغيل من الشيفرة) قبل التشغيل، وإلا يتوقف الخادم برسالة تطلب ذلك، ولا تُسترجع نسخة احتياطية من تلك الإصدارات. خلال مرحلة beta قد تتكرر تغييرات كهذه دون تحويل.
 
 ## النسخة المحمولة (Portable، دون تثبيت)
 
@@ -211,6 +213,6 @@ New-NetFirewallRule -DisplayName "Mezaniya" -Direction Inbound -Protocol TCP -Lo
 .venv\Scripts\python.exe -m pip install -r requirements-build.txt
 .venv\Scripts\python.exe build_installer.py
 ```
-يشغّل PyInstaller (`packaging/mezaniya.spec`) فيخرج `dist\Mezaniya\` وفيه `Mezaniya.exe` (المدير، دون نافذة سوداء) و`MezaniyaServer.exe` (الخادم الذي يشغّله المدير ويوقفه)، ثم يخرج في `Output\` ملفين جاهزين للرفع على GitHub Releases: `Mezaniya-Setup-v0.4.0-beta.exe` (من `installer.iss`) و`Mezaniya-Portable-v0.4.0-beta.zip` (المجلد نفسه ومعه `packaging\portable.txt`). `--skip-installer` يتخطى المثبّت (فلا حاجة إلى Inno Setup)، و`--skip-portable` يتخطى النسخة المحمولة. رقم الإصدار يُقرأ من `app/version.py`. المجلدات `dist\` و`build\` و`Output\` غير مرفوعة.
+يشغّل PyInstaller (`packaging/mezaniya.spec`) فيخرج `dist\Mezaniya\` وفيه `Mezaniya.exe` (المدير، دون نافذة سوداء) و`MezaniyaServer.exe` (الخادم الذي يشغّله المدير ويوقفه)، ثم يخرج في `Output\` ملفين جاهزين للرفع على GitHub Releases: `Mezaniya-Setup-v0.4.1-beta.exe` (من `installer.iss`) و`Mezaniya-Portable-v0.4.1-beta.zip` (المجلد نفسه ومعه `packaging\portable.txt`). `--skip-installer` يتخطى المثبّت (فلا حاجة إلى Inno Setup)، و`--skip-portable` يتخطى النسخة المحمولة. رقم الإصدار يُقرأ من `app/version.py`. المجلدات `dist\` و`build\` و`Output\` غير مرفوعة.
 
 - يتحقق اختبار تلقائي من وجود كل نص بالعربية والإنجليزية بالمتغيرات نفسها، ومن أن كل مفتاح يستخدمه الكود موجود، ومن خلوّ ملفات البرمجة من النصوص العربية.

@@ -12,7 +12,7 @@ programs keep their data in a data\\ folder beside them (app/config.py) instead 
 
 Needs: the app's requirements and PyInstaller in this Python (pip install -r requirements-build.txt),
 and Inno Setup 6 or newer (found on PATH, in its usual folders or the registry; or set INNO_SETUP to ISCC.exe).
-The version comes from app/version.py: 0.4.0 + STAGE "beta" → Mezaniya-Setup-v0.4.0-beta.exe.
+The version comes from app/version.py: 0.4.1 + STAGE "beta" → Mezaniya-Setup-v0.4.1-beta.exe.
 """
 from __future__ import annotations
 
