@@ -6,11 +6,16 @@
     python build_installer.py --skip-pyinstaller   # reuse dist\\Mezaniya
     python build_installer.py --skip-installer     # no setup (no Inno Setup needed)
     python build_installer.py --skip-portable      # no portable zip
+    python build_installer.py --skip-guide         # no docs\\user_guide.pdf in the program folder
 
 The portable zip is the same dist\\Mezaniya plus packaging\\portable.txt: that file makes the
 programs keep their data in a data\\ folder beside them (app/config.py) instead of %LOCALAPPDATA%.
 
-Needs: the app's requirements and PyInstaller in this Python (pip install -r requirements-build.txt),
+Both carry docs\\user_guide.pdf, built from docs/user_guide.md by docs/tools/md_convert.py (printed
+by Microsoft Edge or Chrome); the server manager's "User guide" button opens it.
+
+Needs: the app's requirements, PyInstaller and the guide converter's libraries in this Python
+(pip install -r requirements-build.txt),
 and Inno Setup 6 or newer (found on PATH, in its usual folders or the registry; or set INNO_SETUP to ISCC.exe).
 The version comes from app/version.py: 0.4.1 + STAGE "beta" → Mezaniya-Setup-v0.4.1-beta.exe.
 """
@@ -43,6 +48,8 @@ SPEC = ROOT / "packaging" / "mezaniya.spec"
 ISS = ROOT / "installer.iss"
 PORTABLE_NOTE = ROOT / "packaging" / "portable.txt"     # also the marker app/config.py looks for
 DIST = ROOT / "dist" / "Mezaniya"
+GUIDE = ROOT / "docs" / "user_guide.md"                 # → dist\Mezaniya\docs\user_guide.pdf (the manager's button)
+CONVERTER = ROOT / "docs" / "tools" / "md_convert.py"
 OUTPUT = ROOT / "Output"
 
 
@@ -106,6 +113,19 @@ def build_exe() -> None:
             sys.exit(f"PyInstaller did not produce {DIST / exe}")
 
 
+def build_guide(dist: Path = DIST) -> Path:
+    """The user guide as a PDF inside the program folder, so the setup and the portable zip carry it."""
+    from app.config import GUIDE_FILE
+    if not dist.is_dir():
+        sys.exit(f"{dist} is missing: run without --skip-pyinstaller first.")
+    out_dir = dist / "docs"
+    run([sys.executable, str(CONVERTER), str(GUIDE), "--format", "pdf", "--out-dir", str(out_dir)])
+    pdf = out_dir / GUIDE_FILE
+    if not pdf.is_file():
+        sys.exit(f"The user guide was not built ({pdf}). Fix it, or build with --skip-guide.")
+    return pdf
+
+
 def build_installer(version: str, full: str) -> Path:
     if not (DIST / "Mezaniya.exe").is_file():
         sys.exit(f"{DIST} is missing: run without --skip-pyinstaller first.")
@@ -141,6 +161,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--skip-pyinstaller", action="store_true", help="reuse the existing dist\\Mezaniya")
     parser.add_argument("--skip-installer", action="store_true", help="no setup exe (Inno Setup not needed)")
     parser.add_argument("--skip-portable", action="store_true", help="no portable zip")
+    parser.add_argument("--skip-guide", action="store_true",
+                        help="don't put docs\\user_guide.pdf in the program folder (the manager's button opens GitHub)")
     args = parser.parse_args(argv)
 
     version, stage = version_info.read_version()
@@ -148,6 +170,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Mezaniya {full}")
     if not args.skip_pyinstaller:
         build_exe()
+    if not args.skip_guide:
+        print(f"User guide: {build_guide()}")
     built = []
     if not args.skip_installer:
         built.append(build_installer(version, full))

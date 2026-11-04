@@ -64,3 +64,13 @@ def test_portable_zip(tmp_path):
         assert {top + n for n in ("Mezaniya.exe", "MezaniyaServer.exe", "_internal/lib.dll", "portable.txt")} == names
         note = z.read(top + "portable.txt").decode("utf-8-sig")
         assert "data" in note and "\r\n" in note
+
+
+def test_user_guide_is_the_shipped_pdf_or_github(tmp_path, monkeypatch):
+    from app import config
+    monkeypatch.setattr(config, "FROZEN", True)
+    monkeypatch.setattr(config.sys, "executable", str(tmp_path / "Mezaniya.exe"))
+    assert config.user_guide() == config.GUIDE_URL
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / config.GUIDE_FILE).write_bytes(b"%PDF")
+    assert config.user_guide() == str(tmp_path / "docs" / config.GUIDE_FILE)

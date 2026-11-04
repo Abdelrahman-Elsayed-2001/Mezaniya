@@ -24,7 +24,7 @@ from tkinter import filedialog, messagebox, simpledialog, ttk
 
 from app import i18n
 from app.version import STAGE, __version__
-from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem
+from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem, user_guide
 from app.db.connection import connect, migrate
 from app.i18n import store as language_store
 from app.services import admin, backup, data_files, demo
@@ -459,7 +459,8 @@ class ManagerApp(tk.Tk):
         self.btn_stop = ttk.Button(top, text=t("manager.stop"), command=self.stop_server)
         self.btn_restart = ttk.Button(top, text=t("manager.restart"), command=self.restart_server)
         self.btn_open = ttk.Button(top, text=t("manager.open"), command=self.open_browser)
-        for b in (self.btn_lang, self.btn_open, self.btn_restart, self.btn_stop, self.btn_start):
+        self.btn_guide = ttk.Button(top, text=t("manager.user_guide"), command=self.open_guide)
+        for b in (self.btn_lang, self.btn_guide, self.btn_open, self.btn_restart, self.btn_stop, self.btn_start):
             if b is not None:
                 b.pack(side=ui.end, padx=3)
 
@@ -935,6 +936,13 @@ class ManagerApp(tk.Tk):
     def open_browser(self):
         if self.state.healthy:
             webbrowser.open(f"http://localhost:{self.state.port}")
+
+    def open_guide(self):
+        guide = user_guide()
+        if guide.startswith("http"):
+            webbrowser.open(guide)
+        else:
+            os.startfile(guide)
 
     def save_port(self):
         try:

@@ -7,7 +7,7 @@
   },
 
   "app": {
-    "title": "My Monthly Budget",
+    "title": "Mezaniya",
     "stage_banner": {
       "beta": "Beta version · v{version}"
     }
@@ -1456,6 +1456,7 @@
     "stop": "Stop",
     "restart": "Restart",
     "open": "Open in browser",
+    "user_guide": "User guide",
     "state_running": "Running",
     "state_starting": "Starting…",
     "state_stopped": "Stopped",

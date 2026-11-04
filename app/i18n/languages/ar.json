@@ -7,7 +7,7 @@
   },
 
   "app": {
-    "title": "ميزانيتي الشهرية",
+    "title": "ميزانية",
     "stage_banner": {
       "beta": "نسخة تجريبية (Beta) · الإصدار {version}"
     }
@@ -589,8 +589,8 @@
       "sky": "سماء",
       "lavender": "لافندر",
       "midnight": "منتصف الليل",
-      "mezaniya_light": "ميزانيتي فاتح",
-      "mezaniya_dark": "ميزانيتي داكن",
+      "mezaniya_light": "ميزانية فاتح",
+      "mezaniya_dark": "ميزانية داكن",
       "sand": "رمال",
       "mint": "نعناع",
       "ocean": "محيط"
@@ -1449,13 +1449,14 @@
     },
     "data_dir_title": "لا يمكن حفظ البيانات",
     "data_dir_unwritable": "لا يمكن الكتابة في مجلد البيانات:\n{path}\n\n{error}\n\nفي النسخة المحمولة: انقل مجلد البرنامج كله إلى مكان يمكن الكتابة فيه (سطح المكتب، المستندات، فلاشة غير محمية)، وليس داخل Program Files.",
-    "title": "مدير خادم ميزانيتي",
+    "title": "مدير خادم ميزانية",
     "version": "الإصدار:",
     "server": "الخادم",
     "start": "تشغيل",
     "stop": "إيقاف",
     "restart": "إعادة التشغيل",
     "open": "فتح في المتصفح",
+    "user_guide": "دليل المستخدم",
     "state_running": "يعمل",
     "state_starting": "قيد التشغيل…",
     "state_stopped": "متوقف",
@@ -1528,7 +1529,7 @@
     "restored_languages": "واسترجعت اللغات والنصوص إلى: {path}",
     "restore_languages_skipped": "لم تُسترجع اللغات والنصوص (أضف --languages لاسترجاعها).",
     "help_restore_languages": "استرجاع اللغات والنصوص من النسخة أيضًا (يُسأل عنها إن لم يُحدَّد)",
-    "description": "أوامر إدارة ميزانيتي",
+    "description": "أوامر إدارة ميزانية",
     "help_lang": "لغة الرسائل (ar أو en)",
     "help_list_users": "عرض المستخدمين",
     "help_reset_password": "تعيين كلمة مرور مؤقتة #...# لمستخدم",
@@ -1554,7 +1555,7 @@
     "no_backups": "لا توجد نسخ احتياطية بعد",
     "backup_line": "{path}  ({size} ك.ب)",
     "file_missing": "الملف غير موجود: {path}",
-    "restore_incompatible": "لم تتم الاستعادة: هذه النسخة من إصدار آخر من ميزانيتي (بنية {found}) ولا يفتحها هذا الإصدار (بنية {expected}). لم يتغير شيء في بياناتك.",
+    "restore_incompatible": "لم تتم الاستعادة: هذه النسخة من إصدار آخر من ميزانية (بنية {found}) ولا يفتحها هذا الإصدار (بنية {expected}). لم يتغير شيء في بياناتك.",
     "restore_unhealthy": "لم تتم الاستعادة: الملف ليس قاعدة بيانات سليمة. لم يتغير شيء في بياناتك.",
     "restore_needs_yes": "سيستبدل هذا قاعدة البيانات الحالية. أوقف الخادم ثم أعد الأمر مع --yes",
     "restored": "استُرجعت {db} من {file}",
@@ -1566,7 +1567,7 @@
 
   "log": {
     "data_dir_unwritable": "لا يمكن الكتابة في مجلد البيانات {path}: {error}",
-    "started": "ميزانيتي يعمل على http://localhost:{port}",
+    "started": "برنامج ميزانية يعمل على http://localhost:{port}",
     "network": "على الشبكة: http://{ip}:{port}",
     "config": "البيانات: {db} | النسخ: {backups} (الاحتفاظ بـ {keep}، كل {hours} ساعة) | التسجيل {registration}",
     "registration_open": "مفتوح",

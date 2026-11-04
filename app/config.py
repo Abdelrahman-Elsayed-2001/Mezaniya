@@ -26,6 +26,17 @@ def program_dir() -> Path:
     return Path(sys.executable).resolve().parent
 
 
+GUIDE_FILE = "user_guide.pdf"          # docs/ next to the programs (build_installer.py puts it there)
+GUIDE_URL = "https://github.com/Abdelrahman-Elsayed-2001/Mezaniya/blob/main/docs/user_guide.md"
+
+
+def user_guide() -> str:
+    """The user guide to open: the PDF shipped with the build (or built into docs/ when run from
+    the source), else the guide on GitHub."""
+    pdf = (program_dir() if FROZEN else BASE_DIR) / "docs" / GUIDE_FILE
+    return str(pdf) if pdf.is_file() else GUIDE_URL
+
+
 def is_portable() -> bool:
     return FROZEN and (program_dir() / PORTABLE_MARKER).is_file()
 
