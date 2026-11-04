@@ -21,6 +21,7 @@
     <div class="divider">{{ t('auth.login.first_time') }}</div>
     <a class="btn btn-secondary" href="{{ url_for('auth.register_page') }}">{{ t('auth.register.link') }}</a>
     {% endif %}
+    <p class="auth-about"><a href="/about">{{ t('about.link') }} · v{{ app_version }}</a></p>
   </form>
 </main>
 {% endblock %}

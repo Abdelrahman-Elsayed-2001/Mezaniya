@@ -23,6 +23,7 @@
     </div>
     <button class="btn btn-primary" type="submit">{{ t('auth.register.submit') }}</button>
     <a class="btn btn-secondary" href="{{ url_for('auth.login_page') }}">{{ t('auth.register.have_account') }}</a>
+    <p class="auth-about"><a href="/about">{{ t('about.link') }} · v{{ app_version }}</a></p>
   </form>
 </main>
 {% endblock %}
