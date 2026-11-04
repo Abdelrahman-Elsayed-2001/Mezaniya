@@ -46,3 +46,8 @@ Thumbs.db
 desktop.ini
 .DS_Store
 data-backup-*/
+
+# generated from docs/*.md by docs/tools/md_convert.py
+docs/*.docx
+docs/*.pdf
+docs/*.html

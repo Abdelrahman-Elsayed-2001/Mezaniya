@@ -1,8 +1,11 @@
+import re
+
 from flask import Flask, render_template, request
+from markupsafe import Markup, escape
 
 from . import auth, db, i18n
 from .auth import current_user, login_required
-from .config import Config
+from .config import GUIDE_URL, Config
 from .version import STAGE, __version__
 
 # Alpine.js evaluates its x-* expressions with Function(), hence 'unsafe-eval';
@@ -21,6 +24,11 @@ def create_app(config: type[Config] = Config) -> Flask:
     i18n.init_app(app)
     from .api import bp as api_bp
     app.register_blueprint(api_bp)
+
+    @app.template_filter("inline_code")
+    def inline_code(text: str) -> Markup:
+        """Escape a text and show `name` as <code>name</code> (release notes name files this way)."""
+        return Markup(re.sub(r"`([^`]+)`", r"<code>\1</code>", str(escape(text))))
 
     @app.context_processor
     def inject_version():
@@ -65,6 +73,13 @@ def create_app(config: type[Config] = Config) -> Flask:
     @login_required
     def settings_page():
         return render_template("settings.html", username=current_user()["username"])
+
+    @app.get("/about")
+    def about_page():
+        from . import about
+        user = current_user()
+        return render_template("about.html", about=about, releases=about.release_notes(i18n.current_lang()), guide_url=GUIDE_URL,
+                               version_label=about.version_label(), username=user["username"] if user else None)
 
     @app.get("/healthz")
     def healthz():

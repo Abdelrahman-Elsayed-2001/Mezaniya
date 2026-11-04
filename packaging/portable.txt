@@ -1,4 +1,4 @@
-Mezaniya - portable copy / ميزانيتي - النسخة المحمولة
+Mezaniya - portable copy / ميزانية - النسخة المحمولة
 =====================================================
 
 This file tells Mezaniya to keep everything (database, settings, backups, logs) in the
@@ -14,7 +14,7 @@ This file tells Mezaniya to keep everything (database, settings, backups, logs) 
 
 ------------------------------------------------------------------------------------------
 
-هذا الملف يجعل ميزانيتي تحفظ كل شيء (قاعدة البيانات والإعدادات والنسخ الاحتياطية والسجلات)
+هذا الملف يجعل ميزانية تحفظ كل شيء (قاعدة البيانات والإعدادات والنسخ الاحتياطية والسجلات)
 في مجلد "data" بجانبه بدلًا من %LOCALAPPDATA%\Mezaniya. لا تحذفه.
 
 - شغّل Mezaniya.exe. ضع هذا المجلد في مكان يمكن الكتابة فيه: سطح المكتب أو المستندات أو

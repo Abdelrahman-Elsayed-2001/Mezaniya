@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ t('about.title') }} · {{ t('app.title') }}{% endblock %}
+{% block body %}
+<header class="topbar">
+  <div class="topbar-start">
+    <h1 class="brand"><img class="brand-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="">{{ t('about.title') }}</h1>
+    {% if username %}
+    <a class="btn btn-small btn-ghost" href="/">{{ t('settings.back') }}</a>
+    {% else %}
+    <a class="btn btn-small btn-ghost" href="/login">{{ t('about.back') }}</a>
+    {% endif %}
+  </div>
+  <nav>
+    {% if username %}<span class="muted">{{ username }}</span>{% endif %}
+    {% include "_lang_switch.html" %}
+  </nav>
+</header>
+
+<main class="page about-page">
+  <section class="card about-card">
+    <img class="about-logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="">
+    <h2 class="about-name">{{ t('app.title') }}
+      {% if t('app.title') != t('about.latin_name') %}<span class="muted" lang="en">{{ t('about.latin_name') }}</span>{% endif %}</h2>
+    <p class="muted">{{ t('about.tagline') }}</p>
+    <table class="kv about-facts">
+      <tr><th>{{ t('about.version') }}</th><td><bdi>{{ version_label }}</bdi></td></tr>
+      <tr><th>{{ t('about.license') }}</th>
+        <td><a href="{{ about.LICENSE_URL }}" target="_blank" rel="noopener">{{ t('about.license_text') }}</a></td></tr>
+      <tr><th>{{ t('about.source') }}</th>
+        <td><a href="{{ about.REPO_URL }}" target="_blank" rel="noopener" dir="ltr">{{ about.REPO_URL.split('//')[1] }}</a></td></tr>
+      <tr><th>{{ t('about.guide') }}</th>
+        <td><a href="{{ guide_url }}" target="_blank" rel="noopener">{{ t('about.guide') }}</a></td></tr>
+    </table>
+    <p class="about-copyright" dir="ltr" lang="en">{{ about.COPYRIGHT }}</p>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('about.whats_new') }}</h2>
+    {% for r in releases %}
+    <div class="release">
+      <h3>{{ t('about.release', version=r.label) }}
+        {% if r.current %}<span class="chip chip-manual">{{ t('about.current') }}</span>{% endif %}</h3>
+      <ul>
+        {% for line in r.notes %}<li>{{ line|inline_code }}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </section>
+</main>
+{% endblock %}

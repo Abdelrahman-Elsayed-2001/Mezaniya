@@ -22,9 +22,9 @@ import webbrowser
 from pathlib import Path
 from tkinter import filedialog, messagebox, simpledialog, ttk
 
-from app import i18n
+from app import about, i18n
 from app.version import STAGE, __version__
-from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem
+from app.config import BASE_DIR, ENV_FILE, Config, data_dir_problem, user_guide
 from app.db.connection import connect, migrate
 from app.i18n import store as language_store
 from app.services import admin, backup, data_files, demo
@@ -272,6 +272,55 @@ class LanguageDialog(Dialog):
         return langs.add_language(self.conn, plain(self.code.get()), *args)
 
 
+class AboutWindow(tk.Toplevel):
+    """The program's name, version, license and links: the web About page without the release notes."""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.lang, self.ui = parent.lang, parent.ui
+        t = self.t
+        self.title(t("about.title"))
+        self.transient(parent)
+        self.resizable(False, False)
+        frame = ttk.Frame(self, padding=(28, 20))
+        frame.pack(fill="both", expand=True)
+        logo = BASE_DIR / "app" / "static" / "img" / "logo.png"
+        try:
+            image = tk.PhotoImage(file=str(logo))
+            factor = max(1, image.width() // 64)
+            self.logo = image.subsample(factor, factor)       # keep a reference, or Tk drops the image
+            ttk.Label(frame, image=self.logo).pack(pady=(0, 8))
+        except tk.TclError:
+            pass
+        ttk.Label(frame, text=t("app.title"), font=("Segoe UI", 16, "bold")).pack()
+        if i18n.t("app.title", self.lang) != about.APP_NAME:
+            ttk.Label(frame, text=about.APP_NAME, foreground="#52606d", font=FONT).pack()
+        ttk.Label(frame, text=t("about.tagline"), foreground="#52606d", wraplength=360, justify="center",
+                  font=FONT).pack(pady=(6, 12))
+        facts = ttk.Frame(frame)
+        facts.pack()
+        rows = ((t("about.version"), about.version_label(), None),
+                (t("about.license"), t("about.license_text"), about.LICENSE_URL),
+                (t("about.source"), about.REPO_URL.split("//")[1], about.REPO_URL))
+        label_col, value_col = (2, 0) if self.ui.rtl else (0, 2)
+        for row, (caption, value, url) in enumerate(rows):
+            ttk.Label(facts, text=caption, font=FONT_BOLD).grid(row=row, column=label_col, sticky=self.ui.anchor, pady=2)
+            ttk.Label(facts, text="").grid(row=row, column=1, padx=8)
+            value_label = ttk.Label(facts, text=value, font=FONT, foreground="#0f766e" if url else "")
+            value_label.grid(row=row, column=value_col, sticky=self.ui.anchor, pady=2)
+            if url:
+                value_label.configure(cursor="hand2")
+                value_label.bind("<Button-1>", lambda _e, u=url: webbrowser.open(u))
+        ttk.Label(frame, text=about.COPYRIGHT, foreground="#52606d", font=FONT).pack(pady=(14, 12))
+        ttk.Button(frame, text=t("common.close"), command=self.destroy).pack()
+        self.bind("<Escape>", lambda _e: self.destroy())
+        self.wait_visibility()
+        self.grab_set()
+
+    def t(self, key: str, **params) -> str:
+        return self.ui.text(i18n.t(key, self.lang, **params))
+
+
 class TextDialog(Dialog):
     """Edit one text of one language: the reference text above, the translation (or plural forms) below."""
 
@@ -440,6 +489,9 @@ class ManagerApp(tk.Tk):
         notebook.add(languages_tab, text=f"  {t('manager.tab_languages')}  ")
         self._build_languages(languages_tab)
         notebook.select(tab)
+        # About: on the tabs' row, at the far end
+        ttk.Button(self.root_frame, text=t("manager.about"), command=lambda: AboutWindow(self)).place(
+            in_=notebook, relx=1.0, x=0, y=-2, anchor="ne")
 
         # server
         srv = ttk.LabelFrame(root, text=f" {t('manager.server')} ", padding=10, labelanchor="n" + ui.anchor)
@@ -459,7 +511,8 @@ class ManagerApp(tk.Tk):
         self.btn_stop = ttk.Button(top, text=t("manager.stop"), command=self.stop_server)
         self.btn_restart = ttk.Button(top, text=t("manager.restart"), command=self.restart_server)
         self.btn_open = ttk.Button(top, text=t("manager.open"), command=self.open_browser)
-        for b in (self.btn_lang, self.btn_open, self.btn_restart, self.btn_stop, self.btn_start):
+        self.btn_guide = ttk.Button(top, text=t("manager.user_guide"), command=self.open_guide)
+        for b in (self.btn_lang, self.btn_guide, self.btn_open, self.btn_restart, self.btn_stop, self.btn_start):
             if b is not None:
                 b.pack(side=ui.end, padx=3)
 
@@ -935,6 +988,13 @@ class ManagerApp(tk.Tk):
     def open_browser(self):
         if self.state.healthy:
             webbrowser.open(f"http://localhost:{self.state.port}")
+
+    def open_guide(self):
+        guide = user_guide()
+        if guide.startswith("http"):
+            webbrowser.open(guide)
+        else:
+            os.startfile(guide)
 
     def save_port(self):
         try:

@@ -1,0 +1,5 @@
+markdown>=3.5
+python-docx>=1.1
+# optional: exact image sizes in Word, and printing the PDF without Edge/Chrome
+# Pillow
+# playwright   (then: python -m playwright install chromium)

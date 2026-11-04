@@ -781,3 +781,17 @@ details[open].card summary { margin-bottom: 12px; }
 .cur-options button:hover, .cur-options button:focus-visible { background: var(--bg); }
 .cur-custom { margin-top: 14px; }
 .cur-custom summary { cursor: pointer; font-weight: 600; }
+
+/* ---------- about page */
+.about-page { max-width: 860px; margin-inline: auto; }
+.about-card { text-align: center; }
+.about-logo { width: 72px; height: 72px; margin: 4px auto 8px; display: block; }
+.about-name { font-size: 1.6rem; margin: 0 0 4px; justify-content: center; }
+.about-page > .card + .card { margin-top: 16px; }
+.about-name .muted { font-size: 1rem; font-weight: 500; margin-inline-start: 8px; }
+.about-facts { max-width: 520px; margin: 16px auto 8px; text-align: start; }
+.about-copyright { color: var(--muted, #64748b); font-size: .9rem; margin: 12px 0 0; }
+.release + .release { border-top: 1px solid var(--border, #e2e8f0); margin-top: 12px; padding-top: 4px; }
+.release h3 { display: flex; align-items: center; gap: 8px; }
+.release ul { margin: 0; padding-inline-start: 1.3em; line-height: 1.8; }
+.auth-about { text-align: center; margin-top: 14px; font-size: .9rem; }

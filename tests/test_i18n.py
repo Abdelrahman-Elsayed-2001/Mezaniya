@@ -209,3 +209,29 @@ def test_plural_texts_live_under_count():
     plural texts are kept under count.* and nothing else may look like them."""
     plural = sorted(k for k, v in entries("ar").items() if isinstance(v, dict))
     assert plural and all(k.startswith("count.") for k in plural)
+
+
+BROWSER_KEY = re.compile(r"""\btr?\(\s*["']([a-z_]+\.[a-z0-9_.]*[a-z0-9])["']""")
+
+
+def browser_keys() -> set[str]:
+    """Keys translated in the browser: tr("…") in static JS, and t('…') inside Alpine attributes."""
+    keys = set()
+    for path in (BASE_DIR / "app" / "static" / "js").glob("*.js"):
+        code = "\n".join(l for l in path.read_text(encoding="utf-8").splitlines() if not l.lstrip().startswith("//"))
+        keys.update(BROWSER_KEY.findall(code))
+    for path in (BASE_DIR / "app" / "templates").rglob("*.html"):
+        for attr in re.findall(r"""(?:x-text|:title|:placeholder|:aria-label)="([^"]*)\"""", path.read_text(encoding="utf-8")):
+            keys.update(BROWSER_KEY.findall(attr))
+    return keys
+
+
+def test_browser_gets_every_key_it_translates():
+    """The page only receives WEB_PREFIXES; a key outside them shows up raw (e.g. "fx.no_rate")."""
+    missing = sorted(k for k in browser_keys() if not k.startswith(i18n.WEB_PREFIXES))
+    assert not missing, missing
+
+
+def test_dashboard_names_come_from_browser_strings():
+    from app.dashboard import WIDGETS
+    assert all(key.startswith(i18n.WEB_PREFIXES) for key in WIDGETS.values())
